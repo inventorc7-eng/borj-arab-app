@@ -407,16 +407,9 @@
     </div>
 
     <div class="auth-card" id="otp-form" style="display: none;">
-        <div id="otp-loader" style="display: none;">
+        <div id="otp-loader">
             <div class="modern-spinner" style="margin: 0 auto;"></div>
-            <p style="margin-top: 15px;">يرجى الانتظار...</p>
-        </div>
-        <div id="otp-inputs">
-            <h2 style="color: var(--accent);">تأكيد الرقم</h2>
-            <p style="font-size: 14px; margin-bottom: 20px;">برجاء فحص تطبيق الرسائل الخاص بك</p>
-            <input type="number" id="otp-code" class="auth-input" placeholder="أدخل كود OTP" style="text-align: center; letter-spacing: 5px;">
-            <button class="auth-btn" onclick="verifyOTP()">تحقق الآن</button>
-            <p id="resend-otp" onclick="resendOTP()" style="margin-top: 15px; font-size: 13px; opacity: 0.6; cursor: pointer;">إعادة إرسال الكود (المحاولات: 5)</p>
+            <p style="margin-top: 15px;">جاري معالجة الطلب...</p>
         </div>
     </div>
 </div>
@@ -602,7 +595,7 @@
 </div>
 
 <script>
-    /* [إعدادات Firebase والبيانات الأساسية كما هي] */
+    /* [إعدادات Firebase والبيانات الأساسية] */
     const _MASTER_DATA = {
         h1: "f99092895f3226a27329528f8f08c3ec44d180373e351f0876116a445f187063", 
         h2: "444cc072cc9439f010373722a8685e13d11b212f07297920f2694e9f90656a90", 
@@ -636,8 +629,6 @@
     let isDevModeActive = false;
     let toastQueue = [];
     let isToastShowing = false;
-    let otpAttempts = 5;
-    let generatedOTP = ""; 
 
     function hashData(str) { return CryptoJS.SHA256(str).toString(); }
 
@@ -649,7 +640,6 @@
             finalizeLogin(data.phone, data.pass, true);
         }
         init();
-        emailjs.init("YOUR_PUBLIC_KEY"); 
     };
 
     function renderSafeEmail() {
@@ -666,7 +656,6 @@
         document.getElementById('signup-form').style.display = showSignup ? 'block' : 'none';
     }
 
-    /* [تعديل دالة Login للعمل الحقيقي مع Firebase] */
     async function handleLogin() {
         const phone = document.getElementById('auth-phone').value;
         const pass = document.getElementById('auth-pass').value;
@@ -677,7 +666,6 @@
         const hPhone = hashData(phone);
         const hPass = hashData(pass);
 
-        // التحقق من وضع المطور أولاً
         if((hPhone === _MASTER_DATA.h1 || hPhone === _MASTER_DATA.h2) && hPass === _MASTER_DATA.pk) {
             if(remember) localStorage.setItem('borj_arab_session', JSON.stringify({phone, pass}));
             finalizeLogin(phone, pass, true);
@@ -685,7 +673,6 @@
             return;
         }
 
-        // تسجيل دخول المستخدم العادي عبر Firebase
         const email = `${phone}@borjarab.com`;
         document.getElementById('login-action-btn').innerText = "جاري التحقق...";
         try {
@@ -699,8 +686,8 @@
         }
     }
 
-    /* [تعديل دالة Signup للعمل الحقيقي] */
-    function startSignup() {
+    /* [التعديل الجوهري: إلغاء الـ OTP ودمج التسجيل المباشر] */
+    async function startSignup() {
         const name = document.getElementById('reg-name').value;
         const phone = document.getElementById('reg-phone').value;
         const pass = document.getElementById('reg-pass').value;
@@ -710,61 +697,30 @@
         if(pass.length < 6) return showToast("كلمة المرور يجب أن تكون 6 أرقام/حروف فأكثر");
         if(pass !== confirm) return showToast("كلمة المرور غير متطابقة");
 
+        // إظهار شاشة الانتظار
         document.getElementById('signup-form').style.display = 'none';
         document.getElementById('otp-form').style.display = 'block';
-        document.getElementById('otp-loader').style.display = 'block';
-        document.getElementById('otp-inputs').style.display = 'none';
 
-        generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-        
-        emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
-            user_name: name,
-            user_phone: phone,
-            otp_code: generatedOTP,
-            to_email: "inventorc7@gmail.com"
-        }).then(() => {
-            document.getElementById('otp-loader').style.display = 'none';
-            document.getElementById('otp-inputs').style.display = 'block';
-            showToast("تم إرسال كود التحقق ✅");
-        }).catch(() => {
-            document.getElementById('otp-loader').style.display = 'none';
-            document.getElementById('otp-inputs').style.display = 'block';
-            generatedOTP = "123456";
-            showToast("استخدم الكود التجريبي 123456");
-        });
-    }
-
-    /* [تعديل التحقق من الـ OTP لإنشاء الحساب في Firebase] */
-    async function verifyOTP() {
-        const inputCode = document.getElementById('otp-code').value;
-        const name = document.getElementById('reg-name').value;
-        const phone = document.getElementById('reg-phone').value;
-        const pass = document.getElementById('reg-pass').value;
-        
-        if(inputCode === generatedOTP || inputCode === "123456") {
-            const email = `${phone}@borjarab.com`;
-            try {
-                // إنشاء المستخدم في Firebase فعلياً
-                const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
-                // حفظ الاسم في قاعدة البيانات
-                await db.ref('users/' + userCredential.user.uid).set({
-                    name: name,
-                    phone: phone,
-                    createdAt: firebase.database.ServerValue.TIMESTAMP
-                });
-                
-                document.getElementById('auth-screen').style.display = 'none';
-                showToast(`مرحباً بك ${name}`);
-                showToast("تم إنشاء الحساب بنجاح ✅");
-            } catch (error) {
-                showToast("حدث خطأ أثناء إنشاء الحساب: " + error.message);
-            }
-        } else {
-            showToast("كود التحقق غير صحيح ❌");
+        const email = `${phone}@borjarab.com`;
+        try {
+            // إنشاء المستخدم في Firebase مباشرة بدون Verification Code
+            const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+            await db.ref('users/' + userCredential.user.uid).set({
+                name: name,
+                phone: phone,
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            document.getElementById('auth-screen').style.display = 'none';
+            showToast(`مرحباً بك ${name}`);
+            showToast("تم إنشاء الحساب بنجاح ✅");
+        } catch (error) {
+            document.getElementById('signup-form').style.display = 'block';
+            document.getElementById('otp-form').style.display = 'none';
+            showToast("حدث خطأ: " + error.message);
         }
     }
 
-    /* [بقية الدوال JavaScript كما هي تماماً] */
     function finalizeLogin(phone, pass, isDev) {
         document.getElementById('auth-screen').style.display = 'none';
         if(isDev) {
