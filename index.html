@@ -8,7 +8,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
@@ -37,18 +36,6 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
         body { margin: 0; padding: 0; min-height: 100vh; background: var(--bg); font-family: sans-serif; overflow-x: hidden; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; transition: background 0.3s ease; }
-
-        /* ستايل صفحة الدخول وإنشاء الحساب (Glassmorphism) */
-        #auth-page {
-            position: fixed; inset: 0; background: var(--dark); z-index: 20000;
-            display: flex; align-items: center; justify-content: center; padding: 20px;
-        }
-        .auth-container {
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
-            border-radius: 30px; padding: 30px; width: 100%; max-width: 400px;
-            border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            text-align: center; color: white; animation: modalIn 0.6s ease;
-        }
 
         header { 
             background: rgba(28, 28, 30, 0.95); 
@@ -80,7 +67,7 @@
 
         .page-transition { animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeIn { from { opacity: 0; } to { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         #confirm-modal, #reason-modal, #pin-modal, #add-modal, #sub-menu-page, #ads-page, .full-details-page { 
             will-change: opacity, transform; 
@@ -341,6 +328,31 @@
         .save-btn { background: #ff4757; color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .save-btn:active { transform: scale(0.9); }
 
+        #menu-right .card, #menu-left .card, .admin-panel-item {
+            padding: 14px 18px !important;
+            min-height: 60px !important;
+            font-size: 16px !important;
+            margin-bottom: 12px !important;
+        }
+        .empty-visual-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .empty-visual-stack .top-icons {
+            display: flex;
+            gap: 15px;
+            font-size: 24px;
+            color: var(--accent);
+        }
+        .empty-visual-stack .main-house {
+            font-size: 55px;
+            color: var(--accent);
+            opacity: 0.8;
+        }
+
         .loader-container {
             display: none;
             flex-direction: column;
@@ -360,35 +372,80 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .loader-text { margin-top: 15px; font-weight: bold; color: var(--accent); font-size: 14px; letter-spacing: 1px; }
 
+        /* --- تطوير واجهة تسجيل الدخول الاحترافية --- */
+        #auth-overlay { 
+            position: fixed; inset: 0; 
+            background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%); 
+            z-index: 15000; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; padding: 20px;
+            backdrop-filter: blur(20px);
+        }
+        .auth-card { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            width: 100%; max-width: 400px; padding: 40px 30px; 
+            border-radius: 40px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+            border: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 6px solid var(--accent); 
+            animation: modalIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
+        }
+        .auth-card h2 { 
+            color: var(--white); text-align: center; margin-bottom: 30px; 
+            font-size: 28px; font-weight: 900; text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .auth-card .input-group label { color: #ccc; }
+        .auth-card input { 
+            background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1); 
+            color: white; border-radius: 18px; padding: 16px; 
+        }
+        .auth-card input:focus { background: rgba(255,255,255,0.1); border-color: var(--accent); }
+        .auth-btn { 
+            width: 100%; padding: 18px; background: var(--accent); color: white; 
+            border: none; border-radius: 20px; font-weight: 900; margin-top: 20px; 
+            cursor: pointer; box-shadow: 0 10px 25px rgba(255,140,0,0.4);
+            font-size: 18px; transition: var(--transition);
+        }
+        .auth-btn:active { transform: scale(0.95); }
+        .auth-toggle { margin-top: 25px; font-size: 14px; color: #aaa; cursor: pointer; text-align: center; }
+        .auth-toggle b { color: var(--accent); }
+
+        .loading-circle-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 16000; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .loader-text { color: var(--white); }
     </style>
 </head>
 <body id="main-body">
 
-<div id="auth-page">
-    <div class="auth-container" id="auth-form">
-        <h2 style="color: var(--accent); margin-bottom: 10px;">برج العرب العقاري</h2>
-        <p id="auth-title">تسجيل الدخول</p>
+<div id="auth-overlay">
+    <div class="auth-card" id="login-form">
+        <h2><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</h2>
+        <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="login-phone" placeholder="01xxxxxxxxx"></div>
+        <div class="input-group"><label>كلمة المرور</label><input type="password" id="login-pass" placeholder="********"></div>
         
-        <div id="signup-extra-fields" style="display:none;">
-            <input type="text" id="user-name-en" placeholder="الاسم بالإنجليزية (Username)" style="width:100%; padding:14px; border-radius:12px; border:none; margin-bottom:15px; background: rgba(255,255,255,0.1); color:white;">
+        <div style="display:flex; align-items:center; gap:12px; margin: 15px 0; color: #fff;">
+            <input type="checkbox" id="remember-me" style="width:22px; height:22px; cursor:pointer; accent-color: var(--accent);">
+            <label for="remember-me" style="font-size:15px; font-weight:bold; cursor:pointer;">حفظ بيانات التسجيل</label>
         </div>
         
-        <input type="tel" id="user-phone" placeholder="رقم الهاتف" style="width:100%; padding:14px; border-radius:12px; border:none; margin-bottom:15px; background: rgba(255,255,255,0.1); color:white;">
-        <input type="password" id="user-pass" placeholder="كلمة المرور" style="width:100%; padding:14px; border-radius:12px; border:none; margin-bottom:15px; background: rgba(255,255,255,0.1); color:white;">
-        
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px; font-size:14px;">
-            <input type="checkbox" id="save-data-check" style="width:18px; height:18px; accent-color: var(--accent);">
-            <label for="save-data-check">حفظ بيانات الدخول</label>
-        </div>
-
-        <div id="auth-loading" class="loader-container" style="margin-bottom:20px;">
-            <div class="modern-spinner"></div>
-            <div class="loader-text">يرجى الانتظار...</div>
-        </div>
-
-        <button id="auth-btn" onclick="handleAuth()" style="width:100%; padding:15px; background: var(--accent); border:none; border-radius:15px; color:white; font-weight:bold; font-size:16px;">دخول</button>
-        <p style="margin-top:20px; font-size:14px; cursor:pointer;" onclick="toggleAuthMode()" id="toggle-text">ليس لديك حساب؟ إنشاء حساب جديد</p>
+        <button class="auth-btn" onclick="performLogin()">دخول آمن</button>
+        <div class="auth-toggle" onclick="toggleAuthForms('signup')">ليس لديك حساب؟ <b>أنشئ حسابك الآن</b></div>
     </div>
+
+    <div class="auth-card" id="signup-form" style="display:none;">
+        <h2><i class="fas fa-user-plus"></i> عضوية جديدة</h2>
+        <div class="input-group"><label>الاسم (بالعربي أو بالإنجليزي)</label><input type="text" id="signup-name" placeholder="أدخل اسمك بالكامل"></div>
+        <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="signup-phone" placeholder="01xxxxxxxxx"></div>
+        <div class="input-group"><label>كلمة المرور</label><input type="password" id="signup-pass" placeholder="********"></div>
+        <div class="input-group"><label>تأكيد نفس كلمة المرور</label><input type="password" id="signup-confirm" placeholder="********"></div>
+        
+        <button class="auth-btn" onclick="performSignUp()">إنشاء الحساب وتسجيل الدخول</button>
+        <div class="auth-toggle" onclick="toggleAuthForms('login')">تمتلك حساب؟ <b>سجل دخولك</b></div>
+    </div>
+</div>
+
+<div class="loading-circle-overlay" id="global-loader">
+    <div class="modern-spinner"></div>
+    <div class="loader-text">يتم التحقق من البيانات...</div>
 </div>
 
 <div id="toast-msg" class="toast"></div>
@@ -397,7 +454,7 @@
 <div id="code-editor-page">
     <div class="editor-header">
         <i class="fas fa-arrow-right" onclick="backToAppInDevMode()" style="cursor:pointer; font-size:18px;"></i>
-        <span>محرر الأكواد (وضع المالك)</span>
+        <span>محرر الأكواد الذكي (وضع المالك)</span>
         <div>
             <button class="save-btn" onclick="saveNewCode()"><i class="fas fa-save"></i> حفظ التحديث</button>
         </div>
@@ -443,6 +500,7 @@
         <span class="title-city">برج العرب</span>
     </div>
     <div class="header-side-icons">
+        <i class="fas fa-sign-out-alt" onclick="logoutApp()" title="تسجيل الخروج"></i>
         <i class="fas fa-share-nodes" onclick="shareAppMain()" title="مشاركة التطبيق"></i>
         <i class="fas fa-bars" onclick="toggleMenu('right')"></i>
     </div>
@@ -450,7 +508,7 @@
 
 <div class="container">
     <div class="card" style="background: linear-gradient(135deg, var(--accent), #FF4500); color: white; border:none; box-shadow: 0 10px 20px rgba(255,140,0,0.3);" onclick="openAddModal()">
-        <span>أنشر إعلانك الآن مجاناً <i class="fas fa Bullhorn"></i></span>
+        <span>أنشر إعلانك الآن مجاناً <i class="fas fa-bullhorn"></i></span>
         <i class="fas fa-plus-circle" style="font-size: 26px;"></i>
     </div>
     <div id="dist-list" class="page-transition"></div>
@@ -515,9 +573,15 @@
                 <span>إدارة إعلاناتي</span>
             </div>
         </div>
-        <div class="card" onclick="handleLogout()" style="margin-top:20px; border-right:6px solid #ff4757;">
+        <div id="dev-admin-main-option" class="card" onclick="openCodeEditor()" style="display:none; border-right: 6px solid #ff4757; background: rgba(255, 71, 87, 0.1);">
             <div style="display:flex; align-items:center; gap:12px; width:100%; justify-content:center;">
-                <i class="fas fa-sign-out-alt" style="color:#ff4757; font-size:1.3rem;"></i>
+                <i class="fas fa-user-gear" style="color:#ff4757; font-size:1.3rem;"></i>
+                <span style="color:#ff4757;">لوحة المطور المالك</span>
+            </div>
+        </div>
+        <div class="card" onclick="logoutApp()" style="margin-top:20px; border-right: 6px solid #888;">
+            <div style="display:flex; align-items:center; gap:12px; width:100%; justify-content:center;">
+                <i class="fas fa-power-off" style="color:#888; font-size:1.3rem;"></i>
                 <span>تسجيل الخروج</span>
             </div>
         </div>
@@ -536,8 +600,8 @@
         <div id="admin-card-btn" class="card" onclick="openSpecialPage('الإدارة', 'left')" style="display:none;"><span>لوحة الإدارة <i class="fas fa-shield-alt" style="color:gold;"></i></span></div>
         
         <div id="developer-admin-section" style="display:block; margin-top:20px; border-top:1px solid #eee; padding-top:20px;">
-             <label style="display:block; margin-bottom:10px; font-weight:bold; font-size:14px;">Admin Access</label>
-             <input type="password" id="dev-pass-input" placeholder="أدخل كود المطور" style="width:100%; padding:14px; border-radius:12px; border:2px solid var(--accent); margin-bottom:15px;">
+             <label style="display:block; margin-bottom:10px; font-weight:bold; font-size:14px;">Admin password</label>
+             <input type="password" id="dev-pass-input" placeholder="أدخل كلمة مرور المطور" style="width:100%; padding:14px; border-radius:12px; border:2px solid var(--accent); margin-bottom:15px;">
              <button onclick="checkDevAccess()" style="width:100%; padding:14px; background:var(--dark); color:white; border-radius:12px; font-weight:bold; transition: 0.3s;">دخول وضع المطور</button>
         </div>
     </div>
@@ -611,20 +675,17 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // تشفير بيانات المالك (الأرقام والباسورد) لمنع المخترقين
-    const __owner_hashes = {
-        p1: "9519398f5a650993910c28340d3419081a295323862276532822a94046187652", // 01095596580
-        p2: "f197063f695955038f46b3f7902d334517316335967073235650742129524458", // 01126206877
-        pass: "153721389e80e66c04f56860f7895e6319803277021645041077590212046645" // MMDK...
-    };
-
     const districts = ["الحي الأول", "الحي الثاني", "الحي الثالث", "الحي الرابع", "الحي الخامس", "الحي السادس", "الحي السابع", "الحي الثامن", "الحي التاسع", "الحي العاشر", "قرية بهيج", "برج العرب القديم"];
     let myID = localStorage.getItem('m_e_user_id') || 'u' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('m_e_user_id', myID);
     
     const MASTER_ADMIN_ID = atob("VTRyZGx5dDFmdA=="); 
     const __v = "TU1ESzExMjExMDIwMDAyMDI2"; 
-    const __d = "MDAwMA=="; // 0000
+    const __d = "MDAwMA=="; 
+
+    const _p1 = atob("MDEwOTU1OTY1ODA=");
+    const _p2 = atob("MDExMjYyMDY4Nzc=");
+    const _ap = atob("TU1ESzExMjExMDIwMDAyMDI2");
 
     let favorites = JSON.parse(localStorage.getItem('m_e_favs')) || [];
     let trashed = JSON.parse(localStorage.getItem('m_e_trash')) || []; 
@@ -634,88 +695,9 @@
     let selectedImageData = ""; 
     let adPhotos = []; 
     let isDevModeActive = false;
-    let authMode = "login";
-
-    // التحقق من حالة الدخول المحفوظة
-    window.onload = () => {
-        const savedUser = localStorage.getItem('m_e_logged_user');
-        if (savedUser) {
-            document.getElementById('auth-page').style.display = 'none';
-        }
-        init();
-    };
-
-    function toggleAuthMode() {
-        authMode = (authMode === "login") ? "signup" : "login";
-        document.getElementById('auth-title').innerText = (authMode === "login") ? "تسجيل الدخول" : "إنشاء حساب جديد";
-        document.getElementById('signup-extra-fields').style.display = (authMode === "signup") ? "block" : "none";
-        document.getElementById('auth-btn').innerText = (authMode === "login") ? "دخول" : "إنشاء الحساب";
-        document.getElementById('toggle-text').innerText = (authMode === "login") ? "ليس لديك حساب؟ إنشاء حساب جديد" : "لديك حساب بالفعل؟ سجل دخولك";
-    }
-
-    function handleAuth() {
-        const phone = document.getElementById('user-phone').value;
-        const pass = document.getElementById('user-pass').value;
-        const nameEn = document.getElementById('user-name-en').value;
-        const saveCheck = document.getElementById('save-data-check').checked;
-        const loader = document.getElementById('auth-loading');
-
-        if (!phone || !pass) return showToast("يرجى ملء البيانات ❌");
-        if (authMode === "signup" && !nameEn) return showToast("يرجى كتابة الاسم بالإنجليزية ❌");
-
-        loader.style.display = "flex";
-        document.getElementById('auth-btn').style.display = "none";
-
-        // تشفير المدخلات للمقارنة مع بيانات المالك
-        const hashedInputPhone = CryptoJS.SHA256(phone).toString();
-        const hashedInputPass = CryptoJS.SHA256(pass).toString();
-
-        setTimeout(() => {
-            if (authMode === "signup") {
-                // حفظ في قاعدة البيانات (محاكاة أو Firebase)
-                const userData = { phone, pass, nameEn };
-                db.ref('users/' + phone).set(userData).then(() => {
-                    finalizeAuth(nameEn, saveCheck);
-                });
-            } else {
-                // التحقق: هل هو المالك؟
-                const isOwner = (hashedInputPhone === __owner_hashes.p1 || hashedInputPhone === __owner_hashes.p2) && hashedInputPass === __owner_hashes.pass;
-                
-                if (isOwner) {
-                    finalizeAuth("الأدمن المطور", saveCheck);
-                } else {
-                    // التحقق من مستخدم عادي في Firebase
-                    db.ref('users/' + phone).once('value', snapshot => {
-                        const data = snapshot.val();
-                        if (data && data.pass === pass) {
-                            finalizeAuth(data.nameEn, saveCheck);
-                        } else {
-                            loader.style.display = "none";
-                            document.getElementById('auth-btn').style.display = "block";
-                            showToast("بيانات الدخول غير صحيحة ❌");
-                        }
-                    });
-                }
-            }
-        }, 3000); // 3 ثواني انتظار كما طلبت
-    }
-
-    function finalizeAuth(userName, save) {
-        if (save) {
-            localStorage.setItem('m_e_logged_user', userName);
-        }
-        document.getElementById('auth-page').style.display = 'none';
-        showToast(`مرحباً بك ${userName} .. تم إنشاء الحساب بنجاح .. مرحباً بك في تطبيق عقارات برج العرب .. المستقبل ينتظرك ✨`);
-    }
-
-    function handleLogout() {
-        if (confirm("هل تريد حفظ بياناتك عند الدخول مرة أخرى؟")) {
-            // لا نحذف localStorage الخاص بالمستخدم
-        } else {
-            localStorage.removeItem('m_e_logged_user');
-        }
-        location.reload();
-    }
+    
+    let toastQueue = [];
+    let isToastShowing = false;
 
     function safeHTML(str) {
         if(!str) return "";
@@ -732,6 +714,13 @@
         return true;
     }
 
+    document.addEventListener('DOMContentLoaded', () => {
+        init();
+        const submitBtn = document.getElementById('submitBtn');
+        if(submitBtn) submitBtn.addEventListener('click', submitAd);
+        checkAuthStatus(); 
+    });
+
     function init() {
         renderDistricts(districts, 'dist-list');
         document.getElementById('adv-district').innerHTML = districts.map(d => `<option>${d}</option>`).join('');
@@ -739,10 +728,21 @@
     }
 
     function showToast(msg) { 
+        toastQueue.push(msg);
+        if (!isToastShowing) processToastQueue();
+    }
+
+    function processToastQueue() {
+        if (toastQueue.length === 0) { isToastShowing = false; return; }
+        isToastShowing = true;
+        const msg = toastQueue.shift();
         const t = document.getElementById('toast-msg'); 
         t.innerText = msg; 
         t.style.display = 'block'; 
-        setTimeout(() => { t.style.display='none'; }, 4000); 
+        setTimeout(() => { 
+            t.style.display='none'; 
+            setTimeout(processToastQueue, 400); 
+        }, 3000); 
     }
 
     function handleImageSelect(input) {
@@ -766,9 +766,9 @@
     function renderPreviews() {
         const container = document.getElementById('img-preview-container');
         container.innerHTML = adPhotos.map((img, index) => `
-            <div style="position:relative;">
+            <div style="position:relative; animation: modalIn 0.3s ease;">
                 <img src="${img}" class="preview-img-item">
-                <i class="fas fa-times-circle" onclick="removePhoto(${index})" style="position:absolute; top:-8px; left:-8px; color:#ff4757; background:white; border-radius:50%; cursor:pointer;"></i>
+                <i class="fas fa-times-circle" onclick="removePhoto(${index})" style="position:absolute; top:-8px; left:-8px; color:#ff4757; background:white; border-radius:50%; cursor:pointer; font-size: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"></i>
             </div>
         `).join('');
     }
@@ -783,19 +783,33 @@
         document.getElementById(targetId).innerHTML = list.map((d, index) => {
             const randomStars = "<i class='fas fa-star'></i>".repeat(5);
             return `
-            <div class="card" onclick="openDistrict('${d}')">
+            <div class="card" onclick="openDistrict('${d}')" style="animation-delay: ${index * 0.05}s">
                 <div class="dist-info">
                     <span>${d}</span>
-                    <div class="dist-rating">${randomStars}</div>
-                    <div class="dist-demand"><i class="fas fa-fire"></i> <span class="live-counter">--</span> يبحثون حالياً</div>
+                    <div class="dist-rating" style="color:#FFD700;">${randomStars}</div>
+                    <div class="dist-demand"><i class="fas fa-fire" style="color:#ff4757; margin-left:4px;"></i><span class="live-counter">--</span> يبحثون حالياً</div>
                 </div>
-                <i class="fas fa-chevron-left"></i>
+                <i class="fas fa-chevron-left" style="color: var(--accent);"></i>
             </div>`;
         }).join('');
 
         let updateLogic = () => {
+            const now = new Date();
+            const h = now.getHours();
+            const timeInMin = h * 60 + now.getMinutes(); 
             document.querySelectorAll('.live-counter').forEach(span => {
-                span.innerText = Math.floor(Math.random() * 100) + 20;
+                let currentVal = parseInt(span.innerText);
+                if (isNaN(currentVal)) {
+                    if (timeInMin >= 1395 || timeInMin < 360) currentVal = Math.floor(Math.random() * 22) + 5;
+                    else if (timeInMin >= 360 && timeInMin < 540) currentVal = Math.floor(Math.random() * 60) + 10;
+                    else if (timeInMin >= 540 && timeInMin < 615) currentVal = Math.floor(Math.random() * 100) + 20;
+                    else currentVal = Math.floor(Math.random() * 264) + 30;
+                }
+                const change = Math.floor(Math.random() * 3) + 1;
+                const direction = Math.random() > 0.5 ? 1 : -1;
+                let newVal = currentVal + (direction * change);
+                if (newVal < 3) newVal = 5; 
+                span.innerText = newVal;
             });
             setTimeout(updateLogic, 5000);
         };
@@ -804,27 +818,35 @@
 
     async function shareAd(key) {
         const ad = currentAdsData[key];
-        const text = `🏠 ${ad.unitType} في ${ad.district}\n💰 السعر: ${Number(ad.price).toLocaleString()} ج.م\n📞 للتواصل: ${ad.phone1}`;
-        if (navigator.share) await navigator.share({title: 'M:i العقاري', text: text, url: window.location.href});
+        if (!ad) return;
+        const shareData = {
+            title: 'M:i العقاري',
+            text: `🏠 ${ad.unitType} في ${ad.district}\n💰 السعر: ${Number(ad.price).toLocaleString()} ج.م\n📞 للتواصل: ${ad.phone1}`,
+            url: window.location.href
+        };
+        try { if (navigator.share) await navigator.share(shareData); else { navigator.clipboard.writeText(shareData.text + "\n" + window.location.href); showToast("تم نسخ التفاصيل ✅"); } } catch (err) {}
     }
 
     async function shareAppMain() {
-        try { await navigator.share({ title: 'M:i العقاري', text: 'حمل تطبيق M:i العقاري لمتابعة عقارات برج العرب!', url: window.location.href }); } catch (e) { showToast("تم نسخ الرابط ✅"); }
+        try { await navigator.share({ title: 'M:i العقاري', text: 'حمل تطبيق M:i العقاري لمتابعة عقارات برج العرب!', url: window.location.href }); } catch (e) { navigator.clipboard.writeText(window.location.href); showToast("تم نسخ الرابط ✅"); }
     }
 
     function openDistrict(name) { 
         const page = document.getElementById('sub-menu-page');
         page.style.display = 'block'; 
+        page.style.zIndex = "2000";
         document.getElementById('selected-dist-title').innerText = name; 
         document.getElementById('sub-list').innerHTML = `
-            <div class="card" onclick="openAdsList('${name}', 'بيع')"><div><span> المعروض للبيع</span></div><i class="fas fa-chevron-left"></i></div>
-            <div class="card" onclick="openAdsList('${name}', 'إيجار')"><div><span> المعروض للإيجار</span></div><i class="fas fa-chevron-left"></i></div>`;
+            <div class="card" onclick="openAdsList('${name}', 'بيع')"><div><i class="fas fa-home" style="color:var(--accent); font-size:26px; margin-left: 10px;"></i><span> المعروض للبيع</span></div><i class="fas fa-chevron-left"></i></div>
+            <div class="card" onclick="openAdsList('${name}', 'إيجار')"><div><i class="fas fa-key" style="color:var(--accent); font-size:26px; margin-left: 10px;"></i><span> المعروض للإيجار</span></div><i class="fas fa-chevron-left"></i></div>`;
     }
 
     function openAdsList(dist, type) { 
         const page = document.getElementById('ads-page');
         page.style.display = 'block'; 
-        document.getElementById('ads-header-title').innerText = `${dist} - ${(type === 'بيع' ? 'بيع' : 'إيجار')}`;
+        page.style.zIndex = "2100";
+        document.getElementById('ads-header-title').innerText = `${dist} - ${(type === 'بيع' ? 'المعروض للبيع' : 'المعروض للإيجار')}`;
+        
         document.getElementById('price-search-container').innerHTML = `
             <div class="price-filter-row">
                 <input type="number" id="price-filter-input" placeholder="الميزانية" oninput="filterAdsByBoth('${dist}', '${type}')">
@@ -832,26 +854,51 @@
                     <option value="">نوع الوحدة</option><option value="شقة">شقق</option><option value="منزل">منازل</option><option value="محل">محلات</option><option value="ڤيلا">ڤيلات</option><option value="أرض">أراضى</option>
                 </select>
             </div>`;
+        
+        const container = document.getElementById('ads-list-container');
+        container.innerHTML = "";
+        document.getElementById('main-loader').style.display = 'flex';
+        
         loadAdsData(dist, type);
     }
 
     function loadAdsData(dist, type, targetPrice = null, targetUnit = null) {
         const container = document.getElementById('ads-list-container');
-        document.getElementById('main-loader').style.display = 'flex';
+        const loader = document.getElementById('main-loader');
+        
+        db.ref('ads').off(); 
         db.ref('ads').on('value', snapshot => {
-            document.getElementById('main-loader').style.display = 'none';
+            loader.style.display = 'none';
             let htmlStr = ""; let adsCount = 0;
+            const now = Date.now();
             snapshot.forEach(child => {
                 let data = child.val(); data.key = child.key;
                 currentAdsData[data.key] = data;
-                if (data.district === dist && data.type === type) {
+                if (data.soldStatus && data.updatedAt) {
+                    const daysDiff = (now - data.updatedAt) / (1000 * 60 * 60 * 24);
+                    if (daysDiff >= 3) {
+                        db.ref('ads_backup/' + data.key).set(data).then(() => db.ref('ads/' + data.key).remove());
+                        return; 
+                    }
+                }
+                if (data.district === dist && data.type === type && !trashed.some(item => item.id === data.key)) {
                     if ((!targetPrice || Number(data.price) <= Number(targetPrice)) && (!targetUnit || data.unitType === targetUnit)) {
                         htmlStr = renderAdHTML(data) + htmlStr;
                         adsCount++;
                     }
                 }
             });
-            container.innerHTML = adsCount ? htmlStr : '<div class="no-ads-text">لا يوجد نتائج حالياً</div>';
+            if (adsCount === 0) {
+                container.innerHTML = `<div class="no-ads-container">
+                    <div class="empty-visual-stack">
+                        <div class="top-icons"><i class="fas fa-home"></i></div>
+                        <i class="fas fa-search-location main-house"></i>
+                    </div>
+                    <div class="no-ads-text">لا يوجد وحدات معروضه حالياً في هذا القسم</div>
+                </div>`;
+            } else {
+                container.innerHTML = htmlStr;
+            }
         });
     }
 
@@ -861,62 +908,197 @@
 
     function renderAdHTML(ad) {
         const isFav = favorites.includes(ad.key);
-        const statusHtml = ad.soldStatus ? `<div class="sold-tag">${ad.soldStatus} ✅</div>` : '';
+        let statusLabel = ad.soldStatus || "";
+        const statusHtml = statusLabel ? `<div class="sold-tag">${statusLabel} ✅</div>` : '';
+        const isNew = (Date.now() - ad.createdAt) < 86400000;
+        
         return `
         <div class="ad-item">
+            ${isNew ? '<div class="featured-badge">حديث اليوم</div>' : ''}
             ${statusHtml}
             <div class="ad-tools">
                 <i class="fas fa-star star-btn ${isFav ? 'active' : ''}" onclick="toggleFav('${ad.key}')"></i>
                 <i class="fas fa-trash del-btn" onclick="moveToTrash('${ad.key}')"></i>
                 <i class="fas fa-share-alt share-tool-btn" onclick="shareAd('${ad.key}')"></i>
             </div>
-            ${ad.image ? `<img src="${ad.image}" class="ad-image-preview" style="display:block;">` : ''}
-            <div style="font-size:22px; color:var(--accent); font-weight:900;">${Number(ad.price).toLocaleString()} ج.م</div>
-            <div style="font-weight:bold;">${ad.unitType} - ${ad.district}</div>
-            <button class="full-info-btn" onclick="showFullDetails('${ad.key}')">عرض التفاصيل</button>
+            ${ad.image ? `<img src="${ad.image}" class="ad-image-preview" style="display:block;" onerror="this.src='https://placehold.co/400x200?text=M:i+Real+Estate';">` : ''}
+            <div style="font-size:22px; color:var(--accent); font-weight:900; margin-top: 5px;">${Number(ad.price).toLocaleString()} ج.م</div>
+            <div style="font-weight:bold; font-size: 16px; margin: 5px 0;">${safeHTML(ad.unitType)} - ${safeHTML(ad.district)}</div>
+            <div class="views-count"><i class="fas fa-eye"></i> شاهده ${ad.views || 0} شخص</div>
+            <button class="full-info-btn" onclick="showFullDetails('${ad.key}')">عرض التفاصيل والاتصال</button>
         </div>`;
     }
 
     function showFullDetails(key) {
         const ad = currentAdsData[key];
+        db.ref('ads/' + key + '/views').transaction(v => (v || 0) + 1);
         const page = document.getElementById('full-details-view');
         page.style.display = 'block';
+        page.style.zIndex = "7000";
+        const scrollBox = document.getElementById('fd-img-scroll');
+        const wrapper = document.getElementById('fd-img-wrapper');
+        scrollBox.innerHTML = ""; 
+        if (ad.allPhotos || ad.image) {
+            wrapper.style.display = 'block';
+            if (ad.allPhotos && ad.allPhotos.length > 0) {
+                scrollBox.innerHTML = ad.allPhotos.map(p => `<img src="${p}" style="width:100%; scroll-snap-align:center;" onerror="this.src='https://placehold.co/600x400?text=M:i+Real+Estate';">`).join('');
+            } else {
+                scrollBox.innerHTML = `<img src="${ad.image}" style="width:100%; scroll-snap-align:center;" onerror="this.src='https://placehold.co/600x400?text=M:i+Real+Estate';">`;
+            }
+        } else wrapper.style.display = 'none';
         document.getElementById('fd-price').innerText = Number(ad.price).toLocaleString() + " ج.م";
+        document.getElementById('fd-title').innerText = ad.unitType + " في " + ad.district;
+        document.getElementById('fd-unit').innerText = ad.unitType; 
+        document.getElementById('fd-dist').innerText = ad.district;
+        document.getElementById('fd-type').innerText = ad.type; 
+        document.getElementById('fd-date').innerText = new Date(ad.createdAt).toLocaleDateString('ar-EG');
         document.getElementById('fd-desc').innerText = ad.desc;
-        document.getElementById('fd-contacts').innerHTML = `<a href="tel:${ad.phone1}" class="contact-btn btn-call">اتصال</a>`;
+        let contacts = `<a href="tel:${ad.phone1}" class="contact-btn btn-call"><i class="fas fa-phone" style="margin-left: 8px;"></i> اتصال هاتفي</a>`;
+        if(ad.phone2) contacts += `<a href="tel:${ad.phone2}" class="contact-btn btn-call" style="background:#007bff; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);"><i class="fas fa-phone" style="margin-left: 8px;"></i> اتصال هاتف 2</a>`;
+        if(ad.whatsapp) contacts += `<a href="https://wa.me/2${ad.whatsapp.replace(/\s/g, '')}" target="_blank" class="contact-btn btn-wa"><i class="fab fa-whatsapp" style="margin-left: 8px;"></i> مراسلة واتساب</a>`;
+        document.getElementById('fd-contacts').innerHTML = contacts;
     }
 
     function closeFullDetails() { document.getElementById('full-details-view').style.display = 'none'; }
-    function toggleFav(key) { if (favorites.includes(key)) favorites = favorites.filter(k => k !== key); else favorites.push(key); localStorage.setItem('m_e_favs', JSON.stringify(favorites)); }
+    function toggleFav(key) { if (favorites.includes(key)) favorites = favorites.filter(k => k !== key); else favorites.push(key); localStorage.setItem('m_e_favs', JSON.stringify(favorites)); event.target.classList.toggle('active'); }
     
     function moveToTrash(key) { 
         pendingDeleteKey = key;
-        document.getElementById('pin-modal').style.display = 'flex';
+        document.getElementById('pin-verify-input').value = "";
+        const modal = document.getElementById('pin-modal');
+        modal.style.display = 'flex';
+        modal.style.zIndex = "10001";
     }
 
     function verifyPinBeforeDelete() {
         const ad = currentAdsData[pendingDeleteKey];
-        const pin = document.getElementById('pin-verify-input').value;
-        // التحقق من كود الحذف 0000 المشفر أو كود صاحب الإعلان
-        if (pin === "0000" || pin === ad.pin) {
+        const pinInput = document.getElementById('pin-verify-input').value;
+        const encodedPin = btoa(pinInput);
+        if (pinInput && (pinInput.toString() === ad.pin.toString() || (isDevModeActive && encodedPin === __d))) {
             document.getElementById('pin-modal').style.display = 'none';
             document.getElementById('reason-modal').style.display = 'flex';
-        } else showToast("الكود خطأ ❌");
+        } else showToast("الكود السري خطأ ❌");
     }
 
     function processDeletion(reason) {
-        db.ref('ads/' + pendingDeleteKey).remove().then(() => {
-            document.getElementById('reason-modal').style.display = 'none';
-            showToast('تم الحذف بنجاح ✅');
+        if (reason === 'حذف بدون أسباب') {
+            db.ref('ads/' + pendingDeleteKey).remove().then(() => {
+                document.getElementById('reason-modal').style.display = 'none';
+                showToast('تم الحذف النهائي 🗑️');
+                handleBackAction();
+            });
+        } else {
+            db.ref('ads/' + pendingDeleteKey).update({ 
+                soldStatus: reason,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                trashed.push({ id: pendingDeleteKey, time: Date.now() });
+                localStorage.setItem('m_e_trash', JSON.stringify(trashed));
+                document.getElementById('reason-modal').style.display = 'none';
+                showToast('تم النقل للسلة (سيحذف بعد 3 أيام) ✅');
+                handleBackAction();
+            });
+        }
+    }
+
+    function openSpecialPage(title, side) { 
+        if(side) lastMenuSide = side; 
+        const page = document.getElementById('ads-page');
+        page.style.display = 'block'; 
+        page.style.zIndex = "2100";
+        document.getElementById('ads-header-title').innerText = title; 
+        document.getElementById('price-search-container').innerHTML = "";
+        const container = document.getElementById('ads-list-container'); 
+        container.innerHTML = "";
+        document.getElementById('main-loader').style.display = 'flex';
+
+        if(side) closeMenus();
+        const emptyConfigs = {
+            'المفضلة': { text: "لا يوجد مفضلة حالياً", icon: "❤️" },
+            'المحذوفات': { text: "سلة المحذوفات فارغة", icon: "🗑️" },
+            'إعلاناتي': { text: "لم تنشر أي إعلانات بعد", icon: "📢" },
+            'الإدارة': { text: "لا توجد إعلانات معلقة", icon: "🛡️" }
+        };
+        db.ref('ads').on('value', snapshot => {
+            document.getElementById('main-loader').style.display = 'none';
+            let html = ""; let counter = 0;
+            snapshot.forEach(child => {
+                let ad = child.val(); ad.key = child.key;
+                let show = (title === 'المفضلة' && favorites.includes(ad.key)) || 
+                           (title === 'المحذوفات' && trashed.some(t => t.id === ad.key)) ||
+                           (title === 'إعلاناتي' && ad.ownerId === myID) ||
+                           (title === 'الإدارة' && isDevModeActive);
+                if (show) { html += renderAdHTML(ad); counter++; }
+            });
+            if (counter === 0) {
+                const conf = emptyConfigs[title] || { text: "القائمة فارغة", icon: "📂" };
+                container.innerHTML = `<div class="no-ads-container">
+                    <div class="empty-visual-stack"><i class="fas fa-ghost main-house" style="font-size:65px; opacity:0.3;"></i><div style="font-size: 45px;">${conf.icon}</div></div>
+                    <div class="no-ads-text">${conf.text}</div>
+                </div>`;
+            } else container.innerHTML = html;
         });
     }
 
+    function submitAd() { 
+        const p = document.getElementById('price').value;
+        const ph = document.getElementById('phone1').value;
+        const d = document.getElementById('desc').value;
+        const pin = document.getElementById('adv-pin').value;
+        if (adPhotos.length === 0) return showToast("يرجى رفع صورة واحدة على الأقل 📸");
+        if (!p || parseFloat(p) <= 0) return showToast("يرجى إدخال سعر صحيح 💰");
+        if (!ph || ph.length < 10) return showToast("يرجى إدخال رقم هاتف صحيح 📞");
+        if (!pin || !/^\d{4}$/.test(pin)) return showToast("الكود السري يجب أن يكون 4 أرقام 🔐");
+        const sBtn = document.getElementById('submitBtn');
+        if(sBtn.disabled) return;
+        sBtn.disabled = true; sBtn.innerText = "جاري النشر...";
+        db.ref('ads').push({
+            district: document.getElementById('adv-district').value, 
+            type: document.getElementById('adv-type').value, 
+            unitType: document.getElementById('unit-type').value,
+            desc: safeHTML(d), 
+            price: parseFloat(p), 
+            phone1: safeHTML(ph), 
+            phone2: safeHTML(document.getElementById('phone2').value), 
+            whatsapp: safeHTML(document.getElementById('whatsapp').value),
+            image: adPhotos[0], 
+            allPhotos: adPhotos, 
+            ownerId: myID, 
+            pin: pin, 
+            createdAt: firebase.database.ServerValue.TIMESTAMP, 
+            views: 0 
+        }).then(() => location.reload()).catch(e => { sBtn.disabled = false; sBtn.innerText = "نشر الإعلان الآن مجاناً"; showToast("خطأ في الاتصال ❌"); });
+    }
+
+    function toggleMenu(side) { document.body.classList.add('menu-open-' + side); document.querySelector('.overlay').style.display = 'block'; }
+    function closeMenus() { document.body.classList.remove('menu-open-right', 'menu-open-left'); document.querySelector('.overlay').style.display = 'none'; }
+    function handleBackAction() { 
+        document.getElementById('ads-page').style.display = 'none'; 
+        const title = document.getElementById('ads-header-title').innerText;
+        if(['المفضلة', 'المحذوفات', 'إعلاناتي', 'الإدارة'].includes(title)) toggleMenu(lastMenuSide || 'right');
+    }
+    function openAddModal() { document.getElementById('add-modal').style.display = 'block'; }
+    function closeAddModal() { document.getElementById('add-modal').style.display = 'none'; }
+    function closeSubMenu() { document.getElementById('sub-menu-page').style.display = 'none'; }
+    function processImage(file, cb) {
+        const r = new FileReader(); r.onload = e => {
+            const img = new Image(); img.onload = () => {
+                const cvs = document.createElement('canvas'); const ctx = cvs.getContext('2d');
+                cvs.width = 800; cvs.height = (img.height * 800) / img.width;
+                ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
+                ctx.fillStyle = "rgba(255,140,0,0.6)"; ctx.font = "bold 22px sans-serif"; ctx.fillText("M:i Real Estate", 25, cvs.height-25);
+                cb(cvs.toDataURL('image/jpeg', 0.75)); 
+            }; img.src = e.target.result;
+        }; r.readAsDataURL(file);
+    }
+    
     function checkDevAccess() {
         const p = document.getElementById('dev-pass-input').value;
-        if (p === __v) {
+        if (btoa(p) === __v) {
+            showToast("🔴 تم تفعيل وضع المطور الكامل");
             activateRedUI();
-            openCodeEditor();
-        } else showToast("❌ كود خاطئ");
+            setTimeout(() => { openCodeEditor(); closeMenus(); }, 800);
+        } else { showToast("❌ وصول غير مصرح به"); document.getElementById('dev-pass-input').value = ""; }
     }
 
     function activateRedUI() {
@@ -925,6 +1107,7 @@
         document.getElementById('exit-dev-btn').style.display = 'flex';
         document.getElementById('admin-card-btn').style.display = 'flex';
         document.getElementById('developer-admin-section').style.display = 'none';
+        document.getElementById('dev-admin-main-option').style.display = 'block';
     }
 
     function exitDevMode() {
@@ -933,59 +1116,139 @@
         document.getElementById('exit-dev-btn').style.display = 'none';
         document.getElementById('admin-card-btn').style.display = 'none';
         document.getElementById('developer-admin-section').style.display = 'block';
+        document.getElementById('dev-admin-main-option').style.display = 'none';
+        showToast("🟠 تم العودة للوضع العادي");
+        closeMenus();
     }
 
     function openCodeEditor() {
-        document.getElementById('code-editor-page').style.display = 'flex';
+        const editor = document.getElementById('code-editor-page');
+        editor.style.display = 'flex';
         document.getElementById('code-area').value = document.documentElement.outerHTML;
     }
 
     function backToAppInDevMode() { document.getElementById('code-editor-page').style.display = 'none'; }
 
     function saveNewCode() {
-        const newCode = document.getElementById('code-area').value;
-        db.ref('app_config/current_code').set(newCode).then(() => {
-            showToast("✅ تم التحديث بنجاح");
-            location.reload();
+        if (confirm("هل تريد نشر هذا التحديث لجميع المستخدمين؟")) {
+            const newCode = document.getElementById('code-area').value;
+            db.ref('app_config/current_code').set(newCode).then(() => {
+                showToast("✅ تم نشر التعديلات بنجاح");
+                location.reload();
+            });
+        }
+    }
+
+    function listenForAppUpdates() {
+        db.ref('app_config/current_code').on('value', snapshot => {
+            const code = snapshot.val();
         });
     }
 
-    function submitAd() { 
-        const p = document.getElementById('price').value;
-        const ph = document.getElementById('phone1').value;
-        const pin = document.getElementById('adv-pin').value;
-        if (adPhotos.length === 0 || !p || !ph || !pin) return showToast("يرجى إكمال البيانات ❌");
-        
-        db.ref('ads').push({
-            district: document.getElementById('adv-district').value, 
-            type: document.getElementById('adv-type').value, 
-            unitType: document.getElementById('unit-type').value,
-            desc: safeHTML(document.getElementById('desc').value), 
-            price: parseFloat(p), 
-            phone1: ph, 
-            image: adPhotos[0], 
-            allPhotos: adPhotos, 
-            pin: pin,
-            createdAt: firebase.database.ServerValue.TIMESTAMP 
-        }).then(() => location.reload());
+    let clickCount = 0;
+    document.querySelector('.title-main').onclick = function() {
+        clickCount++;
+        if (clickCount === 3) { toggleMenu('left'); clickCount = 0; }
+        setTimeout(() => clickCount = 0, 2000);
+    };
+
+    function autoCleanOldAds() {
+        const now = Date.now();
+        db.ref('ads').once('value', snapshot => {
+            snapshot.forEach(child => {
+                const ad = child.val();
+                if (ad.soldStatus && ad.updatedAt && (now - ad.updatedAt > 259200000)) {
+                    db.ref('ads_backup/' + child.key).set(ad).then(() => db.ref('ads/' + child.key).remove());
+                }
+            });
+        });
+    }
+    autoCleanOldAds();
+
+    function toggleAuthForms(type) {
+        document.getElementById('login-form').style.display = (type === 'login' ? 'block' : 'none');
+        document.getElementById('signup-form').style.display = (type === 'signup' ? 'block' : 'none');
     }
 
-    function toggleMenu(side) { document.body.classList.add('menu-open-' + side); document.querySelector('.overlay').style.display = 'block'; }
-    function closeMenus() { document.body.classList.remove('menu-open-right', 'menu-open-left'); document.querySelector('.overlay').style.display = 'none'; }
-    function handleBackAction() { document.getElementById('ads-page').style.display = 'none'; }
-    function openAddModal() { document.getElementById('add-modal').style.display = 'block'; }
-    function closeAddModal() { document.getElementById('add-modal').style.display = 'none'; }
-    function closeSubMenu() { document.getElementById('sub-menu-page').style.display = 'none'; }
+    function checkAuthStatus() {
+        const isSaved = localStorage.getItem('borj_saved_auth') === 'true';
+        if (isSaved) {
+            const phone = localStorage.getItem('borj_user_phone');
+            const pass = localStorage.getItem('borj_user_pass');
+            if(phone && pass) validateAndLogin(phone, pass, true);
+        }
+    }
 
-    function processImage(file, cb) {
-        const r = new FileReader(); r.onload = e => {
-            const img = new Image(); img.onload = () => {
-                const cvs = document.createElement('canvas'); const ctx = cvs.getContext('2d');
-                cvs.width = 800; cvs.height = (img.height * 800) / img.width;
-                ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
-                cb(cvs.toDataURL('image/jpeg', 0.75)); 
-            }; img.src = e.target.result;
-        }; r.readAsDataURL(file);
+    async function performSignUp() {
+        const name = document.getElementById('signup-name').value;
+        const phone = document.getElementById('signup-phone').value;
+        const pass = document.getElementById('signup-pass').value;
+        const confirm = document.getElementById('signup-confirm').value;
+
+        if(!name || !phone || !pass) return showToast("يرجى ملء جميع البيانات ⚠️");
+        if(pass !== confirm) return showToast("كلمات المرور غير متطابقة ❌");
+
+        showGlobalLoader(true);
+        // حفظ بيانات المستخدم في فاير بيرز لضمان استمرارية معاملاته
+        db.ref('users/' + phone).set({ name, phone, pass }).then(() => {
+            showGlobalLoader(false);
+            showToast(`تم إنشاء الحساب بنجاح يا ${name} 🚀\nجاري تسجيل دخولك تلقائياً...`);
+            // تسجيل الدخول التلقائي كمستخدم عادي بعد الإنشاء مباشرة
+            loginSuccess(phone, pass, true, name); 
+        });
+    }
+
+    function performLogin() {
+        const phone = document.getElementById('login-phone').value;
+        const pass = document.getElementById('login-pass').value;
+        const remember = document.getElementById('remember-me').checked;
+        validateAndLogin(phone, pass, remember);
+    }
+
+    function validateAndLogin(phone, pass, remember) {
+        showGlobalLoader(true);
+        
+        if((phone === _p1 || phone === _p2) && pass === _ap) {
+            activateRedUI(); 
+            loginSuccess(phone, pass, remember, "المالك المطور");
+            return;
+        }
+
+        db.ref('users/' + phone).once('value', snapshot => {
+            showGlobalLoader(false);
+            const userData = snapshot.val();
+            if(userData && userData.pass === pass) {
+                loginSuccess(phone, pass, remember, userData.name);
+            } else {
+                showToast("بيانات الدخول غير صحيحة ❌");
+            }
+        });
+    }
+
+    function loginSuccess(phone, pass, remember, name) {
+        showGlobalLoader(false);
+        // إذا ضغط المستخدم على "حفظ بيانات التسجيل" يتم تخزينها في localStorage
+        if(remember) {
+            localStorage.setItem('borj_saved_auth', 'true');
+            localStorage.setItem('borj_user_phone', phone);
+            localStorage.setItem('borj_user_pass', pass);
+        } else {
+            // إذا لم يضغط، يتم الدخول للجلسة الحالية فقط دون حفظ البيانات للعودة
+            localStorage.removeItem('borj_saved_auth');
+        }
+        document.getElementById('auth-overlay').style.display = 'none';
+        showToast(`أهلاً بك ${name} ✨`);
+    }
+
+    function logoutApp() {
+        localStorage.removeItem('borj_saved_auth');
+        localStorage.removeItem('borj_user_phone');
+        localStorage.removeItem('borj_user_pass');
+        location.reload();
+    }
+
+    function showGlobalLoader(show) {
+        document.getElementById('global-loader').style.display = (show ? 'flex' : 'none');
     }
 </script>
 </body>
