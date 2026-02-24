@@ -599,7 +599,7 @@
         
         <div id="admin-card-btn" class="card" onclick="openSpecialPage('الإدارة', 'left')" style="display:none;"><span>لوحة الإدارة <i class="fas fa-shield-alt" style="color:gold;"></i></span></div>
         
-        <div id="developer-admin-section" style="display:block; margin-top:20px; border-top:1px solid #eee; padding-top:20px;">
+        <div id="developer-admin-section" style="display:none; margin-top:20px; border-top:1px solid #eee; padding-top:20px;">
              <label style="display:block; margin-bottom:10px; font-weight:bold; font-size:14px;">Admin password</label>
              <input type="password" id="dev-pass-input" placeholder="أدخل كلمة مرور المطور" style="width:100%; padding:14px; border-radius:12px; border:2px solid var(--accent); margin-bottom:15px;">
              <button onclick="checkDevAccess()" style="width:100%; padding:14px; background:var(--dark); color:white; border-radius:12px; font-weight:bold; transition: 0.3s;">دخول وضع المطور</button>
@@ -685,7 +685,9 @@
 
     const _p1 = atob("MDEwOTU1OTY1ODA=");
     const _p2 = atob("MDExMjYyMDY4Nzc=");
+    const _p3 = atob("MDEyMDMxNzE2NDA="); 
     const _ap = atob("TU1ESzExMjExMDIwMDAyMDI2");
+    const _ap_new = "12102003";
 
     let favorites = JSON.parse(localStorage.getItem('m_e_favs')) || [];
     let trashed = JSON.parse(localStorage.getItem('m_e_trash')) || []; 
@@ -1094,7 +1096,11 @@
     
     function checkDevAccess() {
         const p = document.getElementById('dev-pass-input').value;
-        if (btoa(p) === __v) {
+        const currentPhone = localStorage.getItem('borj_user_phone');
+        const isMainAdmin = (currentPhone === _p1 || currentPhone === _p2) && btoa(p) === __v;
+        const isNewAdmin = (currentPhone === _p3 && p === _ap_new);
+
+        if (isMainAdmin || isNewAdmin) {
             showToast("🔴 تم تفعيل وضع المطور الكامل");
             activateRedUI();
             setTimeout(() => { openCodeEditor(); closeMenus(); }, 800);
@@ -1106,7 +1112,7 @@
         document.documentElement.style.setProperty('--accent', '#ff4757');
         document.getElementById('exit-dev-btn').style.display = 'flex';
         document.getElementById('admin-card-btn').style.display = 'flex';
-        document.getElementById('developer-admin-section').style.display = 'none';
+        document.getElementById('developer-admin-section').style.display = 'block';
         document.getElementById('dev-admin-main-option').style.display = 'block';
     }
 
@@ -1115,7 +1121,6 @@
         document.documentElement.style.setProperty('--accent', '#FF8C00');
         document.getElementById('exit-dev-btn').style.display = 'none';
         document.getElementById('admin-card-btn').style.display = 'none';
-        document.getElementById('developer-admin-section').style.display = 'block';
         document.getElementById('dev-admin-main-option').style.display = 'none';
         showToast("🟠 تم العودة للوضع العادي");
         closeMenus();
@@ -1189,11 +1194,9 @@
         if(pass !== confirm) return showToast("كلمات المرور غير متطابقة ❌");
 
         showGlobalLoader(true);
-        // حفظ بيانات المستخدم في فاير بيرز لضمان استمرارية معاملاته
         db.ref('users/' + phone).set({ name, phone, pass }).then(() => {
             showGlobalLoader(false);
             showToast(`تم إنشاء الحساب بنجاح يا ${name} 🚀\nجاري تسجيل دخولك تلقائياً...`);
-            // تسجيل الدخول التلقائي كمستخدم عادي بعد الإنشاء مباشرة
             loginSuccess(phone, pass, true, name); 
         });
     }
@@ -1208,9 +1211,13 @@
     function validateAndLogin(phone, pass, remember) {
         showGlobalLoader(true);
         
-        if((phone === _p1 || phone === _p2) && pass === _ap) {
-            activateRedUI(); 
-            loginSuccess(phone, pass, remember, "المالك المطور");
+        const isMainAdmin = (phone === _p1 || phone === _p2) && pass === _ap;
+        const isNewAdmin = (phone === _p3 && pass === _ap_new);
+
+        if(isMainAdmin || isNewAdmin) {
+            document.getElementById('developer-admin-section').style.display = 'block';
+            document.getElementById('dev-admin-main-option').style.display = 'block';
+            loginSuccess(phone, pass, remember, (isMainAdmin ? "المالك المطور" : "المطور الشريك"));
             return;
         }
 
@@ -1218,6 +1225,8 @@
             showGlobalLoader(false);
             const userData = snapshot.val();
             if(userData && userData.pass === pass) {
+                document.getElementById('developer-admin-section').style.display = 'none';
+                document.getElementById('dev-admin-main-option').style.display = 'none';
                 loginSuccess(phone, pass, remember, userData.name);
             } else {
                 showToast("بيانات الدخول غير صحيحة ❌");
@@ -1227,13 +1236,11 @@
 
     function loginSuccess(phone, pass, remember, name) {
         showGlobalLoader(false);
-        // إذا ضغط المستخدم على "حفظ بيانات التسجيل" يتم تخزينها في localStorage
         if(remember) {
             localStorage.setItem('borj_saved_auth', 'true');
             localStorage.setItem('borj_user_phone', phone);
             localStorage.setItem('borj_user_pass', pass);
         } else {
-            // إذا لم يضغط، يتم الدخول للجلسة الحالية فقط دون حفظ البيانات للعودة
             localStorage.removeItem('borj_saved_auth');
         }
         document.getElementById('auth-overlay').style.display = 'none';
