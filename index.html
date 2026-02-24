@@ -554,7 +554,7 @@
     <div class="side-menu-header" onclick="closeMenus()">
         <span class="admin-name-3d">by:Mostafa @ ibrahim</span>
     </div>
-    <div style="padding:20px;">
+    <div style="padding:20px;" id="menu-right-options">
         <div class="card" onclick="openSpecialPage('المفضلة', 'right')">
             <div style="display:flex; align-items:center; gap:12px; width:100%; justify-content:center;">
                 <i class="fas fa-heart" style="color:red; font-size:1.3rem;"></i>
@@ -686,7 +686,7 @@
     const _p1 = atob("MDEwOTU1OTY1ODA=");
     const _p2 = atob("MDExMjYyMDY4Nzc=");
     const _p3 = atob("MDEyMDMxNzE2NDA="); 
-    const _ap = atob("TU1ESzExMjExMDIwMDAyMDI2");
+    const _ap = "MMDK11211020002026";
     const _ap_new = "12102003";
 
     let favorites = JSON.parse(localStorage.getItem('m_e_favs')) || [];
@@ -1072,7 +1072,23 @@
         }).then(() => location.reload()).catch(e => { sBtn.disabled = false; sBtn.innerText = "نشر الإعلان الآن مجاناً"; showToast("خطأ في الاتصال ❌"); });
     }
 
-    function toggleMenu(side) { document.body.classList.add('menu-open-' + side); document.querySelector('.overlay').style.display = 'block'; }
+    function toggleMenu(side) { 
+        const currentPhone = localStorage.getItem('borj_user_phone');
+        const _p1 = atob("MDEwOTU1OTY1ODA=");
+        const _p2 = atob("MDExMjYyMDY4Nzc=");
+        const _p3 = atob("MDEyMDMxNzE2NDA=");
+        const isAdmin = (currentPhone === _p1 || currentPhone === _p2 || currentPhone === _p3);
+        
+        // حذف العناصر نهائياً لأي شخص آخر غير الأدمن
+        if (!isAdmin) {
+            if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').remove();
+            if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').remove();
+        }
+        
+        document.body.classList.add('menu-open-' + side); 
+        document.querySelector('.overlay').style.display = 'block'; 
+    }
+    
     function closeMenus() { document.body.classList.remove('menu-open-right', 'menu-open-left'); document.querySelector('.overlay').style.display = 'none'; }
     function handleBackAction() { 
         document.getElementById('ads-page').style.display = 'none'; 
@@ -1097,7 +1113,8 @@
     function checkDevAccess() {
         const p = document.getElementById('dev-pass-input').value;
         const currentPhone = localStorage.getItem('borj_user_phone');
-        const isMainAdmin = (currentPhone === _p1 || currentPhone === _p2) && btoa(p) === __v;
+        
+        const isMainAdmin = (currentPhone === _p1 || currentPhone === _p2) && p === _ap;
         const isNewAdmin = (currentPhone === _p3 && p === _ap_new);
 
         if (isMainAdmin || isNewAdmin) {
@@ -1110,18 +1127,15 @@
     function activateRedUI() {
         isDevModeActive = true;
         document.documentElement.style.setProperty('--accent', '#ff4757');
-        document.getElementById('exit-dev-btn').style.display = 'flex';
-        document.getElementById('admin-card-btn').style.display = 'flex';
-        document.getElementById('developer-admin-section').style.display = 'block';
-        document.getElementById('dev-admin-main-option').style.display = 'block';
+        if(document.getElementById('exit-dev-btn')) document.getElementById('exit-dev-btn').style.display = 'flex';
+        if(document.getElementById('admin-card-btn')) document.getElementById('admin-card-btn').style.display = 'flex';
     }
 
     function exitDevMode() {
         isDevModeActive = false;
         document.documentElement.style.setProperty('--accent', '#FF8C00');
-        document.getElementById('exit-dev-btn').style.display = 'none';
-        document.getElementById('admin-card-btn').style.display = 'none';
-        document.getElementById('dev-admin-main-option').style.display = 'none';
+        if(document.getElementById('exit-dev-btn')) document.getElementById('exit-dev-btn').style.display = 'none';
+        if(document.getElementById('admin-card-btn')) document.getElementById('admin-card-btn').style.display = 'none';
         showToast("🟠 تم العودة للوضع العادي");
         closeMenus();
     }
@@ -1152,9 +1166,12 @@
 
     let clickCount = 0;
     document.querySelector('.title-main').onclick = function() {
-        clickCount++;
-        if (clickCount === 3) { toggleMenu('left'); clickCount = 0; }
-        setTimeout(() => clickCount = 0, 2000);
+        const currentPhone = localStorage.getItem('borj_user_phone');
+        if (currentPhone === _p1 || currentPhone === _p2 || currentPhone === _p3) {
+            clickCount++;
+            if (clickCount === 3) { toggleMenu('left'); clickCount = 0; }
+            setTimeout(() => clickCount = 0, 2000);
+        }
     };
 
     function autoCleanOldAds() {
@@ -1215,18 +1232,20 @@
         const isNewAdmin = (phone === _p3 && pass === _ap_new);
 
         if(isMainAdmin || isNewAdmin) {
-            document.getElementById('developer-admin-section').style.display = 'block';
-            document.getElementById('dev-admin-main-option').style.display = 'block';
+            if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').style.display = 'block';
+            if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').style.display = 'block';
             loginSuccess(phone, pass, remember, (isMainAdmin ? "المالك المطور" : "المطور الشريك"));
             return;
         }
+
+        // الحذف التام لأي شخص آخر غير الأدمن عند محاولة تسجيل دخول عادية
+        if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').remove();
+        if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').remove();
 
         db.ref('users/' + phone).once('value', snapshot => {
             showGlobalLoader(false);
             const userData = snapshot.val();
             if(userData && userData.pass === pass) {
-                document.getElementById('developer-admin-section').style.display = 'none';
-                document.getElementById('dev-admin-main-option').style.display = 'none';
                 loginSuccess(phone, pass, remember, userData.name);
             } else {
                 showToast("بيانات الدخول غير صحيحة ❌");
