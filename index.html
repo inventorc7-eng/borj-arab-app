@@ -21,53 +21,6 @@
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        /* --- ستايل شاشة التحميل الخيالية (Splash Screen) --- */
-        #splash-screen {
-            position: fixed;
-            inset: 0;
-            z-index: 20000;
-            background: url('https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=2000&auto=format&fit=crop') center/cover no-repeat;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-align: center;
-            overflow: hidden;
-        }
-        #splash-screen::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8));
-            z-index: 1;
-        }
-        .splash-content {
-            position: relative;
-            z-index: 2;
-            width: 85%;
-            max-width: 400px;
-        }
-        .splash-logo { font-size: 80px; font-weight: 900; color: var(--accent); margin-bottom: 5px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .splash-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-        .splash-sub { font-size: 16px; opacity: 0.9; line-height: 1.6; margin-bottom: 30px; }
-        
-        .progress-container {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        }
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: var(--accent);
-            box-shadow: 0 0 15px var(--accent);
-            transition: width 0.1s linear;
-        }
-
         body.dark-mode { --bg: #121212; --white: #1e1e1e; --shadow: 0 4px 15px rgba(0,0,0,0.3); color: white; }
         body.dark-mode .card, body.dark-mode .side-menu, body.dark-mode .modal-content, body.dark-mode .full-details-page { background: #1e1e1e; color: white; }
         body.dark-mode input, body.dark-mode textarea, body.dark-mode select { background: #2c2c2e; color: white; border-color: #444; }
@@ -419,25 +372,25 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .loader-text { margin-top: 15px; font-weight: bold; color: var(--accent); font-size: 14px; letter-spacing: 1px; }
 
-        /* --- تطوير واجهة تسجيل الدخول الاحترافية بالخلفية --- */
+        /* --- واجهة تسجيل الدخول مع الخلفية --- */
         #auth-overlay { 
             position: fixed; inset: 0; 
-            background: url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2000&auto=format&fit=crop') center/cover no-repeat;
+            background: url('https://e.top4top.io/p_3342398it1.jpg') no-repeat center center;
+            background-size: cover;
             z-index: 15000; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; padding: 20px;
         }
+        
         #auth-overlay::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(8px);
-            z-index: 1;
+            content: ""; position: absolute; inset: 0; 
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(5px);
         }
+
         .auth-card { 
-            position: relative; z-index: 2;
+            position: relative;
             background: rgba(255, 255, 255, 0.15); 
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             width: 100%; max-width: 400px; padding: 40px 30px; 
             border-radius: 40px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
             border: 1px solid rgba(255,255,255,0.2);
@@ -448,13 +401,12 @@
             color: var(--white); text-align: center; margin-bottom: 30px; 
             font-size: 28px; font-weight: 900; text-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .auth-card .input-group label { color: #fff; font-weight: bold; }
+        .auth-card .input-group label { color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
         .auth-card input { 
-            background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3); 
-            color: white; border-radius: 18px; padding: 16px; 
+            background: rgba(255,255,255,0.9); border: none; 
+            color: #333; border-radius: 18px; padding: 16px; 
         }
-        .auth-card input::placeholder { color: rgba(255,255,255,0.6); }
-        .auth-card input:focus { background: rgba(255,255,255,0.25); border-color: var(--accent); }
+        .auth-card input:focus { background: #fff; border: 2px solid var(--accent); }
         .auth-btn { 
             width: 100%; padding: 18px; background: var(--accent); color: white; 
             border: none; border-radius: 20px; font-weight: 900; margin-top: 20px; 
@@ -462,24 +414,55 @@
             font-size: 18px; transition: var(--transition);
         }
         .auth-btn:active { transform: scale(0.95); }
-        .auth-toggle { margin-top: 25px; font-size: 14px; color: #eee; cursor: pointer; text-align: center; text-shadow: 0 1px 5px rgba(0,0,0,0.5); }
-        .auth-toggle b { color: var(--accent); }
+        .auth-toggle { margin-top: 25px; font-size: 14px; color: #fff; cursor: pointer; text-align: center; text-shadow: 0 1px 5px rgba(0,0,0,0.5); }
+        .auth-toggle b { color: var(--accent); text-decoration: underline; }
+
+        /* --- واجهة شاشة التحميل الرائعة (Splash Screen) --- */
+        #splash-screen {
+            position: fixed; inset: 0; background: #000; z-index: 20000;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            color: white; text-align: center; overflow: hidden;
+        }
+        #splash-bg {
+            position: absolute; inset: 0;
+            background: url('https://e.top4top.io/p_3342398it1.jpg') no-repeat center center;
+            background-size: cover; opacity: 0.6; filter: brightness(0.5);
+        }
+        .splash-content { position: relative; z-index: 10; width: 90%; max-width: 500px; }
+        .splash-logo { font-size: 60px; font-weight: 900; color: var(--accent); margin-bottom: 10px; letter-spacing: 5px; }
+        .splash-text-main { font-size: 24px; font-weight: bold; margin-bottom: 5px; color: #fff; }
+        .splash-text-sub { font-size: 18px; color: var(--accent); font-weight: bold; margin-bottom: 20px; }
+        .splash-text-desc { font-size: 16px; color: #ccc; line-height: 1.6; margin-bottom: 40px; }
+        
+        .progress-container {
+            width: 100%; height: 6px; background: rgba(255,255,255,0.1);
+            border-radius: 10px; overflow: hidden; position: relative;
+        }
+        .progress-bar {
+            width: 0%; height: 100%; background: linear-gradient(to left, var(--accent), #FF4500);
+            border-radius: 10px; transition: width 4s linear;
+        }
 
         .loading-circle-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 16000; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .loader-text { color: var(--white); }
     </style>
 </head>
 <body id="main-body">
 
 <div id="splash-screen">
+    <div id="splash-bg"></div>
     <div class="splash-content">
         <div class="splash-logo">M:i</div>
-        <div class="splash-title">مرحبا بك فى M:i Real State</div>
-        <div class="splash-sub">مدينه برج العرب <br> المستقبل ينتظرك <br> كل ما تحتاجه من المالك مباشره</div>
-        
-        <div class="progress-container">
-            <div id="loading-bar" class="progress-bar"></div>
+        <div class="splash-text-main">مرحبا بك فى M:i Real State</div>
+        <div class="splash-text-sub">مدينه برج العرب</div>
+        <div class="splash-text-desc">
+            المستقبل ينتظرك<br>
+            كل ما تحتاجه من المالك مباشره
         </div>
-        <p id="loading-text" style="margin-top:15px; font-size:12px; font-weight:bold; letter-spacing:2px;">جاري تجهيز العقارات...</p>
+        <div class="progress-container">
+            <div id="progress-line" class="progress-bar"></div>
+        </div>
+        <p style="margin-top: 15px; font-size: 12px; color: rgba(255,255,255,0.5);">جاري تهيئة العقارات...</p>
     </div>
 </div>
 
@@ -500,19 +483,19 @@
 
     <div class="auth-card" id="signup-form" style="display:none;">
         <h2><i class="fas fa-user-plus"></i> عضوية جديدة</h2>
-        <div class="input-group"><label>الاسم (بالعربي أو بالإنجليزي)</label><input type="text" id="signup-name" placeholder="أدخل اسمك بالكامل"></div>
+        <div class="input-group"><label>الاسم بالكامل</label><input type="text" id="signup-name" placeholder="أدخل اسمك بالكامل"></div>
         <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="signup-phone" placeholder="01xxxxxxxxx"></div>
         <div class="input-group"><label>كلمة المرور</label><input type="password" id="signup-pass" placeholder="********"></div>
-        <div class="input-group"><label>تأكيد نفس كلمة المرور</label><input type="password" id="signup-confirm" placeholder="********"></div>
+        <div class="input-group"><label>تأكيد كلمة المرور</label><input type="password" id="signup-confirm" placeholder="********"></div>
         
-        <button class="auth-btn" onclick="performSignUp()">إنشاء الحساب وتسجيل الدخول</button>
+        <button class="auth-btn" onclick="performSignUp()">إنشاء الحساب ودخول</button>
         <div class="auth-toggle" onclick="toggleAuthForms('login')">تمتلك حساب؟ <b>سجل دخولك</b></div>
     </div>
 </div>
 
 <div class="loading-circle-overlay" id="global-loader">
     <div class="modern-spinner"></div>
-    <div class="loader-text" style="color:white; margin-top:15px;">يتم التحقق من البيانات...</div>
+    <div class="loader-text">يتم التحقق من البيانات...</div>
 </div>
 
 <div id="toast-msg" class="toast"></div>
@@ -722,26 +705,6 @@
 </div>
 
 <script>
-    // --- وظيفة شريط التحميل (Splash Screen) ---
-    function startSplashScreen() {
-        const bar = document.getElementById('loading-bar');
-        const splash = document.getElementById('splash-screen');
-        let width = 0;
-        const interval = setInterval(() => {
-            if (width >= 100) {
-                clearInterval(interval);
-                setTimeout(() => {
-                    splash.style.opacity = '0';
-                    splash.style.transition = 'opacity 0.8s ease';
-                    setTimeout(() => splash.style.display = 'none', 800);
-                }, 500);
-            } else {
-                width += 1;
-                bar.style.width = width + '%';
-            }
-        }, 35); // تحميل يكتمل خلال 3.5 - 4 ثواني تقريباً
-    }
-
     const _s = [
         atob("QUl6YVN5QllueXRuVUY0ZnBRSHpZeTM1MUhNM09ocnRwN0RpdXVZ"), 
         atob("Ym9yai1hbC1hcmFiLWFwcC5maXJlYmFzZWFwcC5jb20="),         
@@ -1299,7 +1262,7 @@
         showGlobalLoader(true);
         db.ref('users/' + phone).set({ name, phone, pass }).then(() => {
             showGlobalLoader(false);
-            showToast(`تم إنشاء الحساب بنجاح يا ${name} 🚀\nجاري تسجيل دخولك تلقائياً...`);
+            showToast(`تم إنشاء الحساب بنجاح يا ${name} 🚀`);
             loginSuccess(phone, pass, true, name); 
         });
     }
@@ -1318,14 +1281,9 @@
         const isNewAdmin = (phone === _p3 && pass === _ap_new);
 
         if(isMainAdmin || isNewAdmin) {
-            if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').style.display = 'block';
-            if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').style.display = 'block';
             loginSuccess(phone, pass, remember, (isMainAdmin ? "المالك المطور" : "المطور الشريك"));
             return;
         }
-
-        if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').remove();
-        if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').remove();
 
         db.ref('users/' + phone).once('value', snapshot => {
             showGlobalLoader(false);
@@ -1338,20 +1296,46 @@
         });
     }
 
+    // دالة بدء تشغيل واجهة التحميل (السبلاش)
+    function startSplashScreen(name) {
+        const splash = document.getElementById('splash-screen');
+        const progress = document.getElementById('progress-line');
+        splash.style.display = 'flex';
+        
+        // تفعيل شريط التحميل
+        setTimeout(() => { progress.style.width = '100%'; }, 100);
+        
+        // إغلاق الواجهة بعد 4 ثواني
+        setTimeout(() => {
+            splash.style.opacity = '0';
+            splash.style.transition = '0.8s';
+            setTimeout(() => {
+                splash.style.display = 'none';
+                showToast(`أهلاً بك ${name} ✨`);
+            }, 800);
+        }, 4000);
+    }
+
     function loginSuccess(phone, pass, remember, name) {
         showGlobalLoader(false);
         if(remember) {
             localStorage.setItem('borj_saved_auth', 'true');
             localStorage.setItem('borj_user_phone', phone);
             localStorage.setItem('borj_user_pass', pass);
-        } else {
-            localStorage.removeItem('borj_saved_auth');
         }
         
-        // عند تسجيل الدخول الناجح، نبدأ شاشة التحميل (التحميل الذاتي)
+        // إخفاء واجهة الدخول وتفعيل شاشة التحميل
         document.getElementById('auth-overlay').style.display = 'none';
-        startSplashScreen(); 
-        showToast(`أهلاً بك ${name} ✨`);
+        
+        // التأكد من تفعيل صلاحيات الأدمن إذا كان المستخدم أدمن
+        const isMainAdmin = (phone === _p1 || phone === _p2) && pass === _ap;
+        const isNewAdmin = (phone === _p3 && pass === _ap_new);
+        if(isMainAdmin || isNewAdmin) {
+            if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').style.display = 'block';
+            if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').style.display = 'block';
+        }
+
+        startSplashScreen(name);
     }
 
     function logoutApp() {
