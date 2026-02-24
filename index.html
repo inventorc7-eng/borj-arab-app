@@ -21,6 +21,53 @@
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
+        /* --- ستايل شاشة التحميل الخيالية (Splash Screen) --- */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 20000;
+            background: url('https://images.unsplash.com/photo-1582407947304-fd86f028f716?q=80&w=2000&auto=format&fit=crop') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+        }
+        #splash-screen::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8));
+            z-index: 1;
+        }
+        .splash-content {
+            position: relative;
+            z-index: 2;
+            width: 85%;
+            max-width: 400px;
+        }
+        .splash-logo { font-size: 80px; font-weight: 900; color: var(--accent); margin-bottom: 5px; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .splash-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+        .splash-sub { font-size: 16px; opacity: 0.9; line-height: 1.6; margin-bottom: 30px; }
+        
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+            transition: width 0.1s linear;
+        }
+
         body.dark-mode { --bg: #121212; --white: #1e1e1e; --shadow: 0 4px 15px rgba(0,0,0,0.3); color: white; }
         body.dark-mode .card, body.dark-mode .side-menu, body.dark-mode .modal-content, body.dark-mode .full-details-page { background: #1e1e1e; color: white; }
         body.dark-mode input, body.dark-mode textarea, body.dark-mode select { background: #2c2c2e; color: white; border-color: #444; }
@@ -36,39 +83,6 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
         body { margin: 0; padding: 0; min-height: 100vh; background: var(--bg); font-family: sans-serif; overflow-x: hidden; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; transition: background 0.3s ease; }
-
-        /* --- شاشة الانطلاق (Splash Screen) الجديدة --- */
-        #splash-screen {
-            position: fixed; inset: 0; background: #000; z-index: 20000;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            color: white; text-align: center; overflow: hidden;
-        }
-        #splash-screen img {
-            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-            opacity: 0.6; filter: brightness(0.4) blur(2px);
-            animation: zoomBg 10s infinite alternate;
-        }
-        @keyframes zoomBg { from { transform: scale(1); } to { transform: scale(1.1); } }
-        
-        .splash-content { position: relative; z-index: 10; width: 85%; max-width: 500px; }
-        .splash-title { font-size: 42px; font-weight: 900; color: var(--accent); margin-bottom: 5px; text-shadow: 0 0 20px rgba(255,140,0,0.5); }
-        .splash-subtitle { font-size: 20px; font-weight: bold; margin-bottom: 10px; display: block; }
-        .splash-motto { font-size: 16px; opacity: 0.9; margin-bottom: 40px; line-height: 1.6; }
-        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; position: relative; }
-        .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, transparent, var(--accent)); border-radius: 10px; transition: width 4s linear; box-shadow: 0 0 15px var(--accent); }
-
-        /* --- تعديل خلفية الدخول --- */
-        #auth-overlay { 
-            position: fixed; inset: 0; 
-            background: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1973&auto=format&fit=crop') center/cover no-repeat;
-            z-index: 15000; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; padding: 20px;
-        }
-        #auth-overlay::before {
-            content: ''; position: absolute; inset: 0; 
-            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8));
-            backdrop-filter: blur(4px);
-        }
 
         header { 
             background: rgba(28, 28, 30, 0.95); 
@@ -405,15 +419,28 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .loader-text { margin-top: 15px; font-weight: bold; color: var(--accent); font-size: 14px; letter-spacing: 1px; }
 
-        /* --- تطوير واجهة تسجيل الدخول الاحترافية --- */
+        /* --- تطوير واجهة تسجيل الدخول الاحترافية بالخلفية --- */
+        #auth-overlay { 
+            position: fixed; inset: 0; 
+            background: url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2000&auto=format&fit=crop') center/cover no-repeat;
+            z-index: 15000; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        #auth-overlay::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
+            z-index: 1;
+        }
         .auth-card { 
-            position: relative; z-index: 10;
-            background: rgba(255, 255, 255, 0.1); 
+            position: relative; z-index: 2;
+            background: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             width: 100%; max-width: 400px; padding: 40px 30px; 
             border-radius: 40px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
             border-bottom: 6px solid var(--accent); 
             animation: modalIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
         }
@@ -421,12 +448,13 @@
             color: var(--white); text-align: center; margin-bottom: 30px; 
             font-size: 28px; font-weight: 900; text-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .auth-card .input-group label { color: #eee; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .auth-card .input-group label { color: #fff; font-weight: bold; }
         .auth-card input { 
-            background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2); 
+            background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.3); 
             color: white; border-radius: 18px; padding: 16px; 
         }
-        .auth-card input:focus { background: rgba(255,255,255,0.15); border-color: var(--accent); }
+        .auth-card input::placeholder { color: rgba(255,255,255,0.6); }
+        .auth-card input:focus { background: rgba(255,255,255,0.25); border-color: var(--accent); }
         .auth-btn { 
             width: 100%; padding: 18px; background: var(--accent); color: white; 
             border: none; border-radius: 20px; font-weight: 900; margin-top: 20px; 
@@ -434,24 +462,24 @@
             font-size: 18px; transition: var(--transition);
         }
         .auth-btn:active { transform: scale(0.95); }
-        .auth-toggle { margin-top: 25px; font-size: 14px; color: #ddd; cursor: pointer; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .auth-toggle { margin-top: 25px; font-size: 14px; color: #eee; cursor: pointer; text-align: center; text-shadow: 0 1px 5px rgba(0,0,0,0.5); }
         .auth-toggle b { color: var(--accent); }
 
         .loading-circle-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 16000; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .loader-text { color: var(--white); }
     </style>
 </head>
 <body id="main-body">
 
 <div id="splash-screen">
-    <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop" alt="Real Estate">
     <div class="splash-content">
-        <h1 class="splash-title">M:i Real Estate</h1>
-        <span class="splash-subtitle">مدينه برج العرب</span>
-        <p class="splash-motto">المستقبل ينتظرك.. كل ما تحتاجه من المالك مباشره</p>
+        <div class="splash-logo">M:i</div>
+        <div class="splash-title">مرحبا بك فى M:i Real State</div>
+        <div class="splash-sub">مدينه برج العرب <br> المستقبل ينتظرك <br> كل ما تحتاجه من المالك مباشره</div>
+        
         <div class="progress-container">
-            <div class="progress-bar" id="splash-bar"></div>
+            <div id="loading-bar" class="progress-bar"></div>
         </div>
+        <p id="loading-text" style="margin-top:15px; font-size:12px; font-weight:bold; letter-spacing:2px;">جاري تجهيز العقارات...</p>
     </div>
 </div>
 
@@ -484,7 +512,7 @@
 
 <div class="loading-circle-overlay" id="global-loader">
     <div class="modern-spinner"></div>
-    <div class="loader-text">يتم التحقق من البيانات...</div>
+    <div class="loader-text" style="color:white; margin-top:15px;">يتم التحقق من البيانات...</div>
 </div>
 
 <div id="toast-msg" class="toast"></div>
@@ -694,8 +722,28 @@
 </div>
 
 <script>
+    // --- وظيفة شريط التحميل (Splash Screen) ---
+    function startSplashScreen() {
+        const bar = document.getElementById('loading-bar');
+        const splash = document.getElementById('splash-screen');
+        let width = 0;
+        const interval = setInterval(() => {
+            if (width >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    splash.style.opacity = '0';
+                    splash.style.transition = 'opacity 0.8s ease';
+                    setTimeout(() => splash.style.display = 'none', 800);
+                }, 500);
+            } else {
+                width += 1;
+                bar.style.width = width + '%';
+            }
+        }, 35); // تحميل يكتمل خلال 3.5 - 4 ثواني تقريباً
+    }
+
     const _s = [
-        atob("QUl6YVN5QllueXRuVUF4ZnBRSHpZeTM1MUhNM09ocnRwN0RpdXVZ"), 
+        atob("QUl6YVN5QllueXRuVUY0ZnBRSHpZeTM1MUhNM09ocnRwN0RpdXVZ"), 
         atob("Ym9yai1hbC1hcmFiLWFwcC5maXJlYmFzZWFwcC5jb20="),         
         atob("aHR0cHM6Ly9ib3JqLWFsLWFyYWItYXBwLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=="), 
         atob("Ym9yai1hbC1hcmFiLWFwcA==")                             
@@ -1113,11 +1161,16 @@
 
     function toggleMenu(side) { 
         const currentPhone = localStorage.getItem('borj_user_phone');
+        const _p1 = atob("MDEwOTU1OTY1ODA=");
+        const _p2 = atob("MDExMjYyMDY4Nzc=");
+        const _p3 = atob("MDEyMDMxNzE2NDA=");
         const isAdmin = (currentPhone === _p1 || currentPhone === _p2 || currentPhone === _p3);
+        
         if (!isAdmin) {
             if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').remove();
             if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').remove();
         }
+        
         document.body.classList.add('menu-open-' + side); 
         document.querySelector('.overlay').style.display = 'block'; 
     }
@@ -1146,8 +1199,10 @@
     function checkDevAccess() {
         const p = document.getElementById('dev-pass-input').value;
         const currentPhone = localStorage.getItem('borj_user_phone');
+        
         const isMainAdmin = (currentPhone === _p1 || currentPhone === _p2) && p === _ap;
         const isNewAdmin = (currentPhone === _p3 && p === _ap_new);
+
         if (isMainAdmin || isNewAdmin) {
             showToast("🔴 تم تفعيل وضع المطور الكامل");
             activateRedUI();
@@ -1237,12 +1292,15 @@
         const phone = document.getElementById('signup-phone').value;
         const pass = document.getElementById('signup-pass').value;
         const confirm = document.getElementById('signup-confirm').value;
+
         if(!name || !phone || !pass) return showToast("يرجى ملء جميع البيانات ⚠️");
         if(pass !== confirm) return showToast("كلمات المرور غير متطابقة ❌");
+
         showGlobalLoader(true);
         db.ref('users/' + phone).set({ name, phone, pass }).then(() => {
             showGlobalLoader(false);
-            showSplashSequence(name, phone, pass, true); 
+            showToast(`تم إنشاء الحساب بنجاح يا ${name} 🚀\nجاري تسجيل دخولك تلقائياً...`);
+            loginSuccess(phone, pass, true, name); 
         });
     }
 
@@ -1255,43 +1313,33 @@
 
     function validateAndLogin(phone, pass, remember) {
         showGlobalLoader(true);
+        
         const isMainAdmin = (phone === _p1 || phone === _p2) && pass === _ap;
         const isNewAdmin = (phone === _p3 && pass === _ap_new);
+
         if(isMainAdmin || isNewAdmin) {
             if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').style.display = 'block';
             if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').style.display = 'block';
-            showSplashSequence((isMainAdmin ? "المالك المطور" : "المطور الشريك"), phone, pass, remember);
+            loginSuccess(phone, pass, remember, (isMainAdmin ? "المالك المطور" : "المطور الشريك"));
             return;
         }
+
+        if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').remove();
+        if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').remove();
+
         db.ref('users/' + phone).once('value', snapshot => {
             showGlobalLoader(false);
             const userData = snapshot.val();
             if(userData && userData.pass === pass) {
-                showSplashSequence(userData.name, phone, pass, remember);
+                loginSuccess(phone, pass, remember, userData.name);
             } else {
                 showToast("بيانات الدخول غير صحيحة ❌");
             }
         });
     }
 
-    /* --- وظيفة شاشة الانطلاق (Splash Sequence) --- */
-    function showSplashSequence(name, phone, pass, remember) {
-        const splash = document.getElementById('splash-screen');
-        const bar = document.getElementById('splash-bar');
-        splash.style.display = 'flex';
-        
-        // تفعيل شريط التحميل
-        setTimeout(() => { bar.style.width = '100%'; }, 100);
-
-        // الانتظار 4 ثوانٍ ثم فتح التطبيق
-        setTimeout(() => {
-            loginSuccess(phone, pass, remember, name);
-            splash.style.opacity = '0';
-            setTimeout(() => { splash.style.display = 'none'; }, 500);
-        }, 4000);
-    }
-
     function loginSuccess(phone, pass, remember, name) {
+        showGlobalLoader(false);
         if(remember) {
             localStorage.setItem('borj_saved_auth', 'true');
             localStorage.setItem('borj_user_phone', phone);
@@ -1299,7 +1347,10 @@
         } else {
             localStorage.removeItem('borj_saved_auth');
         }
+        
+        // عند تسجيل الدخول الناجح، نبدأ شاشة التحميل (التحميل الذاتي)
         document.getElementById('auth-overlay').style.display = 'none';
+        startSplashScreen(); 
         showToast(`أهلاً بك ${name} ✨`);
     }
 
