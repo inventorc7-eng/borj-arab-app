@@ -1338,14 +1338,25 @@
         document.getElementById('global-loader').style.display = (show ? 'flex' : 'none');
     }
 
-    /* --- تصحيحات الأمان والخصوصية (إضافة فقط دون تغيير حرف مما سبق) --- */
+    /* --- تصحيحات الأمان والخصوصية والتوجيهات (إضافة فقط دون تغيير حرف مما سبق) --- */
     (function() {
-        // 1. ربط الهوية برقم الهاتف المسجل فوراً
+        // 1. ربط الهوية برقم الهاتف وفصل بيانات كل مستخدم (المفضلة والمحذوفات)
         const syncMyID = () => {
             const phone = localStorage.getItem('borj_user_phone');
             if (phone) myID = phone;
         };
         syncMyID();
+
+        const loadUserData = () => {
+            if (myID && myID.startsWith('01')) {
+                favorites = JSON.parse(localStorage.getItem('m_e_favs_' + myID)) || [];
+                trashed = JSON.parse(localStorage.getItem('m_e_trash_' + myID)) || [];
+            } else {
+                favorites = JSON.parse(localStorage.getItem('m_e_favs')) || [];
+                trashed = JSON.parse(localStorage.getItem('m_e_trash')) || [];
+            }
+        };
+        loadUserData();
 
         // 2. تأمين عرض الإعلانات (إخفاء زر الحذف عن غير المالك)
         const originalRender = renderAdHTML;
@@ -1353,7 +1364,7 @@
             let html = originalRender(ad);
             const currentPhone = localStorage.getItem('borj_user_phone');
             if (ad.ownerId !== currentPhone && !isDevModeActive) {
-                html = html.replace('del-btn', 'del-btn" style="display:none;"');
+                html = html.replace(/<i class="fas fa-trash del-btn" onclick="moveToTrash\('[^']+'\)"><\/i>/, '');
             }
             return html;
         };
@@ -1371,28 +1382,114 @@
             originalVerifyPin();
         };
 
-        // 4. منع "الرسترة" عند النشر (تغيير سلوك reload)
-        const originalSubmit = submitAd;
+        // 4. منع "الرسترة" عند النشر بإنشاء دالة بديلة في الذاكرة (إحلال صامت)
         submitAd = function() {
-            const nativeReload = window.location.reload;
-            window.location.reload = function() {
+            const p = document.getElementById('price').value;
+            const ph = document.getElementById('phone1').value;
+            const d = document.getElementById('desc').value;
+            const pin = document.getElementById('adv-pin').value;
+            if (adPhotos.length === 0) return showToast("يرجى رفع صورة واحدة على الأقل 📸");
+            if (!p || parseFloat(p) <= 0) return showToast("يرجى إدخال سعر صحيح 💰");
+            if (!ph || ph.length < 10) return showToast("يرجى إدخال رقم هاتف صحيح 📞");
+            if (!pin || !/^\d{4}$/.test(pin)) return showToast("الكود السري يجب أن يكون 4 أرقام 🔐");
+            const sBtn = document.getElementById('submitBtn');
+            if(sBtn.disabled) return;
+            sBtn.disabled = true; sBtn.innerText = "جاري النشر...";
+            
+            db.ref('ads').push({
+                district: document.getElementById('adv-district').value, 
+                type: document.getElementById('adv-type').value, 
+                unitType: document.getElementById('unit-type').value,
+                desc: safeHTML(d), 
+                price: parseFloat(p), 
+                phone1: safeHTML(ph), 
+                phone2: safeHTML(document.getElementById('phone2').value), 
+                whatsapp: safeHTML(document.getElementById('whatsapp').value),
+                image: adPhotos[0], 
+                allPhotos: adPhotos, 
+                ownerId: myID, 
+                pin: pin, 
+                createdAt: firebase.database.ServerValue.TIMESTAMP, 
+                views: 0 
+            }).then(() => {
+                sBtn.disabled = false; sBtn.innerText = "نشر الإعلان الآن مجاناً";
                 showToast("تم نشر إعلانك بنجاح 🚀");
                 closeAddModal();
-                if(typeof openDistrict === 'function') {
-                    const dist = document.getElementById('adv-district').value;
-                    openDistrict(dist);
+                
+                // تفريغ الفورم
+                document.getElementById('price').value = "";
+                document.getElementById('desc').value = "";
+                document.getElementById('adv-pin').value = "";
+                adPhotos = [];
+                renderPreviews();
+                
+                // تحديث القائمة لو مفتوحة بدون ريفريش للصفحة
+                const currentDist = document.getElementById('selected-dist-title')?.innerText;
+                const adsPageDisplay = document.getElementById('ads-page').style.display;
+                if(currentDist && adsPageDisplay === 'block') {
+                    const headerTxt = document.getElementById('ads-header-title').innerText;
+                    const type = headerTxt.includes('بيع') ? 'بيع' : 'إيجار';
+                    loadAdsData(currentDist, type);
                 }
-            };
-            originalSubmit();
-            setTimeout(() => { window.location.reload = nativeReload; }, 2000);
+            }).catch(e => { 
+                sBtn.disabled = false; sBtn.innerText = "نشر الإعلان الآن مجاناً"; 
+                showToast("خطأ في الاتصال ❌"); 
+            });
         };
 
         // 5. تحديث القوائم الخاصة عند تسجيل الدخول لضمان فصل البيانات
         const originalLoginSuccess = loginSuccess;
         loginSuccess = function(phone, pass, remember, name) {
             myID = phone;
+            loadUserData();
             originalLoginSuccess(phone, pass, remember, name);
         };
+
+        // تفريغ البيانات عند تسجيل الخروج
+        const originalLogout = logoutApp;
+        logoutApp = function() {
+            localStorage.removeItem('borj_saved_auth');
+            localStorage.removeItem('borj_user_phone');
+            localStorage.removeItem('borj_user_pass');
+            myID = 'u' + Math.random().toString(36).substr(2, 9);
+            favorites = [];
+            trashed = [];
+            location.reload();
+        };
+
+        // 6. فصل المفضلات والمحذوفات لكل مستخدم باسم حسابه
+        toggleFav = function(key) { 
+            if (favorites.includes(key)) favorites = favorites.filter(k => k !== key); 
+            else favorites.push(key); 
+            
+            const storageKey = (myID && myID.startsWith('01')) ? 'm_e_favs_' + myID : 'm_e_favs';
+            localStorage.setItem(storageKey, JSON.stringify(favorites)); 
+            event.target.classList.toggle('active'); 
+        };
+
+        const originalProcessDeletion = processDeletion;
+        processDeletion = function(reason) {
+            if (reason === 'حذف بدون أسباب') {
+                db.ref('ads/' + pendingDeleteKey).remove().then(() => {
+                    document.getElementById('reason-modal').style.display = 'none';
+                    showToast('تم الحذف النهائي 🗑️');
+                    handleBackAction();
+                });
+            } else {
+                db.ref('ads/' + pendingDeleteKey).update({ 
+                    soldStatus: reason,
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    trashed.push({ id: pendingDeleteKey, time: Date.now() });
+                    const storageKey = (myID && myID.startsWith('01')) ? 'm_e_trash_' + myID : 'm_e_trash';
+                    localStorage.setItem(storageKey, JSON.stringify(trashed));
+                    document.getElementById('reason-modal').style.display = 'none';
+                    showToast('تم النقل للسلة (سيحذف بعد 3 أيام) ✅');
+                    handleBackAction();
+                });
+            }
+        };
+
     })();
 </script>
 </body>
