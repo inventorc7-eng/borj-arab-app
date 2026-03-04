@@ -1337,6 +1337,63 @@
     function showGlobalLoader(show) {
         document.getElementById('global-loader').style.display = (show ? 'flex' : 'none');
     }
+
+    /* --- تصحيحات الأمان والخصوصية (إضافة فقط دون تغيير حرف مما سبق) --- */
+    (function() {
+        // 1. ربط الهوية برقم الهاتف المسجل فوراً
+        const syncMyID = () => {
+            const phone = localStorage.getItem('borj_user_phone');
+            if (phone) myID = phone;
+        };
+        syncMyID();
+
+        // 2. تأمين عرض الإعلانات (إخفاء زر الحذف عن غير المالك)
+        const originalRender = renderAdHTML;
+        renderAdHTML = function(ad) {
+            let html = originalRender(ad);
+            const currentPhone = localStorage.getItem('borj_user_phone');
+            if (ad.ownerId !== currentPhone && !isDevModeActive) {
+                html = html.replace('del-btn', 'del-btn" style="display:none;"');
+            }
+            return html;
+        };
+
+        // 3. تأمين وظيفة الحذف (حتى لو تم الوصول إليها بالخطأ)
+        const originalVerifyPin = verifyPinBeforeDelete;
+        verifyPinBeforeDelete = function() {
+            const ad = currentAdsData[pendingDeleteKey];
+            const currentPhone = localStorage.getItem('borj_user_phone');
+            if (ad.ownerId !== currentPhone && !isDevModeActive) {
+                showToast("عذراً.. لا يمكنك حذف إعلان لا تملكه ❌");
+                document.getElementById('pin-modal').style.display = 'none';
+                return;
+            }
+            originalVerifyPin();
+        };
+
+        // 4. منع "الرسترة" عند النشر (تغيير سلوك reload)
+        const originalSubmit = submitAd;
+        submitAd = function() {
+            const nativeReload = window.location.reload;
+            window.location.reload = function() {
+                showToast("تم نشر إعلانك بنجاح 🚀");
+                closeAddModal();
+                if(typeof openDistrict === 'function') {
+                    const dist = document.getElementById('adv-district').value;
+                    openDistrict(dist);
+                }
+            };
+            originalSubmit();
+            setTimeout(() => { window.location.reload = nativeReload; }, 2000);
+        };
+
+        // 5. تحديث القوائم الخاصة عند تسجيل الدخول لضمان فصل البيانات
+        const originalLoginSuccess = loginSuccess;
+        loginSuccess = function(phone, pass, remember, name) {
+            myID = phone;
+            originalLoginSuccess(phone, pass, remember, name);
+        };
+    })();
 </script>
 </body>
 </html>
