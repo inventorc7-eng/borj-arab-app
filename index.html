@@ -436,6 +436,16 @@
 
         .loading-circle-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 16000; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .loader-text { color: var(--white); }
+
+        /* --- تحسينات إضافية لإحصائيات المستخدمين --- */
+        .glass-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 25px; padding: 20px; }
+        .stat-box { text-align: center; padding: 30px; border-radius: 25px; margin-bottom: 20px; border-bottom: 5px solid var(--accent); }
+        .count-number { font-size: 4rem; margin: 10px 0; color: var(--accent); text-shadow: 0 0 20px rgba(255,140,0,0.4); font-weight: 900; }
+        .glass-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .glass-table th { background: rgba(255, 140, 0, 0.2); color: var(--accent); padding: 12px; text-align: center; border-radius: 10px; }
+        .glass-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .floating-header { text-align: center; margin-bottom: 25px; font-size: 22px; color: var(--accent); font-weight: 900; position: relative; }
+        .floating-header::after { content: ""; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 50px; height: 3px; background: var(--accent); border-radius: 2px; }
     </style>
 </head>
 <body id="main-body">
@@ -609,6 +619,14 @@
                 <span>إدارة إعلاناتي</span>
             </div>
         </div>
+        
+        <div id="admin-stats-option" class="card" onclick="showUsersStats()" style="display:none; border-right: 6px solid #00d2ff; background: rgba(0, 210, 255, 0.1);">
+            <div style="display:flex; align-items:center; gap:12px; width:100%; justify-content:center;">
+                <i class="fas fa-users" style="color:#00d2ff; font-size:1.3rem;"></i>
+                <span style="color:#00d2ff;">إحصائيات المستخدمين</span>
+            </div>
+        </div>
+
         <div id="dev-admin-main-option" class="card" onclick="openCodeEditor()" style="display:none; border-right: 6px solid #ff4757; background: rgba(255, 71, 87, 0.1);">
             <div style="display:flex; align-items:center; gap:12px; width:100%; justify-content:center;">
                 <i class="fas fa-user-gear" style="color:#ff4757; font-size:1.3rem;"></i>
@@ -688,6 +706,37 @@
     </div>
 
     <div id="ads-list-container" class="container container-tight page-transition"></div>
+</div>
+
+<div id="users-stats-page" style="display:none; position:fixed; inset:0; background:var(--bg); z-index:8000; overflow-y:auto; animation: fadeIn 0.4s ease;">
+    <div class="sub-header">
+        <i class="fas fa-arrow-right" onclick="closeUsersStats()" style="font-size: 22px; cursor: pointer;"></i>
+        <div style="flex:1; text-align:center;"><span style="font-size:18px; font-weight:bold; color: var(--accent);">إحصائيات النظام</span></div>
+    </div>
+    <div class="container container-tight">
+        <div class="stat-box glass-card staggered-item">
+            <h2 class="floating-header">إجمالي الأعضاء المسجلين</h2>
+            <h1 id="realUsersCount" class="count-number">0</h1> 
+        </div>
+
+        <div class="glass-card staggered-item" style="margin-top: 20px;">
+            <h3 style="text-align: center; color: var(--accent);"><i class="fas fa-list-ol"></i> قائمة أرقام الهواتف</h3>
+            <div style="overflow-x: auto;">
+                <table class="glass-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>رقم الهاتف</th>
+                            <th>الاسم</th>
+                        </tr>
+                    </thead>
+                    <tbody id="realPhonesList">
+                        <tr><td colspan="3">جاري جلب البيانات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -1144,6 +1193,9 @@
         if (!isAdmin) {
             if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').remove();
             if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').remove();
+            if(document.getElementById('admin-stats-option')) document.getElementById('admin-stats-option').remove();
+        } else {
+            if(document.getElementById('admin-stats-option')) document.getElementById('admin-stats-option').style.display = 'block';
         }
         
         document.body.classList.add('menu-open-' + side); 
@@ -1293,17 +1345,19 @@
         showGlobalLoader(true);
         
         const isMainAdmin = (phone === _p1 || phone === _p2) && pass === _ap;
-        const isNewAdmin = (phone === _p3 && pass === _ap_new);
+        const isNewAdmin = (phone === _p3) && (pass === _ap_new || pass === _ap);
 
         if(isMainAdmin || isNewAdmin) {
             if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').style.display = 'block';
             if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').style.display = 'block';
+            if(document.getElementById('admin-stats-option')) document.getElementById('admin-stats-option').style.display = 'block';
             loginSuccess(phone, pass, remember, (isMainAdmin ? "المالك المطور" : "المطور الشريك"));
             return;
         }
 
         if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').remove();
         if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').remove();
+        if(document.getElementById('admin-stats-option')) document.getElementById('admin-stats-option').remove();
 
         db.ref('users/' + phone).once('value', snapshot => {
             showGlobalLoader(false);
@@ -1341,9 +1395,52 @@
         document.getElementById('global-loader').style.display = (show ? 'flex' : 'none');
     }
 
+    /* --- دوال إحصائيات المستخدمين (الجديدة) --- */
+    function showUsersStats() {
+        closeMenus();
+        document.getElementById('users-stats-page').style.display = 'block';
+        fetchRealUsersData();
+    }
+
+    function closeUsersStats() {
+        document.getElementById('users-stats-page').style.display = 'none';
+    }
+
+    async function fetchRealUsersData() {
+        const listContainer = document.getElementById('realPhonesList');
+        const countDisplay = document.getElementById('realUsersCount');
+        
+        listContainer.innerHTML = `<tr><td colspan="3">جاري الاتصال بقاعدة البيانات...</td></tr>`;
+
+        db.ref('users').once('value').then(snapshot => {
+            let usersArray = [];
+            snapshot.forEach(child => {
+                usersArray.push(child.val());
+            });
+
+            countDisplay.innerText = usersArray.length;
+
+            if (usersArray.length === 0) {
+                listContainer.innerHTML = `<tr><td colspan="3">لا يوجد مستخدمين مسجلين بعد.</td></tr>`;
+                return;
+            }
+
+            const htmlRows = usersArray.map((user, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td style="letter-spacing: 1px; font-weight: bold;">${user.phone}</td>
+                    <td>${user.name || 'مستخدم غير مسمى'}</td>
+                </tr>
+            `).join('');
+            
+            listContainer.innerHTML = htmlRows;
+        }).catch(err => {
+            listContainer.innerHTML = `<tr><td colspan="3">حدث خطأ أثناء الجلب: ${err.message}</td></tr>`;
+        });
+    }
+
     /* --- تصحيحات الأمان والخصوصية والتوجيهات (إضافة فقط دون تغيير حرف مما سبق) --- */
     (function() {
-        // 1. ربط الهوية برقم الهاتف وفصل بيانات كل مستخدم (المفضلة والمحذوفات)
         const syncMyID = () => {
             const phone = localStorage.getItem('borj_user_phone');
             if (phone) myID = phone;
@@ -1361,7 +1458,6 @@
         };
         loadUserData();
 
-        // 2. تأمين عرض الإعلانات (إخفاء زر الحذف عن غير المالك)
         const originalRender = renderAdHTML;
         renderAdHTML = function(ad) {
             let html = originalRender(ad);
@@ -1372,7 +1468,6 @@
             return html;
         };
 
-        // 3. تأمين وظيفة الحذف (حتى لو تم الوصول إليها بالخطأ)
         const originalVerifyPin = verifyPinBeforeDelete;
         verifyPinBeforeDelete = function() {
             const ad = currentAdsData[pendingDeleteKey];
@@ -1385,7 +1480,6 @@
             originalVerifyPin();
         };
 
-        // 4. منع "الرسترة" عند النشر بإنشاء دالة بديلة في الذاكرة (إحلال صامت)
         submitAd = function() {
             const p = document.getElementById('price').value;
             const ph = document.getElementById('phone1').value;
@@ -1418,15 +1512,11 @@
                 sBtn.disabled = false; sBtn.innerText = "نشر الإعلان الآن مجاناً";
                 showToast("تم نشر إعلانك بنجاح 🚀");
                 closeAddModal();
-                
-                // تفريغ الفورم
                 document.getElementById('price').value = "";
                 document.getElementById('desc').value = "";
                 document.getElementById('adv-pin').value = "";
                 adPhotos = [];
                 renderPreviews();
-                
-                // تحديث القائمة لو مفتوحة بدون ريفريش للصفحة
                 const currentDist = document.getElementById('selected-dist-title')?.innerText;
                 const adsPageDisplay = document.getElementById('ads-page').style.display;
                 if(currentDist && adsPageDisplay === 'block') {
@@ -1440,7 +1530,6 @@
             });
         };
 
-        // 5. تحديث القوائم الخاصة عند تسجيل الدخول لضمان فصل البيانات
         const originalLoginSuccess = loginSuccess;
         loginSuccess = function(phone, pass, remember, name) {
             myID = phone;
@@ -1448,7 +1537,6 @@
             originalLoginSuccess(phone, pass, remember, name);
         };
 
-        // تفريغ البيانات عند تسجيل الخروج
         const originalLogout = logoutApp;
         logoutApp = function() {
             localStorage.removeItem('borj_saved_auth');
@@ -1460,11 +1548,9 @@
             location.reload();
         };
 
-        // 6. فصل المفضلات والمحذوفات لكل مستخدم باسم حسابه
         toggleFav = function(key) { 
             if (favorites.includes(key)) favorites = favorites.filter(k => k !== key); 
             else favorites.push(key); 
-            
             const storageKey = (myID && myID.startsWith('01')) ? 'm_e_favs_' + myID : 'm_e_favs';
             localStorage.setItem(storageKey, JSON.stringify(favorites)); 
             event.target.classList.toggle('active'); 
