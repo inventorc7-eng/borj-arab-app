@@ -739,7 +739,6 @@
 </div>
 
 <script>
-    // [كود المنطق الأساسي يظل كما هو تماماً]
     const _s = [
         atob("QUl6YVN5QllueXRuVUY0ZnBRSHpZeTM1MUhNM09ocnRwN0RpdXVZ"), 
         atob("Ym9yai1hbC1hcmFiLWFwcC5maXJlYmFzZWFwcC5jb20="),         
@@ -1177,7 +1176,17 @@
             pin: pin, 
             createdAt: firebase.database.ServerValue.TIMESTAMP, 
             views: 0 
-        }).then(() => location.reload()).catch(e => { sBtn.disabled = false; sBtn.innerText = "نشر الإعلان الآن مجاناً"; showToast("خطأ في الاتصال ❌"); });
+        }).then(() => { 
+            closeAddModal();
+            showToast("تم نشر إعلانك بنجاح ✅");
+            document.getElementById('price').value = "";
+            document.getElementById('desc').value = "";
+            document.getElementById('adv-pin').value = "";
+            adPhotos = [];
+            document.getElementById('img-preview-container').innerHTML = "";
+            sBtn.disabled = false;
+            sBtn.innerText = "نشر الإعلان الآن مجاناً";
+        }).catch(e => { sBtn.disabled = false; sBtn.innerText = "نشر الإعلان الآن مجاناً"; showToast("خطأ في الاتصال ❌"); });
     }
 
     function toggleMenu(side) { 
@@ -1392,19 +1401,16 @@
         document.getElementById('users-stats-page').style.display = 'none';
     }
 
-    // --- تعديل العداد ليصبح حقيقياً لايف ---
     async function fetchRealUsersData() {
         const listContainer = document.getElementById('realPhonesList');
         const countDisplay = document.getElementById('realUsersCount');
         
-        // ربط العداد لايف: أي مستخدم جديد يضاف يزيد الرقم فوراً
         db.ref('users').on('value', snapshot => {
             let usersArray = [];
             snapshot.forEach(child => {
                 usersArray.push(child.val());
             });
 
-            // تحديث الرقم في الواجهة
             countDisplay.innerText = usersArray.length;
 
             if (usersArray.length === 0) {
@@ -1426,7 +1432,6 @@
         });
     }
 
-    // [كود الأمان والتصحيحات المضافة أخيراً يظل كما هو]
     (function() {
         const syncMyID = () => {
             const phone = localStorage.getItem('borj_user_phone');
