@@ -390,7 +390,6 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .loader-text { margin-top: 15px; font-weight: bold; color: var(--accent); font-size: 14px; letter-spacing: 1px; }
 
-        /* --- تطوير واجهة تسجيل الدخول الاحترافية بالخلفية الجديدة --- */
         #auth-overlay { 
             position: fixed; inset: 0; 
             background: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1073&q=80') no-repeat center center;
@@ -436,7 +435,6 @@
         .loading-circle-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 16000; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
         .loader-text { color: var(--white); }
 
-        /* --- تحسينات إضافية لإحصائيات المستخدمين --- */
         .glass-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 25px; padding: 20px; }
         .stat-box { text-align: center; padding: 30px; border-radius: 25px; margin-bottom: 20px; border-bottom: 5px solid var(--accent); }
         .count-number { font-size: 4rem; margin: 10px 0; color: var(--accent); text-shadow: 0 0 20px rgba(255,140,0,0.4); font-weight: 900; }
@@ -682,7 +680,7 @@
     <div class="modal-content">
         <i class="fas fa-arrow-right" onclick="closeAddModal()" style="position: absolute; right: 20px; top: 25px; cursor: pointer; font-size: 24px; color: var(--accent);"></i>
         
-        <h2 style="text-align: center; color: var(--accent); margin: 30px 0 20px;">أنشر إعلانك مجاناً</h2>
+        <h2 id="add-modal-title" style="text-align: center; color: var(--accent); margin: 30px 0 20px;">أنشر إعلانك مجاناً</h2>
         
         <div class="input-group">
             <label>صور الوحدة (صوره واحدة كحد أدنى و 5 كحد أقصى)</label>
@@ -710,7 +708,7 @@
     <div class="modal-content" style="border-bottom: 5px solid #00d2ff;">
         <i class="fas fa-arrow-right" onclick="closeRequestModal()" style="position: absolute; right: 20px; top: 25px; cursor: pointer; font-size: 24px; color: #00d2ff;"></i>
         
-        <h2 style="text-align: center; color: #00d2ff; margin: 30px 0 20px;"><i class="fas fa-hand-holding-heart"></i> إنشر طلبك</h2>
+        <h2 id="req-modal-title" style="text-align: center; color: #00d2ff; margin: 30px 0 20px;"><i class="fas fa-hand-holding-heart"></i> إنشر طلبك</h2>
         
         <div class="input-group">
             <label style="color: #00d2ff;">اكتب تفاصيل طلبك</label>
@@ -813,7 +811,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const districts = ["الحي الأول", "الحي الثاني", "الحي الثالث", "الحي الرابع", "الحي الخامس", "الحي السادس", "الحي السابع", "الحي الثامن", "الحي التاسع", "الحي العاشر", "قرية بهيج", "برج العرب القديم"];
+    // إضافة "دار مصر" كما طلب المستخدم
+    const districts = ["الحي الأول", "الحي الثاني", "الحي الثالث", "الحي الرابع", "الحي الخامس", "الحي السادس", "الحي السابع", "الحي الثامن", "الحي التاسع", "الحي العاشر", "دار مصر", "قرية بهيج", "برج العرب القديم"];
     let myID = localStorage.getItem('m_e_user_id') || 'u' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('m_e_user_id', myID);
     
@@ -831,6 +830,7 @@
     let trashed = JSON.parse(localStorage.getItem('m_e_trash')) || []; 
     let lastMenuSide = "";
     let currentAdsData = {};
+    let currentReqsData = {}; // تخزين الطلبات لتعديلها لاحقاً
     let pendingDeleteKey = null;
     let selectedImageData = ""; 
     let adPhotos = []; 
@@ -838,6 +838,7 @@
     
     let toastQueue = [];
     let isToastShowing = false;
+    let districtVisits = {}; // متابعة الزيارات
 
     function safeHTML(str) {
         if(!str) return "";
@@ -857,8 +858,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         startSplashScreen();
         init();
-        const submitBtn = document.getElementById('submitBtn');
-        if(submitBtn) submitBtn.addEventListener('click', submitAd);
     });
 
     function startSplashScreen() {
@@ -887,6 +886,23 @@
         renderDistricts(districts, 'dist-list');
         document.getElementById('adv-district').innerHTML = districts.map(d => `<option>${d}</option>`).join('');
         listenForAppUpdates();
+        listenToDistrictVisits();
+    }
+
+    function listenToDistrictVisits() {
+        db.ref('district_visits').on('value', snap => {
+            districtVisits = snap.val() || {};
+            districts.forEach((d, index) => {
+                const fireIcon = document.getElementById('fire-icon-' + index);
+                if(fireIcon) {
+                    if((districtVisits[d] || 0) >= 7) {
+                        fireIcon.style.display = 'inline-block';
+                    } else {
+                        fireIcon.style.display = 'none';
+                    }
+                }
+            });
+        });
     }
 
     function showToast(msg) { 
@@ -949,7 +965,10 @@
                 <div class="dist-info">
                     <span>${d}</span>
                     <div class="dist-rating" style="color:#FFD700;">${randomStars}</div>
-                    <div class="dist-demand"><i class="fas fa-fire" style="color:#ff4757; margin-left:4px;"></i><span class="live-counter">--</span> يبحثون حالياً</div>
+                    <div class="dist-demand">
+                        <i class="fas fa-fire fire-icon" id="fire-icon-${index}" style="display:none; color:#ff4757; margin-left:4px;"></i>
+                        <span class="live-counter" data-dist="${d}">--</span> يبحثون حالياً
+                    </div>
                 </div>
                 <i class="fas fa-chevron-left" style="color: var(--accent);"></i>
             </div>`;
@@ -958,20 +977,39 @@
         let updateLogic = () => {
             const now = new Date();
             const h = now.getHours();
-            const timeInMin = h * 60 + now.getMinutes(); 
+            const m = now.getMinutes();
+            const timeInMin = h * 60 + m; 
+            
+            let minBound = 0, maxBound = 0;
+            // توقيتات المستخدم الدقيقة
+            if (timeInMin >= 420 && timeInMin < 480) { minBound = 0; maxBound = 13; } // 7-8 AM
+            else if (timeInMin >= 480 && timeInMin < 600) { minBound = 0; maxBound = 47; } // 8-10 AM
+            else if (timeInMin >= 600 && timeInMin < 720) { minBound = 5; maxBound = 50; } // 10-12 PM
+            else if (timeInMin >= 720 && timeInMin < 1050) { minBound = 10; maxBound = 96; } // 12-5:30 PM
+            else if (timeInMin >= 1050 && timeInMin < 1365) { minBound = 5; maxBound = 136; } // 5:30-10:45 PM
+            else if (timeInMin >= 1365 || timeInMin < 300) { minBound = 0; maxBound = 11; } // 10:45 PM-5 AM
+            else if (timeInMin >= 300 && timeInMin < 420) { minBound = 0; maxBound = 18; } // 5-7 AM
+
             document.querySelectorAll('.live-counter').forEach(span => {
-                let currentVal = parseInt(span.innerText);
-                if (isNaN(currentVal)) {
-                    if (timeInMin >= 1395 || timeInMin < 360) currentVal = Math.floor(Math.random() * 22) + 5;
-                    else if (timeInMin >= 360 && timeInMin < 540) currentVal = Math.floor(Math.random() * 60) + 10;
-                    else if (timeInMin >= 540 && timeInMin < 615) currentVal = Math.floor(Math.random() * 100) + 20;
-                    else currentVal = Math.floor(Math.random() * 264) + 30;
+                const distName = span.getAttribute('data-dist');
+                let localMin = minBound; let localMax = maxBound;
+
+                if (distName === "قرية بهيج" || distName === "برج العرب القديم") {
+                    localMin = Math.floor(localMin / 2);
+                    localMax = Math.floor(localMax / 2);
                 }
-                const change = Math.floor(Math.random() * 3) + 1;
-                const direction = Math.random() > 0.5 ? 1 : -1;
-                let newVal = currentVal + (direction * change);
-                if (newVal < 3) newVal = 5; 
-                span.innerText = newVal;
+
+                let currentVal = parseInt(span.innerText);
+                if (isNaN(currentVal) || currentVal < localMin || currentVal > localMax) {
+                    currentVal = Math.floor(Math.random() * (localMax - localMin + 1)) + localMin;
+                } else {
+                    const change = Math.floor(Math.random() * 3); 
+                    const direction = Math.random() > 0.5 ? 1 : -1;
+                    currentVal = currentVal + (direction * change);
+                    if (currentVal < localMin) currentVal = localMin;
+                    if (currentVal > localMax) currentVal = localMax;
+                }
+                span.innerText = currentVal;
             });
             setTimeout(updateLogic, 5000);
         };
@@ -994,6 +1032,9 @@
     }
 
     function openDistrict(name) { 
+        // زيادة عداد الزيارات الخاص بالحي لإظهار علامة النار
+        db.ref('district_visits/' + name).transaction(v => (v || 0) + 1);
+
         const page = document.getElementById('sub-menu-page');
         page.style.display = 'block'; 
         page.style.zIndex = "2000";
@@ -1080,6 +1121,7 @@
             ${statusHtml}
             <div class="ad-tools">
                 <i class="fas fa-star star-btn ${isFav ? 'active' : ''}" onclick="toggleFav('${ad.key}')"></i>
+                <i class="fas fa-edit edit-btn" onclick="openEditAd('${ad.key}')" style="font-size:20px; color:#00d2ff; cursor:pointer;"></i>
                 <i class="fas fa-trash del-btn" onclick="moveToTrash('${ad.key}')"></i>
                 <i class="fas fa-share-alt share-tool-btn" onclick="shareAd('${ad.key}')"></i>
             </div>
@@ -1203,6 +1245,83 @@
         });
     }
 
+    // دوال النشر والتعديل الخاصة بالإعلانات
+    let currentEditAdKey = null;
+
+    function openAddModal() { 
+        currentEditAdKey = null;
+        document.getElementById('add-modal-title').innerText = "أنشر إعلانك مجاناً";
+        document.getElementById('price').value = "";
+        document.getElementById('desc').value = "";
+        document.getElementById('phone1').value = "";
+        document.getElementById('phone2').value = "";
+        document.getElementById('whatsapp').value = "";
+        document.getElementById('adv-pin').value = "";
+        adPhotos = [];
+        document.getElementById('img-preview-container').innerHTML = "";
+        
+        document.getElementById('submitBtn').innerText = "نشر الإعلان الآن مجاناً";
+        document.getElementById('submitBtn').onclick = submitAd;
+
+        document.getElementById('add-modal').style.display = 'block'; 
+    }
+    function closeAddModal() { document.getElementById('add-modal').style.display = 'none'; }
+
+    function openEditAd(key) {
+        currentEditAdKey = key;
+        const ad = currentAdsData[key];
+        document.getElementById('add-modal-title').innerText = "تعديل بيانات إعلانك";
+        document.getElementById('adv-district').value = ad.district;
+        document.getElementById('adv-type').value = ad.type;
+        document.getElementById('unit-type').value = ad.unitType;
+        document.getElementById('desc').value = ad.desc;
+        document.getElementById('price').value = ad.price;
+        document.getElementById('phone1').value = ad.phone1;
+        document.getElementById('phone2').value = ad.phone2 || "";
+        document.getElementById('whatsapp').value = ad.whatsapp || "";
+        document.getElementById('adv-pin').value = ad.pin;
+        
+        adPhotos = ad.allPhotos || (ad.image ? [ad.image] : []);
+        renderPreviews();
+        
+        document.getElementById('submitBtn').innerText = "حفظ التعديلات بنجاح";
+        document.getElementById('submitBtn').onclick = saveEditedAd;
+        document.getElementById('add-modal').style.display = 'block';
+    }
+
+    function saveEditedAd() {
+        if (!currentEditAdKey) return;
+        const p = document.getElementById('price').value;
+        const ph = document.getElementById('phone1').value;
+        const d = document.getElementById('desc').value;
+        const pin = document.getElementById('adv-pin').value;
+        if (adPhotos.length === 0) return showToast("يرجى رفع صورة واحدة على الأقل 📸");
+        if (!p || parseFloat(p) <= 0) return showToast("يرجى إدخال سعر صحيح 💰");
+        if (!ph || ph.length < 10) return showToast("يرجى إدخال رقم هاتف صحيح 📞");
+        if (!pin || !/^\d{4}$/.test(pin)) return showToast("الكود السري يجب أن يكون 4 أرقام 🔐");
+        
+        const sBtn = document.getElementById('submitBtn');
+        sBtn.disabled = true; sBtn.innerText = "جاري الحفظ...";
+
+        db.ref('ads/' + currentEditAdKey).update({
+            district: document.getElementById('adv-district').value, 
+            type: document.getElementById('adv-type').value, 
+            unitType: document.getElementById('unit-type').value,
+            desc: safeHTML(d) || "", 
+            price: parseFloat(p), 
+            phone1: safeHTML(ph) || "", 
+            phone2: safeHTML(document.getElementById('phone2').value) || "", 
+            whatsapp: safeHTML(document.getElementById('whatsapp').value) || "",
+            image: adPhotos[0], 
+            allPhotos: adPhotos, 
+            pin: pin
+        }).then(() => {
+            closeAddModal();
+            showToast("تم تعديل الإعلان بنجاح ✅");
+            sBtn.disabled = false;
+        }).catch(e => { sBtn.disabled = false; showToast("خطأ في الاتصال ❌"); });
+    }
+
     function submitAd() { 
         const p = document.getElementById('price').value;
         const ph = document.getElementById('phone1').value;
@@ -1212,9 +1331,11 @@
         if (!p || parseFloat(p) <= 0) return showToast("يرجى إدخال سعر صحيح 💰");
         if (!ph || ph.length < 10) return showToast("يرجى إدخال رقم هاتف صحيح 📞");
         if (!pin || !/^\d{4}$/.test(pin)) return showToast("الكود السري يجب أن يكون 4 أرقام 🔐");
+        
         const sBtn = document.getElementById('submitBtn');
         if(sBtn.disabled) return;
         sBtn.disabled = true; sBtn.innerText = "جاري النشر...";
+        
         db.ref('ads').push({
             district: document.getElementById('adv-district').value, 
             type: document.getElementById('adv-type').value, 
@@ -1233,26 +1354,96 @@
         }).then(() => { 
             closeAddModal();
             showToast("تم نشر إعلانك بنجاح ✅");
-            document.getElementById('price').value = "";
-            document.getElementById('desc').value = "";
-            document.getElementById('adv-pin').value = "";
-            adPhotos = [];
-            document.getElementById('img-preview-container').innerHTML = "";
             sBtn.disabled = false;
-            sBtn.innerText = "نشر الإعلان الآن مجاناً";
         }).catch(e => { sBtn.disabled = false; sBtn.innerText = "نشر الإعلان الآن مجاناً"; showToast("خطأ في الاتصال ❌"); });
     }
 
-    /* --- تم تعديل وتأمين هذه الدالة بنجاح لحل مشكلة الاتصال --- */
     function toggleOtherRequestDetails(val) {
         document.getElementById('req-other-group').style.display = (val === 'شئ اخر') ? 'block' : 'none';
     }
 
-    function openRequestModal() { document.getElementById('request-modal').style.display = 'block'; }
+    // دوال النشر والتعديل الخاصة بالطلبات
+    let currentEditReqKey = null;
+
+    function openRequestModal() { 
+        currentEditReqKey = null;
+        document.getElementById('req-modal-title').innerText = "إنشر طلبك";
+        document.getElementById('req-desc').value = "";
+        document.getElementById('req-type').value = "شقه";
+        toggleOtherRequestDetails("شقه");
+        document.getElementById('req-other-details').value = "";
+        document.getElementById('req-phone1').value = "";
+        document.getElementById('req-phone2').value = "";
+        document.getElementById('req-whatsapp').value = "";
+        
+        document.getElementById('submitReqBtn').innerText = "أنشر طلبك الأن";
+        document.getElementById('submitReqBtn').onclick = submitRequest;
+        
+        document.getElementById('request-modal').style.display = 'block'; 
+    }
     function closeRequestModal() { document.getElementById('request-modal').style.display = 'none'; }
 
+    function openEditReq(key) {
+        currentEditReqKey = key;
+        const req = currentReqsData[key];
+        document.getElementById('req-modal-title').innerText = "تعديل تفاصيل طلبك";
+        document.getElementById('req-desc').value = req.desc;
+        
+        if(req.type && req.type.includes("أخرى:")) {
+            document.getElementById('req-type').value = "شئ اخر";
+            toggleOtherRequestDetails("شئ اخر");
+            document.getElementById('req-other-details').value = req.type.replace("أخرى: ", "");
+        } else {
+            document.getElementById('req-type').value = req.type;
+            toggleOtherRequestDetails(req.type);
+        }
+        
+        document.getElementById('req-phone1').value = req.phone1;
+        document.getElementById('req-phone2').value = req.phone2 || "";
+        document.getElementById('req-whatsapp').value = req.whatsapp || "";
+        
+        document.getElementById('submitReqBtn').innerText = "حفظ تعديلات الطلب";
+        document.getElementById('submitReqBtn').onclick = saveEditedReq;
+        
+        document.getElementById('request-modal').style.display = 'block';
+    }
+
+    function saveEditedReq(event) {
+        if (event) event.preventDefault();
+        if (!currentEditReqKey) return;
+        
+        const desc = document.getElementById('req-desc').value || "";
+        let type = document.getElementById('req-type').value || "";
+        if (type === 'شئ اخر') {
+            const other = document.getElementById('req-other-details').value;
+            if (!other) return showToast("يرجى كتابة تفاصيل نوع الطلب ⚠️");
+            type = "أخرى: " + other;
+        }
+        const p1 = document.getElementById('req-phone1').value || "";
+        const p2 = document.getElementById('req-phone2').value || "";
+        const wa = document.getElementById('req-whatsapp').value || "";
+        
+        if (!desc.trim()) return showToast("يرجى كتابة تفاصيل طلبك 📝");
+        if (!p1 || p1.length < 10) return showToast("يرجى إدخال رقم تواصل إجباري صحيح 📞");
+        
+        const btn = document.getElementById('submitReqBtn');
+        btn.disabled = true; btn.innerText = "جاري الحفظ...";
+        
+        db.ref('requests/' + currentEditReqKey).update({
+            desc: safeHTML(desc) || "",
+            type: safeHTML(type) || "",
+            phone1: safeHTML(p1) || "",
+            phone2: safeHTML(p2) || "",
+            whatsapp: safeHTML(wa) || ""
+        }).then(() => {
+            closeRequestModal();
+            showToast("تم تعديل الطلب بنجاح ✅");
+            btn.disabled = false;
+        }).catch(e => { btn.disabled = false; showToast("خطأ في الاتصال ❌"); });
+    }
+
     function submitRequest(event) {
-        if (event) event.preventDefault(); // يمنع عمل ريفريش صامت للصفحة
+        if (event) event.preventDefault(); 
         
         const desc = document.getElementById('req-desc').value || "";
         let type = document.getElementById('req-type').value || "";
@@ -1285,24 +1476,15 @@
         db.ref('requests').push(requestData).then(() => {
             closeRequestModal();
             showToast("تم نشر طلبك بنجاح وسيظهر للجميع فورا ✅");
-            document.getElementById('req-desc').value = "";
-            document.getElementById('req-other-details').value = "";
-            document.getElementById('req-phone1').value = "";
-            document.getElementById('req-phone2').value = "";
-            document.getElementById('req-whatsapp').value = "";
             btn.disabled = false;
-            btn.innerText = "أنشر طلبك الأن";
         }).catch(e => {
             btn.disabled = false;
             btn.innerText = "أنشر طلبك الأن";
-            
-            // تنبيه ذكي إذا كانت المشكلة من صلاحيات فايربيس
             if(e.message && e.message.includes('permission')) {
                 showToast("خطأ: يرجى تفعيل صلاحيات requests في قواعد Firebase ⚠️");
             } else {
                 showToast("خطأ في الاتصال ❌");
             }
-            console.error("Database Error:", e);
         });
     }
 
@@ -1322,10 +1504,13 @@
             let reqs = [];
             snapshot.forEach(child => {
                 let r = child.val(); r.key = child.key;
+                currentReqsData[r.key] = r;
                 reqs.push(r);
             });
             reqs.reverse().forEach(r => {
-                html += renderRequestHTML(r);
+                const currentPhone = localStorage.getItem('borj_user_phone');
+                const isOwner = (r.ownerId === myID || r.ownerId === currentPhone || isDevModeActive);
+                html += renderRequestHTML(r, isOwner);
                 counter++;
             });
             
@@ -1356,6 +1541,7 @@
             let reqs = [];
             snapshot.forEach(child => {
                 let r = child.val(); r.key = child.key;
+                currentReqsData[r.key] = r;
                 if (r.ownerId === myID) reqs.push(r);
             });
             reqs.reverse().forEach(r => {
@@ -1385,10 +1571,12 @@
         contacts += `</div>`;
         
         let delBtn = isOwner ? `<i class="fas fa-trash del-btn" onclick="deleteRequest('${req.key}')" style="position: absolute; left: 15px; top: 15px; background: rgba(255,255,255,0.8); padding: 8px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"></i>` : '';
+        let editBtn = isOwner ? `<i class="fas fa-edit edit-btn" onclick="openEditReq('${req.key}')" style="position: absolute; left: 55px; top: 15px; background: rgba(255,255,255,0.8); padding: 8px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); color:#00d2ff; cursor:pointer;"></i>` : '';
         
         return `
         <div class="ad-item" style="border-right-color: #00d2ff; background: rgba(0, 210, 255, 0.03);">
             ${delBtn}
+            ${editBtn}
             <div style="font-weight:bold; font-size: 18px; margin-bottom: 8px; color: #00d2ff;"><i class="fas fa-hand-holding-heart"></i> مطلوب: ${req.type}</div>
             <p style="margin: 0 0 15px 0; line-height: 1.6; font-size: 15px; font-weight: bold;">${req.desc}</p>
             <div style="font-size: 12px; color: #888;"><i class="fas fa-clock"></i> ${new Date(req.createdAt).toLocaleDateString('ar-EG')}</div>
@@ -1425,8 +1613,6 @@
             }
         }
     }
-    function openAddModal() { document.getElementById('add-modal').style.display = 'block'; }
-    function closeAddModal() { document.getElementById('add-modal').style.display = 'none'; }
     function closeSubMenu() { document.getElementById('sub-menu-page').style.display = 'none'; }
     function processImage(file, cb) {
         const r = new FileReader(); r.onload = e => {
@@ -1661,12 +1847,14 @@
         };
         loadUserData();
 
+        // إخفاء أزرار الحذف والتعديل لغير صاحب الإعلان
         const originalRender = renderAdHTML;
         renderAdHTML = function(ad) {
             let html = originalRender(ad);
             const currentPhone = localStorage.getItem('borj_user_phone');
             if (ad.ownerId !== currentPhone && !isDevModeActive) {
                 html = html.replace(/<i class="fas fa-trash del-btn" onclick="moveToTrash\('[^']+'\)"><\/i>/, '');
+                html = html.replace(/<i class="fas fa-edit edit-btn" onclick="openEditAd\('[^']+'\)".*?><\/i>/, '');
             }
             return html;
         };
