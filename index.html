@@ -87,7 +87,7 @@
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        #confirm-modal, #reason-modal, #pin-modal, #add-modal, #sub-menu-page, #ads-page, .full-details-page { 
+        #confirm-modal, #reason-modal, #pin-modal, #add-modal, #request-modal, #sub-menu-page, #ads-page, .full-details-page { 
             will-change: opacity, transform; 
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
@@ -215,7 +215,7 @@
         .no-ads-visual { font-size: 40px; color: var(--accent); margin-bottom: 15px; }
         .no-ads-text { font-size: 17px; font-weight: 900; color: #666; line-height: 1.6; }
 
-        #add-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 6000; overflow-y: auto; padding: 20px 10px; }
+        #add-modal, #request-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 6000; overflow-y: auto; padding: 20px 10px; }
         
         .modal-content { 
             background: var(--white); 
@@ -229,7 +229,7 @@
         .input-group { margin-bottom: 15px; text-align: right; }
         .input-group label { display: block; margin-bottom: 6px; font-weight: bold; color: var(--accent); font-size: 14px; }
         .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid #ddd; outline: none; transition: 0.3s; }
-        .input-group input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(255,140,0,0.2); }
+        .input-group input:focus, .input-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(255,140,0,0.2); }
         
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 4500; display: none; animation: fadeIn 0.3s ease; }
         
@@ -472,7 +472,7 @@
             <label for="remember-me" style="font-size:15px; font-weight:bold; cursor:pointer;">حفظ بيانات التسجيل</label>
         </div>
         
-        <button class="auth-btn" onclick="performLogin()">دخول آمن</button>
+        <button class="auth-btn" type="button" onclick="performLogin()">دخول آمن</button>
         <div class="auth-toggle" onclick="toggleAuthForms('signup')">ليس لديك حساب؟ <b>أنشئ حسابك الآن</b></div>
     </div>
 
@@ -483,7 +483,7 @@
         <div class="input-group"><label>كلمة المرور</label><input type="password" id="signup-pass" placeholder="********"></div>
         <div class="input-group"><label>تأكيد نفس كلمة المرور</label><input type="password" id="signup-confirm" placeholder="********"></div>
         
-        <button class="auth-btn" onclick="performSignUp()">إنشاء الحساب وتسجيل الدخول</button>
+        <button class="auth-btn" type="button" onclick="performSignUp()">إنشاء الحساب وتسجيل الدخول</button>
         <div class="auth-toggle" onclick="toggleAuthForms('login')">تمتلك حساب؟ <b>سجل دخولك</b></div>
     </div>
 </div>
@@ -501,7 +501,7 @@
         <i class="fas fa-arrow-right" onclick="backToAppInDevMode()" style="cursor:pointer; font-size:18px;"></i>
         <span>محرر الأكواد الذكي (وضع المالك)</span>
         <div>
-            <button class="save-btn" onclick="saveNewCode()"><i class="fas fa-save"></i> حفظ التحديث</button>
+            <button class="save-btn" type="button" onclick="saveNewCode()"><i class="fas fa-save"></i> حفظ التحديث</button>
         </div>
     </div>
     <textarea id="code-area" spellcheck="false"></textarea>
@@ -515,8 +515,8 @@
             <input type="number" id="pin-verify-input" inputmode="numeric" placeholder="****" style="text-align:center; font-size:24px; letter-spacing:10px; border:2px solid var(--accent);">
         </div>
         <div class="confirm-btns">
-            <button class="btn-yes" onclick="verifyPinBeforeDelete()">تأكيد</button>
-            <button class="btn-no" onclick="document.getElementById('pin-modal').style.display='none'">إلغاء</button>
+            <button class="btn-yes" type="button" onclick="verifyPinBeforeDelete()">تأكيد</button>
+            <button class="btn-no" type="button" onclick="document.getElementById('pin-modal').style.display='none'">إلغاء</button>
         </div>
     </div>
 </div>
@@ -526,10 +526,10 @@
         <i class="fas fa-question-circle"></i>
         <p>لماذا سوف تقوم بحذف إعلانك؟</p>
         <div class="confirm-btns">
-            <button class="btn-yes" onclick="processDeletion('تم البيع')"><span>تم البيع</span><i class="fas fa-check-circle check-icon"></i></button>
-            <button class="btn-yes" onclick="processDeletion('تم الإيجار')"><span>تم الإيجار</span><i class="fas fa-check-circle check-icon"></i></button>
-            <button class="btn-no" onclick="processDeletion('حذف بدون أسباب')"><span>حذف بدون أسباب</span><i class="fas fa-check-circle check-icon"></i></button>
-            <button style="background:transparent; color:#888; border:none; margin-top:5px;" onclick="document.getElementById('reason-modal').style.display='none'">إلغاء</button>
+            <button class="btn-yes" type="button" onclick="processDeletion('تم البيع')"><span>تم البيع</span><i class="fas fa-check-circle check-icon"></i></button>
+            <button class="btn-yes" type="button" onclick="processDeletion('تم الإيجار')"><span>تم الإيجار</span><i class="fas fa-check-circle check-icon"></i></button>
+            <button class="btn-no" type="button" onclick="processDeletion('حذف بدون أسباب')"><span>حذف بدون أسباب</span><i class="fas fa-check-circle check-icon"></i></button>
+            <button style="background:transparent; color:#888; border:none; margin-top:5px;" type="button" onclick="document.getElementById('reason-modal').style.display='none'">إلغاء</button>
         </div>
     </div>
 </div>
@@ -556,6 +556,17 @@
         <span>أنشر إعلانك الآن مجاناً <i class="fas fa-bullhorn"></i></span>
         <i class="fas fa-plus-circle" style="font-size: 26px;"></i>
     </div>
+
+    <div class="card" style="background: linear-gradient(135deg, #00d2ff, #3a7bd5); color: white; border:none; box-shadow: 0 10px 20px rgba(0, 210, 255, 0.3);" onclick="openRequestModal()">
+        <span>إنشر طلبك <i class="fas fa-hand-holding-heart"></i></span>
+        <i class="fas fa-pen-alt" style="font-size: 26px;"></i>
+    </div>
+    
+    <div class="card" style="background: linear-gradient(135deg, #28a745, #218838); color: white; border:none; box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3); margin-bottom: 25px;" onclick="openAllRequestsPage()">
+        <span>تصفح طلبات المستخدمين <i class="fas fa-users"></i></span>
+        <i class="fas fa-list-alt" style="font-size: 26px;"></i>
+    </div>
+
     <div id="dist-list" class="page-transition"></div>
 </div>
 
@@ -589,8 +600,8 @@
         <i class="fas fa-exclamation-circle"></i>
         <p id="confirm-text"></p>
         <div class="confirm-btns">
-            <button class="btn-yes" id="confirm-btn-yes">تأكيد</button>
-            <button class="btn-no" onclick="closeConfirm()">إلغاء</button>
+            <button class="btn-yes" id="confirm-btn-yes" type="button">تأكيد</button>
+            <button class="btn-no" type="button" onclick="closeConfirm()">إلغاء</button>
         </div>
     </div>
 </div>
@@ -616,6 +627,13 @@
             <div style="display:flex; align-items:center; gap:12px; width:100%; justify-content:center;">
                 <i class="fas fa-bullhorn" style="color:var(--accent); font-size:1.3rem;"></i>
                 <span>إدارة إعلاناتي</span>
+            </div>
+        </div>
+        
+        <div class="card" onclick="openSpecialRequestsPage('إدارة طلباتي', 'right')">
+            <div style="display:flex; align-items:center; gap:12px; width:100%; justify-content:center;">
+                <i class="fas fa-clipboard-list" style="color:#00d2ff; font-size:1.3rem;"></i>
+                <span>إدارة طلباتي</span>
             </div>
         </div>
         
@@ -655,7 +673,7 @@
         <div id="developer-admin-section" style="display:none; margin-top:20px; border-top:1px solid #eee; padding-top:20px;">
              <label style="display:block; margin-bottom:10px; font-weight:bold; font-size:14px;">Admin password</label>
              <input type="password" id="dev-pass-input" placeholder="أدخل كلمة مرور المطور" style="width:100%; padding:14px; border-radius:12px; border:2px solid var(--accent); margin-bottom:15px;">
-             <button onclick="checkDevAccess()" style="width:100%; padding:14px; background:var(--dark); color:white; border-radius:12px; font-weight:bold; transition: 0.3s;">دخول وضع المطور</button>
+             <button type="button" onclick="checkDevAccess()" style="width:100%; padding:14px; background:var(--dark); color:white; border-radius:12px; font-weight:bold; transition: 0.3s;">دخول وضع المطور</button>
         </div>
     </div>
 </div>
@@ -684,7 +702,43 @@
         <div class="input-group"><label>رقم هاتف آخر</label><input type="tel" id="phone2" inputmode="tel" placeholder="اختياري"></div>
         <div class="input-group"><label>رقم واتساب</label><input type="tel" id="whatsapp" inputmode="tel" placeholder="اختياري"></div>
         <div class="input-group"><label>كود سري للحماية (4 أرقام)</label><input type="number" id="adv-pin" inputmode="numeric" placeholder="مثلاً: 1234 (لحذف الإعلان لاحقاً)"></div>
-        <button id="submitBtn" style="width:100%; padding:18px; background:var(--accent); color:white; border:none; border-radius:15px; font-weight:bold; font-size: 16px; box-shadow: 0 10px 20px rgba(255,140,0,0.3);">نشر الإعلان الآن مجاناً</button>
+        <button id="submitBtn" type="button" style="width:100%; padding:18px; background:var(--accent); color:white; border:none; border-radius:15px; font-weight:bold; font-size: 16px; box-shadow: 0 10px 20px rgba(255,140,0,0.3);">نشر الإعلان الآن مجاناً</button>
+    </div>
+</div>
+
+<div id="request-modal">
+    <div class="modal-content" style="border-bottom: 5px solid #00d2ff;">
+        <i class="fas fa-arrow-right" onclick="closeRequestModal()" style="position: absolute; right: 20px; top: 25px; cursor: pointer; font-size: 24px; color: #00d2ff;"></i>
+        
+        <h2 style="text-align: center; color: #00d2ff; margin: 30px 0 20px;"><i class="fas fa-hand-holding-heart"></i> إنشر طلبك</h2>
+        
+        <div class="input-group">
+            <label style="color: #00d2ff;">اكتب تفاصيل طلبك</label>
+            <textarea id="req-desc" rows="4" placeholder="اكتب كل التفاصيل اللي محتاجها (مثال: محتاج شقة 3 غرف في الحي الأول...)"></textarea>
+        </div>
+        
+        <div class="input-group">
+            <label style="color: #00d2ff;">نوع الطلب</label>
+            <select id="req-type" onchange="toggleOtherRequestDetails(this.value)" style="border-color: #00d2ff;">
+                <option value="شقه">شقه</option>
+                <option value="ارض">ارض</option>
+                <option value="منزل">منزل</option>
+                <option value="محل">محل</option>
+                <option value="ڤيلا">ڤيلا</option>
+                <option value="شئ اخر">شئ اخر</option>
+            </select>
+        </div>
+        
+        <div class="input-group" id="req-other-group" style="display:none;">
+            <label style="color: #00d2ff;">اكتب تفاصيل أخرى لنوع طلبك</label>
+            <input type="text" id="req-other-details" placeholder="حدد نوع الطلب (مثل: شاليه، مخزن...)">
+        </div>
+        
+        <div class="input-group"><label style="color: #00d2ff;">رقم تواصل إجبارى</label><input type="tel" id="req-phone1" inputmode="tel" placeholder="01xxxxxxxxx"></div>
+        <div class="input-group"><label style="color: #00d2ff;">رقم تواصل اخر إختيارى</label><input type="tel" id="req-phone2" inputmode="tel" placeholder="اختياري"></div>
+        <div class="input-group"><label style="color: #00d2ff;">رقم تواصل واتساب اختيارى</label><input type="tel" id="req-whatsapp" inputmode="tel" placeholder="اختياري"></div>
+        
+        <button id="submitReqBtn" type="button" onclick="submitRequest(event)" style="width:100%; padding:18px; background:linear-gradient(135deg, #00d2ff, #3a7bd5); color:white; border:none; border-radius:15px; font-weight:bold; font-size: 16px; box-shadow: 0 10px 20px rgba(0,210,255,0.3);">أنشر طلبك الأن</button>
     </div>
 </div>
 
@@ -1033,7 +1087,7 @@
             <div style="font-size:22px; color:var(--accent); font-weight:900; margin-top: 5px;">${Number(ad.price).toLocaleString()} ج.م</div>
             <div style="font-weight:bold; font-size: 16px; margin: 5px 0;">${safeHTML(ad.unitType)} - ${safeHTML(ad.district)}</div>
             <div class="views-count"><i class="fas fa-eye"></i> شاهده ${ad.views || 0} شخص</div>
-            <button class="full-info-btn" onclick="showFullDetails('${ad.key}')">عرض التفاصيل والاتصال</button>
+            <button class="full-info-btn" type="button" onclick="showFullDetails('${ad.key}')">عرض التفاصيل والاتصال</button>
         </div>`;
     }
 
@@ -1165,14 +1219,14 @@
             district: document.getElementById('adv-district').value, 
             type: document.getElementById('adv-type').value, 
             unitType: document.getElementById('unit-type').value,
-            desc: safeHTML(d), 
+            desc: safeHTML(d) || "", 
             price: parseFloat(p), 
-            phone1: safeHTML(ph), 
-            phone2: safeHTML(document.getElementById('phone2').value), 
-            whatsapp: safeHTML(document.getElementById('whatsapp').value),
+            phone1: safeHTML(ph) || "", 
+            phone2: safeHTML(document.getElementById('phone2').value) || "", 
+            whatsapp: safeHTML(document.getElementById('whatsapp').value) || "",
             image: adPhotos[0], 
             allPhotos: adPhotos, 
-            ownerId: myID, 
+            ownerId: myID || "guest", 
             pin: pin, 
             createdAt: firebase.database.ServerValue.TIMESTAMP, 
             views: 0 
@@ -1187,6 +1241,159 @@
             sBtn.disabled = false;
             sBtn.innerText = "نشر الإعلان الآن مجاناً";
         }).catch(e => { sBtn.disabled = false; sBtn.innerText = "نشر الإعلان الآن مجاناً"; showToast("خطأ في الاتصال ❌"); });
+    }
+
+    /* --- تم تعديل وتأمين هذه الدالة بنجاح لحل مشكلة الاتصال --- */
+    function toggleOtherRequestDetails(val) {
+        document.getElementById('req-other-group').style.display = (val === 'شئ اخر') ? 'block' : 'none';
+    }
+
+    function openRequestModal() { document.getElementById('request-modal').style.display = 'block'; }
+    function closeRequestModal() { document.getElementById('request-modal').style.display = 'none'; }
+
+    function submitRequest(event) {
+        if (event) event.preventDefault(); // يمنع عمل ريفريش صامت للصفحة
+        
+        const desc = document.getElementById('req-desc').value || "";
+        let type = document.getElementById('req-type').value || "";
+        if (type === 'شئ اخر') {
+            const other = document.getElementById('req-other-details').value;
+            if (!other) return showToast("يرجى كتابة تفاصيل نوع الطلب ⚠️");
+            type = "أخرى: " + other;
+        }
+        const p1 = document.getElementById('req-phone1').value || "";
+        const p2 = document.getElementById('req-phone2').value || "";
+        const wa = document.getElementById('req-whatsapp').value || "";
+        
+        if (!desc.trim()) return showToast("يرجى كتابة تفاصيل طلبك 📝");
+        if (!p1 || p1.length < 10) return showToast("يرجى إدخال رقم تواصل إجباري صحيح 📞");
+        
+        const btn = document.getElementById('submitReqBtn');
+        if(btn.disabled) return;
+        btn.disabled = true; btn.innerText = "جاري النشر...";
+        
+        const requestData = {
+            desc: safeHTML(desc) || "",
+            type: safeHTML(type) || "",
+            phone1: safeHTML(p1) || "",
+            phone2: safeHTML(p2) || "",
+            whatsapp: safeHTML(wa) || "",
+            ownerId: myID || localStorage.getItem('borj_user_phone') || "guest",
+            createdAt: firebase.database.ServerValue.TIMESTAMP
+        };
+        
+        db.ref('requests').push(requestData).then(() => {
+            closeRequestModal();
+            showToast("تم نشر طلبك بنجاح وسيظهر للجميع فورا ✅");
+            document.getElementById('req-desc').value = "";
+            document.getElementById('req-other-details').value = "";
+            document.getElementById('req-phone1').value = "";
+            document.getElementById('req-phone2').value = "";
+            document.getElementById('req-whatsapp').value = "";
+            btn.disabled = false;
+            btn.innerText = "أنشر طلبك الأن";
+        }).catch(e => {
+            btn.disabled = false;
+            btn.innerText = "أنشر طلبك الأن";
+            
+            // تنبيه ذكي إذا كانت المشكلة من صلاحيات فايربيس
+            if(e.message && e.message.includes('permission')) {
+                showToast("خطأ: يرجى تفعيل صلاحيات requests في قواعد Firebase ⚠️");
+            } else {
+                showToast("خطأ في الاتصال ❌");
+            }
+            console.error("Database Error:", e);
+        });
+    }
+
+    function openAllRequestsPage() {
+        const page = document.getElementById('ads-page');
+        page.style.display = 'block'; 
+        page.style.zIndex = "2100";
+        document.getElementById('ads-header-title').innerText = "طلبات المستخدمين"; 
+        document.getElementById('price-search-container').innerHTML = ""; 
+        const container = document.getElementById('ads-list-container'); 
+        container.innerHTML = "";
+        document.getElementById('main-loader').style.display = 'flex';
+        
+        db.ref('requests').on('value', snapshot => {
+            document.getElementById('main-loader').style.display = 'none';
+            let html = ""; let counter = 0;
+            let reqs = [];
+            snapshot.forEach(child => {
+                let r = child.val(); r.key = child.key;
+                reqs.push(r);
+            });
+            reqs.reverse().forEach(r => {
+                html += renderRequestHTML(r);
+                counter++;
+            });
+            
+            if (counter === 0) {
+                container.innerHTML = `<div class="no-ads-container">
+                    <div class="empty-visual-stack"><i class="fas fa-clipboard-list main-house" style="font-size:65px; opacity:0.3;"></i></div>
+                    <div class="no-ads-text">لا يوجد طلبات حالياً</div>
+                </div>`;
+            } else container.innerHTML = html;
+        });
+    }
+
+    function openSpecialRequestsPage(title, side) {
+        lastMenuSide = side; 
+        const page = document.getElementById('ads-page');
+        page.style.display = 'block'; 
+        page.style.zIndex = "2100";
+        document.getElementById('ads-header-title').innerText = title; 
+        document.getElementById('price-search-container').innerHTML = "";
+        const container = document.getElementById('ads-list-container'); 
+        container.innerHTML = "";
+        document.getElementById('main-loader').style.display = 'flex';
+        closeMenus();
+        
+        db.ref('requests').on('value', snapshot => {
+            document.getElementById('main-loader').style.display = 'none';
+            let html = ""; let counter = 0;
+            let reqs = [];
+            snapshot.forEach(child => {
+                let r = child.val(); r.key = child.key;
+                if (r.ownerId === myID) reqs.push(r);
+            });
+            reqs.reverse().forEach(r => {
+                html += renderRequestHTML(r, true);
+                counter++;
+            });
+            
+            if (counter === 0) {
+                container.innerHTML = `<div class="no-ads-container">
+                    <div class="empty-visual-stack"><i class="fas fa-clipboard-list main-house" style="font-size:65px; opacity:0.3;"></i></div>
+                    <div class="no-ads-text">لم تنشر أي طلبات بعد</div>
+                </div>`;
+            } else container.innerHTML = html;
+        });
+    }
+
+    function deleteRequest(key) {
+        if(confirm("هل أنت متأكد من حذف هذا الطلب؟")) {
+            db.ref('requests/' + key).remove().then(() => showToast("تم حذف الطلب بنجاح 🗑️"));
+        }
+    }
+
+    function renderRequestHTML(req, isOwner = false) {
+        let contacts = `<div class="action-row" style="margin-top: 15px;">`;
+        contacts += `<a href="tel:${req.phone1}" class="contact-btn btn-call"><i class="fas fa-phone" style="margin-left: 5px;"></i> اتصال</a>`;
+        if(req.whatsapp) contacts += `<a href="https://wa.me/2${req.whatsapp.replace(/\s/g, '')}" target="_blank" class="contact-btn btn-wa" style="margin-right: 8px;"><i class="fab fa-whatsapp" style="margin-left: 5px;"></i> واتساب</a>`;
+        contacts += `</div>`;
+        
+        let delBtn = isOwner ? `<i class="fas fa-trash del-btn" onclick="deleteRequest('${req.key}')" style="position: absolute; left: 15px; top: 15px; background: rgba(255,255,255,0.8); padding: 8px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"></i>` : '';
+        
+        return `
+        <div class="ad-item" style="border-right-color: #00d2ff; background: rgba(0, 210, 255, 0.03);">
+            ${delBtn}
+            <div style="font-weight:bold; font-size: 18px; margin-bottom: 8px; color: #00d2ff;"><i class="fas fa-hand-holding-heart"></i> مطلوب: ${req.type}</div>
+            <p style="margin: 0 0 15px 0; line-height: 1.6; font-size: 15px; font-weight: bold;">${req.desc}</p>
+            <div style="font-size: 12px; color: #888;"><i class="fas fa-clock"></i> ${new Date(req.createdAt).toLocaleDateString('ar-EG')}</div>
+            ${contacts}
+        </div>`;
     }
 
     function toggleMenu(side) { 
@@ -1212,7 +1419,11 @@
     function handleBackAction() { 
         document.getElementById('ads-page').style.display = 'none'; 
         const title = document.getElementById('ads-header-title').innerText;
-        if(['المفضلة', 'المحذوفات', 'إعلاناتي', 'الإدارة'].includes(title)) toggleMenu(lastMenuSide || 'right');
+        if(['المفضلة', 'المحذوفات', 'إعلاناتي', 'الإدارة', 'إدارة طلباتي', 'طلبات المستخدمين'].includes(title)) {
+            if (title !== 'طلبات المستخدمين') {
+                toggleMenu(lastMenuSide || 'right');
+            }
+        }
     }
     function openAddModal() { document.getElementById('add-modal').style.display = 'block'; }
     function closeAddModal() { document.getElementById('add-modal').style.display = 'none'; }
