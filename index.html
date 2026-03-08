@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <style>
+        /* جميع الأنماط كما هي دون تغيير */
         :root { 
             --accent: #FF8C00; 
             --bg: #F8F9FA; 
@@ -768,7 +769,8 @@
         <h2 id="add-modal-title" style="text-align: center; color: var(--accent); margin: 30px 0 20px;">أنشر إعلانك مجاناً</h2>
         
         <div class="input-group">
-            <label>صور الوحدة (صوره واحدة كحد أدنى و 5 كحد أقصى)</label>
+            <!-- تعديل النص إلى 3 صور كحد أقصى -->
+            <label>صور الوحدة (صورة واحدة كحد أدنى و 3 كحد أقصى)</label>
             <div class="image-upload-box">
                 <i class="fas fa-camera" style="font-size: 24px; margin-bottom: 5px; display: block;"></i> أضف صوراً احترافية
                 <input type="file" id="adv-image" accept="image/*" multiple onchange="handleImageSelect(this)">
@@ -1053,6 +1055,10 @@
             document.getElementById('profile-name-display').innerText = currentName || 'مستخدم';
             loadUserProfileData(currentPhone);
         }
+        
+        // بدء تشغيل مهمة التنظيف التلقائي كل ساعة
+        autoCleanOldAds(); // تشغيل مرة أولى
+        setInterval(autoCleanOldAds, 60 * 60 * 1000); // كل ساعة
     });
 
     function startSplashScreen() {
@@ -1120,8 +1126,9 @@
 
     function handleImageSelect(input) {
         const files = Array.from(input.files);
-        if (adPhotos.length + files.length > 5) {
-            showToast("⚠️ الحد الأقصى 5 صور فقط");
+        // تعديل الحد الأقصى من 5 إلى 3
+        if (adPhotos.length + files.length > 3) {
+            showToast("⚠️ الحد الأقصى 3 صور فقط");
             input.value = "";
             return;
         }
@@ -1291,8 +1298,8 @@
                 let data = child.val(); data.key = child.key;
                 currentAdsData[data.key] = data;
                 if (data.soldStatus && data.updatedAt) {
-                    const daysDiff = (now - data.updatedAt) / (1000 * 60 * 60 * 24);
-                    if (daysDiff >= 3) {
+                    const hoursDiff = (now - data.updatedAt) / (1000 * 60 * 60);
+                    if (hoursDiff >= 36) { // تعديل من 3 أيام إلى 36 ساعة
                         db.ref('ads_backup/' + data.key).set(data).then(() => db.ref('ads/' + data.key).remove());
                         return; 
                     }
@@ -1430,7 +1437,7 @@
                 trashed.push({ id: pendingDeleteKey, time: Date.now() });
                 localStorage.setItem('m_e_trash', JSON.stringify(trashed));
                 document.getElementById('reason-modal').style.display = 'none';
-                showToast('تم النقل للسلة (سيحذف بعد 3 أيام) ✅');
+                showToast('تم النقل للسلة (سيحذف بعد 36 ساعة) ✅');
                 handleBackAction();
             });
         }
@@ -1859,7 +1866,13 @@
                 cvs.width = 800; cvs.height = (img.height * 800) / img.width;
                 ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
                 ctx.fillStyle = "rgba(255,140,0,0.6)"; ctx.font = "bold 22px sans-serif"; ctx.fillText("M:i Real Estate", 25, cvs.height-25);
-                cb(cvs.toDataURL('image/jpeg', 0.75)); 
+                // تعديل لتحويل الصورة إلى WebP بدلاً من JPEG
+                try {
+                    cb(cvs.toDataURL('image/webp', 0.75));
+                } catch(e) {
+                    // إذا لم يدعم المتصفح WebP نستخدم JPEG كبديل
+                    cb(cvs.toDataURL('image/jpeg', 0.75));
+                }
             }; img.src = e.target.result;
         }; r.readAsDataURL(file);
     }
@@ -1926,18 +1939,51 @@
         }
     };
 
+    /**
+     * دالة التنظيف التلقائي الرئيسية: تحذف الإعلانات المباعة/المستأجرة بعد 36 ساعة،
+     * وتحذف الإعلانات النشطة بعد 3 أشهر، وتحذف الطلبات القديمة بعد سنة.
+     */
     function autoCleanOldAds() {
         const now = Date.now();
+        const THIRTY_SIX_HOURS = 36 * 60 * 60 * 1000;      // 36 ساعة
+        const THREE_MONTHS = 90 * 24 * 60 * 60 * 1000;     // 90 يوماً
+        const ONE_YEAR = 365 * 24 * 60 * 60 * 1000;        // سنة واحدة
+
+        // 1. حذف الإعلانات المباعة/المستأجرة التي انتهت مدتها (36 ساعة)
         db.ref('ads').once('value', snapshot => {
             snapshot.forEach(child => {
                 const ad = child.val();
-                if (ad.soldStatus && ad.updatedAt && (now - ad.updatedAt > 259200000)) {
-                    db.ref('ads_backup/' + child.key).set(ad).then(() => db.ref('ads/' + child.key).remove());
+                const key = child.key;
+                if (ad.soldStatus && ad.updatedAt && (now - ad.updatedAt > THIRTY_SIX_HOURS)) {
+                    // نقل نسخة احتياطية (اختياري) ثم حذف
+                    db.ref('ads_backup/' + key).set(ad).then(() => db.ref('ads/' + key).remove());
+                }
+            });
+        });
+
+        // 2. حذف الإعلانات النشطة التي مضى عليها أكثر من 3 أشهر
+        db.ref('ads').once('value', snapshot => {
+            snapshot.forEach(child => {
+                const ad = child.val();
+                const key = child.key;
+                // نتحقق أنها ليست مباعة/مستأجرة (أي لا يوجد soldStatus) وأن تاريخ الإنشاء قديم
+                if (!ad.soldStatus && ad.createdAt && (now - ad.createdAt > THREE_MONTHS)) {
+                    db.ref('ads_backup/' + key).set(ad).then(() => db.ref('ads/' + key).remove());
+                }
+            });
+        });
+
+        // 3. (اختياري) حذف الطلبات القديمة التي مضى عليها أكثر من سنة
+        db.ref('requests').once('value', snapshot => {
+            snapshot.forEach(child => {
+                const req = child.val();
+                const key = child.key;
+                if (req.createdAt && (now - req.createdAt > ONE_YEAR)) {
+                    db.ref('requests_backup/' + key).set(req).then(() => db.ref('requests/' + key).remove());
                 }
             });
         });
     }
-    autoCleanOldAds();
 
     function toggleAuthForms(type) {
         document.getElementById('login-form').style.display = (type === 'login' ? 'block' : 'none');
