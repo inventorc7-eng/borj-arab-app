@@ -87,7 +87,7 @@
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        #confirm-modal, #reason-modal, #pin-modal, #add-modal, #request-modal, #sub-menu-page, #ads-page, .full-details-page { 
+        #confirm-modal, #reason-modal, #pin-modal, #add-modal, #request-modal, #sub-menu-page, #ads-page, .full-details-page, #user-account-page { 
             will-change: opacity, transform; 
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
@@ -138,7 +138,7 @@
             letter-spacing: 1px;
             background: linear-gradient(135deg, #ffffff 0%, #ff8c00 100%); 
             -webkit-background-clip: text; 
-            -webkit-fill-color: transparent;
+            -webkit-text-fill-color: transparent;
             opacity: 0.8;
             font-family: 'Segoe UI', Roboto, sans-serif;
         }
@@ -443,6 +443,68 @@
         .glass-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: center; }
         .floating-header { text-align: center; margin-bottom: 25px; font-size: 22px; color: var(--accent); font-weight: 900; position: relative; }
         .floating-header::after { content: ""; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 50px; height: 3px; background: var(--accent); border-radius: 2px; }
+        
+        /* إضافات صفحة حساب المستخدم */
+        .profile-header-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 30px 20px;
+            border-radius: 30px;
+            margin-bottom: 25px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
+        }
+        .profile-image-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid white;
+            margin-bottom: 15px;
+            object-fit: cover;
+        }
+        .profile-name-large {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .profile-phone-large {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .info-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+        .info-title {
+            color: var(--accent);
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .password-match-success {
+            color: #28a745;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .password-match-error {
+            color: #ff4757;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .whatsapp-message-preview {
+            background: rgba(37, 211, 102, 0.1);
+            border-right: 4px solid #25D366;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body id="main-body">
@@ -479,7 +541,7 @@
         <div class="input-group"><label>الاسم (بالعربي أو بالإنجليزي)</label><input type="text" id="signup-name" placeholder="أدخل اسمك بالكامل"></div>
         <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="signup-phone" placeholder="01xxxxxxxxx"></div>
         <div class="input-group"><label>كلمة المرور</label><input type="password" id="signup-pass" placeholder="********"></div>
-        <div class="input-group"><label>تأكيد نفس كلمة المرور</label><input type="password" id="signup-confirm" placeholder="********"></div>
+        <div class="input-group"><label>تأكيد كلمة المرور</label><input type="password" id="signup-confirm" placeholder="********"></div>
         
         <button class="auth-btn" type="button" onclick="performSignUp()">إنشاء الحساب وتسجيل الدخول</button>
         <div class="auth-toggle" onclick="toggleAuthForms('login')">تمتلك حساب؟ <b>سجل دخولك</b></div>
@@ -508,12 +570,12 @@
 <div id="pin-modal">
     <div class="confirm-card">
         <i class="fas fa-lock"></i>
-        <p>أدخل الكود السري الخاص بك لحذف هذا الإعلان نهائياً</p>
+        <p id="pin-modal-message">أدخل الكود السري (4 أرقام) لحذف الإعلان</p>
         <div class="input-group">
-            <input type="number" id="pin-verify-input" inputmode="numeric" placeholder="****" style="text-align:center; font-size:24px; letter-spacing:10px; border:2px solid var(--accent);">
+            <input type="text" id="pin-verify-input" inputmode="text" placeholder="****" style="text-align:center; font-size:24px; letter-spacing:5px; border:2px solid var(--accent);">
         </div>
         <div class="confirm-btns">
-            <button class="btn-yes" type="button" onclick="verifyPinBeforeDelete()">تأكيد</button>
+            <button class="btn-yes" id="pin-confirm-btn" type="button">تأكيد</button>
             <button class="btn-no" type="button" onclick="document.getElementById('pin-modal').style.display='none'">إلغاء</button>
         </div>
     </div>
@@ -590,6 +652,11 @@
         <h3 style="border-right: 5px solid var(--accent); padding-right: 12px; font-size: 19px; margin-bottom: 15px;">الوصف والتفاصيل</h3>
         <p id="fd-desc" style="line-height: 1.8; background: var(--white); padding: 20px; border-radius: 20px; box-shadow: var(--shadow); font-size: 16px;"></p>
         <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 25px; padding-bottom: 30px;" id="fd-contacts"></div>
+        <div id="whatsapp-message-preview" class="whatsapp-message-preview" style="display: none;">
+            <i class="fab fa-whatsapp" style="color: #25D366; font-size: 18px;"></i>
+            <strong>نص الرسالة التلقائي:</strong>
+            <p style="margin: 8px 0 0 0; font-size: 12px;">"السلام عليكم ورحمة الله وبركاته، لقد رأيت إعلانك عبر موقع M:i Real Estate (Borg Alarab)"</p>
+        </div>
     </div>
 </div>
 
@@ -658,10 +725,28 @@
 </div>
 
 <div id="menu-left" class="side-menu">
-    <div class="side-menu-header" onclick="closeMenus()">
-        <span class="admin-name-3d">لوحة التحكم الإدارية</span>
+    <div class="side-menu-header" style="padding: 20px; text-align: center; background: linear-gradient(145deg, var(--dark), #000);">
+        <div style="position: relative; display: inline-block;">
+            <img id="profile-image-display" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" 
+                 style="width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover;">
+            <i class="fas fa-camera" onclick="openProfileImagePicker()" 
+               style="position: absolute; bottom: 0; left: 0; background: var(--accent); padding: 8px; border-radius: 50%; font-size: 12px; cursor: pointer;"></i>
+        </div>
+        <h3 id="profile-name-display" style="margin: 10px 0 5px; color: white;">مستخدم جديد</h3>
+        <p id="profile-phone-display" style="margin: 0; font-size: 12px; opacity: 0.7; color: #ccc;">...</p>
     </div>
+    
     <div style="padding:20px;" id="admin-controls-area">
+        <div class="card" onclick="openUserAccount()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 15px; width: 100%;">
+                <i class="fas fa-user-circle" style="font-size: 28px;"></i>
+                <div>
+                    <div style="font-weight: bold; font-size: 16px;">حساب المستخدم</div>
+                    <div style="font-size: 11px; opacity: 0.8;">إدارة بياناتك الشخصية</div>
+                </div>
+            </div>
+        </div>
+        
         <div id="exit-dev-btn" class="card" onclick="exitDevMode()" style="display:none; border-right: 6px solid #ff4757;">
             <span>الخروج من وضع المطور <i class="fas fa-sign-out-alt" style="color:#ff4757;"></i></span>
         </div>
@@ -732,6 +817,26 @@
             <input type="text" id="req-other-details" placeholder="حدد نوع الطلب (مثل: شاليه، مخزن...)">
         </div>
         
+        <div class="input-group">
+            <label style="color: #00d2ff;">📍 الحي المطلوب</label>
+            <select id="req-district" style="border-color: #00d2ff;">
+                <option value="">كل الأحياء</option>
+                <option value="الحي الأول">الحي الأول</option>
+                <option value="الحي الثاني">الحي الثاني</option>
+                <option value="الحي الثالث">الحي الثالث</option>
+                <option value="الحي الرابع">الحي الرابع</option>
+                <option value="الحي الخامس">الحي الخامس</option>
+                <option value="الحي السادس">الحي السادس</option>
+                <option value="الحي السابع">الحي السابع</option>
+                <option value="الحي الثامن">الحي الثامن</option>
+                <option value="الحي التاسع">الحي التاسع</option>
+                <option value="الحي العاشر">الحي العاشر</option>
+                <option value="دار مصر">دار مصر</option>
+                <option value="قرية بهيج">قرية بهيج</option>
+                <option value="برج العرب القديم">برج العرب القديم</option>
+            </select>
+        </div>
+        
         <div class="input-group"><label style="color: #00d2ff;">رقم تواصل إجبارى</label><input type="tel" id="req-phone1" inputmode="tel" placeholder="01xxxxxxxxx"></div>
         <div class="input-group"><label style="color: #00d2ff;">رقم تواصل اخر إختيارى</label><input type="tel" id="req-phone2" inputmode="tel" placeholder="اختياري"></div>
         <div class="input-group"><label style="color: #00d2ff;">رقم تواصل واتساب اختيارى</label><input type="tel" id="req-whatsapp" inputmode="tel" placeholder="اختياري"></div>
@@ -790,6 +895,84 @@
     </div>
 </div>
 
+<!-- صفحة حساب المستخدم الجديدة -->
+<div id="user-account-page" style="display: none; position: fixed; inset: 0; background: var(--bg); z-index: 9000; overflow-y: auto;">
+    <div class="sub-header" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+        <i class="fas fa-arrow-right" onclick="closeUserAccount()" style="font-size: 22px; cursor: pointer; color: white;"></i>
+        <span style="flex: 1; text-align: center; font-weight: bold; color: white;">إدارة الحساب الشخصي</span>
+    </div>
+    
+    <div class="container" style="padding-top: 20px;">
+        <!-- الهيدر الشخصي -->
+        <div class="profile-header-card">
+            <div style="position: relative; display: inline-block;">
+                <img id="profile-image-edit" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" 
+                     class="profile-image-large">
+                <div onclick="openProfileImagePicker()" style="position: absolute; bottom: 5px; left: 5px; background: var(--accent); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white;">
+                    <i class="fas fa-camera" style="color: white;"></i>
+                </div>
+            </div>
+            <h3 class="profile-name-large" id="profile-name-edit">مستخدم جديد</h3>
+            <p class="profile-phone-large" id="profile-phone-edit">...</p>
+            <p style="font-size: 11px; opacity: 0.7; margin-top: 10px;">اضغط على الكاميرا لتغيير الصورة الشخصية</p>
+        </div>
+
+        <!-- بطاقة المعلومات الأساسية -->
+        <div class="info-card">
+            <div class="info-title">
+                <i class="fas fa-info-circle" style="color: var(--accent);"></i>
+                <span>المعلومات الأساسية</span>
+            </div>
+            
+            <div class="input-group">
+                <label>👤 الاسم الكامل</label>
+                <input type="text" id="edit-user-name" placeholder="أدخل اسمك" style="background: var(--white);">
+            </div>
+
+            <div class="input-group">
+                <label>📱 رقم الهاتف الحالي</label>
+                <input type="tel" id="current-phone-display" readonly disabled style="background: #f0f0f0; color: #666;">
+                <p style="font-size: 12px; color: #ff4757; margin-top: 5px;">
+                    <i class="fas fa-exclamation-triangle"></i> تنبيه: تغيير رقم الهاتف سيسجل خروجك من التطبيق
+                </p>
+            </div>
+
+            <div class="input-group">
+                <label>📱 رقم هاتف جديد (اختياري)</label>
+                <input type="tel" id="new-phone-number" placeholder="أدخل رقم الهاتف الجديد">
+            </div>
+        </div>
+
+        <!-- بطاقة تغيير كلمة المرور -->
+        <div class="info-card" style="border-bottom: 3px solid #ff4757;">
+            <div class="info-title">
+                <i class="fas fa-lock" style="color: #ff4757;"></i>
+                <span style="color: #ff4757;">تغيير كلمة المرور</span>
+            </div>
+            
+            <div class="input-group">
+                <label>🔐 كلمة المرور الجديدة</label>
+                <input type="password" id="new-password" placeholder="أدخل كلمة المرور الجديدة" oninput="checkPasswordMatch()">
+            </div>
+
+            <div class="input-group">
+                <label>🔐 تأكيد كلمة المرور الجديدة</label>
+                <input type="password" id="confirm-new-password" placeholder="أعد كتابة كلمة المرور" oninput="checkPasswordMatch()">
+                <div id="password-match-message" style="font-size: 12px; margin-top: 5px;"></div>
+            </div>
+        </div>
+
+        <!-- أزرار التحكم -->
+        <button onclick="saveUserChanges()" style="width: 100%; padding: 18px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 16px; margin-bottom: 15px; cursor: pointer;">
+            <i class="fas fa-save"></i> حفظ التغييرات
+        </button>
+        
+        <button onclick="logoutApp()" style="width: 100%; padding: 15px; background: transparent; color: #ff4757; border: 2px solid #ff4757; border-radius: 15px; font-weight: bold; cursor: pointer; margin-bottom: 30px;">
+            <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+        </button>
+    </div>
+</div>
+
 <script>
     const _s = [
         atob("QUl6YVN5QllueXRuVUY0ZnBRSHpZeTM1MUhNM09ocnRwN0RpdXVZ"), 
@@ -811,7 +994,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // إضافة "دار مصر" كما طلب المستخدم
     const districts = ["الحي الأول", "الحي الثاني", "الحي الثالث", "الحي الرابع", "الحي الخامس", "الحي السادس", "الحي السابع", "الحي الثامن", "الحي التاسع", "الحي العاشر", "دار مصر", "قرية بهيج", "برج العرب القديم"];
     let myID = localStorage.getItem('m_e_user_id') || 'u' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('m_e_user_id', myID);
@@ -830,7 +1012,7 @@
     let trashed = JSON.parse(localStorage.getItem('m_e_trash')) || []; 
     let lastMenuSide = "";
     let currentAdsData = {};
-    let currentReqsData = {}; // تخزين الطلبات لتعديلها لاحقاً
+    let currentReqsData = {};
     let pendingDeleteKey = null;
     let selectedImageData = ""; 
     let adPhotos = []; 
@@ -838,7 +1020,11 @@
     
     let toastQueue = [];
     let isToastShowing = false;
-    let districtVisits = {}; // متابعة الزيارات
+    let districtVisits = {};
+    
+    // متغيرات صفحة المستخدم
+    let currentUserData = null;
+    let isUserAccountMode = false; // للتمييز بين وضع حذف الإعلان ووضع حساب المستخدم
 
     function safeHTML(str) {
         if(!str) return "";
@@ -858,6 +1044,15 @@
     document.addEventListener('DOMContentLoaded', () => {
         startSplashScreen();
         init();
+        
+        // تحميل بيانات المستخدم إذا كان مسجل دخول
+        const currentPhone = localStorage.getItem('borj_user_phone');
+        const currentName = localStorage.getItem('borj_user_name');
+        if (currentPhone) {
+            document.getElementById('profile-phone-display').innerText = currentPhone;
+            document.getElementById('profile-name-display').innerText = currentName || 'مستخدم';
+            loadUserProfileData(currentPhone);
+        }
     });
 
     function startSplashScreen() {
@@ -981,14 +1176,14 @@
             const timeInMin = h * 60 + m; 
             
             let minBound = 0, maxBound = 0;
-            // توقيتات المستخدم الدقيقة
-            if (timeInMin >= 420 && timeInMin < 480) { minBound = 0; maxBound = 13; } // 7-8 AM
-            else if (timeInMin >= 480 && timeInMin < 600) { minBound = 0; maxBound = 47; } // 8-10 AM
-            else if (timeInMin >= 600 && timeInMin < 720) { minBound = 5; maxBound = 50; } // 10-12 PM
-            else if (timeInMin >= 720 && timeInMin < 1050) { minBound = 10; maxBound = 96; } // 12-5:30 PM
-            else if (timeInMin >= 1050 && timeInMin < 1365) { minBound = 5; maxBound = 136; } // 5:30-10:45 PM
-            else if (timeInMin >= 1365 || timeInMin < 300) { minBound = 0; maxBound = 11; } // 10:45 PM-5 AM
-            else if (timeInMin >= 300 && timeInMin < 420) { minBound = 0; maxBound = 18; } // 5-7 AM
+            
+            if (timeInMin >= 420 && timeInMin < 480) { minBound = 0; maxBound = 13; }
+            else if (timeInMin >= 480 && timeInMin < 600) { minBound = 0; maxBound = 47; }
+            else if (timeInMin >= 600 && timeInMin < 720) { minBound = 5; maxBound = 50; }
+            else if (timeInMin >= 720 && timeInMin < 1050) { minBound = 10; maxBound = 96; }
+            else if (timeInMin >= 1050 && timeInMin < 1365) { minBound = 5; maxBound = 136; }
+            else if (timeInMin >= 1365 || timeInMin < 300) { minBound = 0; maxBound = 11; }
+            else if (timeInMin >= 300 && timeInMin < 420) { minBound = 0; maxBound = 18; }
 
             document.querySelectorAll('.live-counter').forEach(span => {
                 const distName = span.getAttribute('data-dist');
@@ -1019,12 +1214,31 @@
     async function shareAd(key) {
         const ad = currentAdsData[key];
         if (!ad) return;
+        
+        const message = `السلام عليكم ورحمة الله وبركاته 
+لقد رأيت إعلانك عبر موقع M:i Real Estate (Borg Alarab)
+
+📋 تفاصيل الإعلان:
+🏠 نوع الوحدة: ${ad.unitType}
+📍 الحي: ${ad.district}
+💰 السعر: ${Number(ad.price).toLocaleString()} ج.م
+📝 الوصف: ${ad.desc || 'لا يوجد وصف'}
+
+تم الإرسال عبر تطبيق M:i العقاري`;
+
         const shareData = {
             title: 'M:i العقاري',
-            text: `🏠 ${ad.unitType} في ${ad.district}\n💰 السعر: ${Number(ad.price).toLocaleString()} ج.م\n📞 للتواصل: ${ad.phone1}`,
+            text: message,
             url: window.location.href
         };
-        try { if (navigator.share) await navigator.share(shareData); else { navigator.clipboard.writeText(shareData.text + "\n" + window.location.href); showToast("تم نسخ التفاصيل ✅"); } } catch (err) {}
+        
+        try { 
+            if (navigator.share) await navigator.share(shareData); 
+            else { 
+                navigator.clipboard.writeText(message + "\n" + window.location.href); 
+                showToast("تم نسخ التفاصيل مع رسالة الترحيب ✅"); 
+            } 
+        } catch (err) {}
     }
 
     async function shareAppMain() {
@@ -1032,7 +1246,6 @@
     }
 
     function openDistrict(name) { 
-        // زيادة عداد الزيارات الخاص بالحي لإظهار علامة النار
         db.ref('district_visits/' + name).transaction(v => (v || 0) + 1);
 
         const page = document.getElementById('sub-menu-page');
@@ -1157,21 +1370,39 @@
         document.getElementById('fd-type').innerText = ad.type; 
         document.getElementById('fd-date').innerText = new Date(ad.createdAt).toLocaleDateString('ar-EG');
         document.getElementById('fd-desc').innerText = ad.desc;
+        
+        document.getElementById('whatsapp-message-preview').style.display = 'block';
+        
         let contacts = `<a href="tel:${ad.phone1}" class="contact-btn btn-call"><i class="fas fa-phone" style="margin-left: 8px;"></i> اتصال هاتفي</a>`;
         if(ad.phone2) contacts += `<a href="tel:${ad.phone2}" class="contact-btn btn-call" style="background:#007bff; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);"><i class="fas fa-phone" style="margin-left: 8px;"></i> اتصال هاتف 2</a>`;
-        if(ad.whatsapp) contacts += `<a href="https://wa.me/2${ad.whatsapp.replace(/\s/g, '')}" target="_blank" class="contact-btn btn-wa"><i class="fab fa-whatsapp" style="margin-left: 8px;"></i> مراسلة واتساب</a>`;
+        if(ad.whatsapp) contacts += `<a href="https://wa.me/2${ad.whatsapp.replace(/\s/g, '')}?text=${encodeURIComponent('السلام عليكم ورحمة الله وبركاته لقد رأيت إعلانك عبر موقع M:i Real Estate (Borg Alarab)')}" target="_blank" class="contact-btn btn-wa"><i class="fab fa-whatsapp" style="margin-left: 8px;"></i> مراسلة واتساب</a>`;
         document.getElementById('fd-contacts').innerHTML = contacts;
     }
 
-    function closeFullDetails() { document.getElementById('full-details-view').style.display = 'none'; }
-    function toggleFav(key) { if (favorites.includes(key)) favorites = favorites.filter(k => k !== key); else favorites.push(key); localStorage.setItem('m_e_favs', JSON.stringify(favorites)); event.target.classList.toggle('active'); }
+    function closeFullDetails() { 
+        document.getElementById('full-details-view').style.display = 'none';
+        document.getElementById('whatsapp-message-preview').style.display = 'none';
+    }
+    
+    function toggleFav(key) { 
+        if (favorites.includes(key)) favorites = favorites.filter(k => k !== key); 
+        else favorites.push(key); 
+        localStorage.setItem('m_e_favs', JSON.stringify(favorites)); 
+        event.target.classList.toggle('active'); 
+    }
     
     function moveToTrash(key) { 
+        isUserAccountMode = false;
         pendingDeleteKey = key;
         document.getElementById('pin-verify-input').value = "";
+        document.getElementById('pin-modal-message').innerText = "أدخل الكود السري (4 أرقام) لحذف الإعلان";
+        document.getElementById('pin-verify-input').type = "number";
+        document.getElementById('pin-verify-input').inputMode = "numeric";
         const modal = document.getElementById('pin-modal');
         modal.style.display = 'flex';
         modal.style.zIndex = "10001";
+        
+        document.getElementById('pin-confirm-btn').onclick = verifyPinBeforeDelete;
     }
 
     function verifyPinBeforeDelete() {
@@ -1245,7 +1476,6 @@
         });
     }
 
-    // دوال النشر والتعديل الخاصة بالإعلانات
     let currentEditAdKey = null;
 
     function openAddModal() { 
@@ -1362,7 +1592,6 @@
         document.getElementById('req-other-group').style.display = (val === 'شئ اخر') ? 'block' : 'none';
     }
 
-    // دوال النشر والتعديل الخاصة بالطلبات
     let currentEditReqKey = null;
 
     function openRequestModal() { 
@@ -1372,6 +1601,7 @@
         document.getElementById('req-type').value = "شقه";
         toggleOtherRequestDetails("شقه");
         document.getElementById('req-other-details').value = "";
+        document.getElementById('req-district').value = "";
         document.getElementById('req-phone1').value = "";
         document.getElementById('req-phone2').value = "";
         document.getElementById('req-whatsapp').value = "";
@@ -1398,6 +1628,7 @@
             toggleOtherRequestDetails(req.type);
         }
         
+        document.getElementById('req-district').value = req.district || "";
         document.getElementById('req-phone1').value = req.phone1;
         document.getElementById('req-phone2').value = req.phone2 || "";
         document.getElementById('req-whatsapp').value = req.whatsapp || "";
@@ -1419,6 +1650,7 @@
             if (!other) return showToast("يرجى كتابة تفاصيل نوع الطلب ⚠️");
             type = "أخرى: " + other;
         }
+        const district = document.getElementById('req-district').value || "";
         const p1 = document.getElementById('req-phone1').value || "";
         const p2 = document.getElementById('req-phone2').value || "";
         const wa = document.getElementById('req-whatsapp').value || "";
@@ -1432,6 +1664,7 @@
         db.ref('requests/' + currentEditReqKey).update({
             desc: safeHTML(desc) || "",
             type: safeHTML(type) || "",
+            district: safeHTML(district) || "",
             phone1: safeHTML(p1) || "",
             phone2: safeHTML(p2) || "",
             whatsapp: safeHTML(wa) || ""
@@ -1452,6 +1685,7 @@
             if (!other) return showToast("يرجى كتابة تفاصيل نوع الطلب ⚠️");
             type = "أخرى: " + other;
         }
+        const district = document.getElementById('req-district').value || "";
         const p1 = document.getElementById('req-phone1').value || "";
         const p2 = document.getElementById('req-phone2').value || "";
         const wa = document.getElementById('req-whatsapp').value || "";
@@ -1466,6 +1700,7 @@
         const requestData = {
             desc: safeHTML(desc) || "",
             type: safeHTML(type) || "",
+            district: safeHTML(district) || "",
             phone1: safeHTML(p1) || "",
             phone2: safeHTML(p2) || "",
             whatsapp: safeHTML(wa) || "",
@@ -1565,9 +1800,11 @@
     }
 
     function renderRequestHTML(req, isOwner = false) {
+        let districtText = req.district ? `📍 الحي: ${req.district}` : '';
+        
         let contacts = `<div class="action-row" style="margin-top: 15px;">`;
         contacts += `<a href="tel:${req.phone1}" class="contact-btn btn-call"><i class="fas fa-phone" style="margin-left: 5px;"></i> اتصال</a>`;
-        if(req.whatsapp) contacts += `<a href="https://wa.me/2${req.whatsapp.replace(/\s/g, '')}" target="_blank" class="contact-btn btn-wa" style="margin-right: 8px;"><i class="fab fa-whatsapp" style="margin-left: 5px;"></i> واتساب</a>`;
+        if(req.whatsapp) contacts += `<a href="https://wa.me/2${req.whatsapp.replace(/\s/g, '')}?text=${encodeURIComponent('السلام عليكم ورحمة الله وبركاته لقد رأيت طلبك عبر موقع M:i Real Estate (Borg Alarab)')}" target="_blank" class="contact-btn btn-wa" style="margin-right: 8px;"><i class="fab fa-whatsapp" style="margin-left: 5px;"></i> واتساب</a>`;
         contacts += `</div>`;
         
         let delBtn = isOwner ? `<i class="fas fa-trash del-btn" onclick="deleteRequest('${req.key}')" style="position: absolute; left: 15px; top: 15px; background: rgba(255,255,255,0.8); padding: 8px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"></i>` : '';
@@ -1578,6 +1815,7 @@
             ${delBtn}
             ${editBtn}
             <div style="font-weight:bold; font-size: 18px; margin-bottom: 8px; color: #00d2ff;"><i class="fas fa-hand-holding-heart"></i> مطلوب: ${req.type}</div>
+            ${districtText ? `<div style="font-size: 13px; color: #666; margin-bottom: 5px;"><i class="fas fa-map-marker-alt" style="color: #00d2ff;"></i> ${districtText}</div>` : ''}
             <p style="margin: 0 0 15px 0; line-height: 1.6; font-size: 15px; font-weight: bold;">${req.desc}</p>
             <div style="font-size: 12px; color: #888;"><i class="fas fa-clock"></i> ${new Date(req.createdAt).toLocaleDateString('ar-EG')}</div>
             ${contacts}
@@ -1586,9 +1824,6 @@
 
     function toggleMenu(side) { 
         const currentPhone = localStorage.getItem('borj_user_phone');
-        const _p1 = atob("MDEwOTU1OTY1ODA=");
-        const _p2 = atob("MDExMjYyMDY4Nzc=");
-        const _p3 = atob("MDEyMDMxNzE2NDA=");
         const isAdmin = (currentPhone === _p1 || currentPhone === _p2 || currentPhone === _p3);
         
         if (!isAdmin) {
@@ -1604,6 +1839,7 @@
     }
     
     function closeMenus() { document.body.classList.remove('menu-open-right', 'menu-open-left'); document.querySelector('.overlay').style.display = 'none'; }
+    
     function handleBackAction() { 
         document.getElementById('ads-page').style.display = 'none'; 
         const title = document.getElementById('ads-header-title').innerText;
@@ -1613,7 +1849,9 @@
             }
         }
     }
+    
     function closeSubMenu() { document.getElementById('sub-menu-page').style.display = 'none'; }
+    
     function processImage(file, cb) {
         const r = new FileReader(); r.onload = e => {
             const img = new Image(); img.onload = () => {
@@ -1727,7 +1965,13 @@
         if(pass !== confirm) return showToast("كلمات المرور غير متطابقة ❌");
 
         showGlobalLoader(true);
-        db.ref('users/' + phone).set({ name, phone, pass }).then(() => {
+        db.ref('users/' + phone).set({ 
+            name, 
+            phone, 
+            pass,
+            profileImage: "",
+            createdAt: firebase.database.ServerValue.TIMESTAMP 
+        }).then(() => {
             showGlobalLoader(false);
             showToast(`تم إنشاء الحساب بنجاح يا ${name} 🚀`);
             loginSuccess(phone, pass, true, name); 
@@ -1772,15 +2016,26 @@
             localStorage.setItem('borj_saved_auth', 'true');
             localStorage.setItem('borj_user_phone', phone);
             localStorage.setItem('borj_user_pass', pass);
+            localStorage.setItem('borj_user_name', name);
         }
         document.getElementById('auth-overlay').style.display = 'none';
         showToast(`أهلاً بك ${name} ✨`);
+        
+        // تحميل بيانات المستخدم
+        loadUserProfileData(phone);
+        
+        // تحديث العرض في القائمة
+        document.getElementById('profile-name-display').innerText = name || phone;
+        document.getElementById('profile-phone-display').innerText = phone;
+        document.getElementById('profile-name-edit').innerText = name || phone;
+        document.getElementById('profile-phone-edit').innerText = phone;
     }
 
     function logoutApp() {
         localStorage.removeItem('borj_saved_auth');
         localStorage.removeItem('borj_user_phone');
         localStorage.removeItem('borj_user_pass');
+        localStorage.removeItem('borj_user_name');
         location.reload();
     }
 
@@ -1829,6 +2084,232 @@
         });
     }
 
+    // ============================================
+    // دوال حساب المستخدم الجديدة
+    // ============================================
+    
+    function loadUserProfileData(phone) {
+        db.ref('users/' + phone).once('value', snapshot => {
+            const userData = snapshot.val();
+            if (userData) {
+                currentUserData = userData;
+                
+                if (userData.profileImage) {
+                    document.getElementById('profile-image-display').src = userData.profileImage;
+                    document.getElementById('profile-image-edit').src = userData.profileImage;
+                }
+                
+                document.getElementById('profile-name-display').innerText = userData.name || phone;
+                document.getElementById('profile-phone-display').innerText = phone;
+                document.getElementById('profile-name-edit').innerText = userData.name || phone;
+                document.getElementById('profile-phone-edit').innerText = phone;
+                document.getElementById('edit-user-name').value = userData.name || '';
+                document.getElementById('current-phone-display').value = phone;
+            }
+        });
+    }
+
+    function openUserAccount() {
+        const currentPhone = localStorage.getItem('borj_user_phone');
+        if (!currentPhone) {
+            showToast("يرجى تسجيل الدخول أولاً");
+            return;
+        }
+
+        isUserAccountMode = true;
+        document.getElementById('pin-verify-input').value = "";
+        document.getElementById('pin-verify-input').type = "text";
+        document.getElementById('pin-verify-input').inputMode = "text";
+        document.getElementById('pin-modal-message').innerHTML = 'أدخل كلمة المرور الخاصة بك للمتابعة إلى إدارة الحساب';
+        document.getElementById('pin-modal').style.display = 'flex';
+        
+        document.getElementById('pin-confirm-btn').onclick = verifyUserPassword;
+    }
+
+    function verifyUserPassword() {
+        const enteredPass = document.getElementById('pin-verify-input').value;
+        const currentPhone = localStorage.getItem('borj_user_phone');
+        
+        db.ref('users/' + currentPhone).once('value', snapshot => {
+            const userData = snapshot.val();
+            // مقارنة مباشرة بدون تحويل لأن كلمة المرور نص
+            if (userData && userData.pass === enteredPass) {
+                document.getElementById('pin-modal').style.display = 'none';
+                document.getElementById('pin-verify-input').value = "";
+                currentUserData = userData;
+                
+                document.getElementById('edit-user-name').value = userData.name || '';
+                document.getElementById('current-phone-display').value = currentPhone;
+                document.getElementById('new-phone-number').value = "";
+                document.getElementById('new-password').value = "";
+                document.getElementById('confirm-new-password').value = "";
+                document.getElementById('password-match-message').innerHTML = "";
+                
+                if (userData.profileImage) {
+                    document.getElementById('profile-image-edit').src = userData.profileImage;
+                }
+                
+                document.getElementById('user-account-page').style.display = 'block';
+                closeMenus();
+                isUserAccountMode = false;
+            } else {
+                showToast("❌ كلمة المرور غير صحيحة");
+            }
+        });
+    }
+
+    function openProfileImagePicker() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = function(e) {
+            const file = e.target.files[0];
+            if (file && validateFile(file)) {
+                processImage(file, function(optimizedBase64) {
+                    document.getElementById('profile-image-display').src = optimizedBase64;
+                    document.getElementById('profile-image-edit').src = optimizedBase64;
+                    if (currentUserData) {
+                        currentUserData.profileImage = optimizedBase64;
+                    }
+                    showToast("تم اختيار الصورة ✅");
+                });
+            }
+        };
+        input.click();
+    }
+
+    function checkPasswordMatch() {
+        const newPass = document.getElementById('new-password').value;
+        const confirmPass = document.getElementById('confirm-new-password').value;
+        const messageDiv = document.getElementById('password-match-message');
+        
+        if (newPass || confirmPass) {
+            if (newPass === confirmPass) {
+                messageDiv.innerHTML = '<i class="fas fa-check-circle" style="color: #28a745;"></i> كلمة المرور متطابقة';
+                messageDiv.className = 'password-match-success';
+            } else {
+                messageDiv.innerHTML = '<i class="fas fa-times-circle" style="color: #ff4757;"></i> كلمة المرور غير متطابقة';
+                messageDiv.className = 'password-match-error';
+            }
+        } else {
+            messageDiv.innerHTML = '';
+        }
+    }
+
+    function saveUserChanges() {
+        const currentPhone = localStorage.getItem('borj_user_phone');
+        const newName = document.getElementById('edit-user-name').value;
+        const newPhone = document.getElementById('new-phone-number').value;
+        const newPass = document.getElementById('new-password').value;
+        const confirmPass = document.getElementById('confirm-new-password').value;
+        
+        if (!newName.trim()) {
+            showToast("❌ يرجى إدخال الاسم");
+            return;
+        }
+        
+        if (newPass || confirmPass) {
+            if (newPass !== confirmPass) {
+                showToast("❌ كلمة المرور غير متطابقة");
+                return;
+            }
+            if (newPass.length < 4) {
+                showToast("❌ كلمة المرور يجب أن تكون 4 أحرف على الأقل");
+                return;
+            }
+        }
+        
+        showGlobalLoader(true);
+        
+        let updateData = {
+            name: newName,
+            updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+        
+        if (currentUserData && currentUserData.profileImage) {
+            updateData.profileImage = currentUserData.profileImage;
+        }
+        
+        if (newPass) {
+            updateData.pass = newPass;
+        }
+        
+        if (newPhone && newPhone !== currentPhone) {
+            db.ref('users/' + newPhone).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    showGlobalLoader(false);
+                    showToast("❌ رقم الهاتف الجديد مستخدم بالفعل");
+                    return;
+                }
+                
+                db.ref('users/' + newPhone).set({
+                    ...currentUserData,
+                    ...updateData,
+                    phone: newPhone
+                }).then(() => {
+                    db.ref('users/' + currentPhone).remove().then(() => {
+                        db.ref('ads').once('value', snap => {
+                            snap.forEach(child => {
+                                const ad = child.val();
+                                if (ad.ownerId === currentPhone) {
+                                    db.ref('ads/' + child.key).update({ ownerId: newPhone });
+                                }
+                            });
+                        });
+                        
+                        db.ref('requests').once('value', snap => {
+                            snap.forEach(child => {
+                                const req = child.val();
+                                if (req.ownerId === currentPhone) {
+                                    db.ref('requests/' + child.key).update({ ownerId: newPhone });
+                                }
+                            });
+                        });
+                        
+                        showGlobalLoader(false);
+                        showToast("✅ تم تحديث البيانات، يرجى تسجيل الدخول مرة أخرى");
+                        
+                        localStorage.setItem('borj_user_phone', newPhone);
+                        localStorage.setItem('borj_user_name', newName);
+                        if (newPass) localStorage.setItem('borj_user_pass', newPass);
+                        
+                        setTimeout(() => {
+                            closeUserAccount();
+                            location.reload();
+                        }, 2000);
+                    });
+                });
+            });
+        } else {
+            db.ref('users/' + currentPhone).update(updateData).then(() => {
+                showGlobalLoader(false);
+                showToast("✅ تم تحديث البيانات بنجاح");
+                
+                if (newPass) {
+                    localStorage.setItem('borj_user_pass', newPass);
+                }
+                localStorage.setItem('borj_user_name', newName);
+                
+                document.getElementById('profile-name-display').innerText = newName;
+                document.getElementById('profile-name-edit').innerText = newName;
+                
+                closeUserAccount();
+            }).catch(error => {
+                showGlobalLoader(false);
+                showToast("❌ حدث خطأ في الحفظ");
+            });
+        }
+    }
+
+    function closeUserAccount() {
+        document.getElementById('user-account-page').style.display = 'none';
+        document.getElementById('pin-verify-input').value = "";
+        document.getElementById('pin-modal-message').innerHTML = 'أدخل الكود السري (4 أرقام) لحذف الإعلان';
+        document.getElementById('pin-verify-input').type = "number";
+        document.getElementById('pin-verify-input').inputMode = "numeric";
+        document.getElementById('pin-confirm-btn').onclick = verifyPinBeforeDelete;
+    }
+
     (function() {
         const syncMyID = () => {
             const phone = localStorage.getItem('borj_user_phone');
@@ -1847,7 +2328,6 @@
         };
         loadUserData();
 
-        // إخفاء أزرار الحذف والتعديل لغير صاحب الإعلان
         const originalRender = renderAdHTML;
         renderAdHTML = function(ad) {
             let html = originalRender(ad);
