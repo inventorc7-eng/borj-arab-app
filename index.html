@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <style>
-        /* جميع الأنماط كما هي دون تغيير */
+        /* جميع الأنماط كما هي مع إضافة خلفية جديدة */
         :root { 
             --accent: #FF8C00; 
             --bg: #F8F9FA; 
@@ -40,21 +40,42 @@
 
         #splash-screen {
             position: fixed; inset: 0; z-index: 20000;
-            background: url('https://inventorc7-eng.github.io/borj-arab-app/1000390427.jpg') no-repeat center center;
+            /* خلفية عقارات جديدة من Unsplash (صورة عالية الجودة) */
+            background: url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1600') no-repeat center center;
             background-size: cover;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
             padding-bottom: 80px; transition: opacity 0.8s ease, visibility 0.8s;
         }
-        /* تم تعطيل التدرج الشفاف لجعل الخلفية سادة */
+        /* تم تعطيل التدرج الشفاف لجعل الخلفية غير شفافة تماماً */
         /* #splash-screen::before {
             content: ""; position: absolute; inset: 0;
             background: linear-gradient(to top, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.4) 100%);
         } */
         .splash-content { position: relative; z-index: 1; text-align: center; color: white; width: 85%; }
-        .splash-title { font-size: 28px; font-weight: 900; color: var(--accent); margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        .splash-sub { font-size: 18px; font-weight: bold; margin-bottom: 20px; display: block; }
-        .splash-desc { font-size: 14px; opacity: 0.9; margin-bottom: 30px; line-height: 1.6; }
-        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+        .splash-title { 
+            font-size: 32px; 
+            font-weight: 900; 
+            color: var(--accent); 
+            margin-bottom: 10px; 
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8); /* ظل للنص */
+        }
+        .splash-sub { 
+            font-size: 20px; 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+            display: block;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+            color: white;
+        }
+        .splash-desc { 
+            font-size: 16px; 
+            opacity: 1; 
+            margin-bottom: 30px; 
+            line-height: 1.6;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+            color: white;
+        }
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.3); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
         .progress-bar { width: 0%; height: 100%; background: var(--accent); box-shadow: 0 0 15px var(--accent); transition: width 0.1s linear; }
 
         header { 
@@ -513,7 +534,6 @@
 
 <div id="splash-screen">
     <div class="splash-content">
-        <!-- تم تعديل النص -->
         <h1 class="splash-title">مرحبا بك في M:i Real Estate</h1>
         <span class="splash-sub">مدينه برج العرب</span>
         <p class="splash-desc">أول منصة في مدينة برج العرب لتداول العقارات مجاناً</p>
@@ -771,7 +791,6 @@
         <h2 id="add-modal-title" style="text-align: center; color: var(--accent); margin: 30px 0 20px;">أنشر إعلانك مجاناً</h2>
         
         <div class="input-group">
-            <!-- تعديل النص إلى 3 صور كحد أقصى -->
             <label>صور الوحدة (صورة واحدة كحد أدنى و 3 كحد أقصى)</label>
             <div class="image-upload-box">
                 <i class="fas fa-camera" style="font-size: 24px; margin-bottom: 5px; display: block;"></i> أضف صوراً احترافية
@@ -836,6 +855,8 @@
                 <option value="الحي التاسع">الحي التاسع</option>
                 <option value="الحي العاشر">الحي العاشر</option>
                 <option value="دار مصر">دار مصر</option>
+                <!-- إضافة المهندسين كخيار جديد -->
+                <option value="المهندسين">المهندسين</option>
                 <option value="قرية بهيج">قرية بهيج</option>
                 <option value="برج العرب القديم">برج العرب القديم</option>
             </select>
@@ -998,7 +1019,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const districts = ["الحي الأول", "الحي الثاني", "الحي الثالث", "الحي الرابع", "الحي الخامس", "الحي السادس", "الحي السابع", "الحي الثامن", "الحي التاسع", "الحي العاشر", "دار مصر", "قرية بهيج", "برج العرب القديم"];
+    // إضافة المهندسين إلى قائمة الأحياء
+    const districts = ["الحي الأول", "الحي الثاني", "الحي الثالث", "الحي الرابع", "الحي الخامس", "الحي السادس", "الحي السابع", "الحي الثامن", "الحي التاسع", "الحي العاشر", "دار مصر", "المهندسين", "قرية بهيج", "برج العرب القديم"];
     let myID = localStorage.getItem('m_e_user_id') || 'u' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('m_e_user_id', myID);
     
@@ -1028,7 +1050,12 @@
     
     // متغيرات صفحة المستخدم
     let currentUserData = null;
-    let isUserAccountMode = false; // للتمييز بين وضع حذف الإعلان ووضع حساب المستخدم
+    let isUserAccountMode = false;
+
+    // متغيرات الكاش الجديدة
+    let allAdsCache = [];
+    let allRequestsCache = [];
+    let cacheLoaded = false;
 
     function safeHTML(str) {
         if(!str) return "";
@@ -1090,6 +1117,46 @@
         document.getElementById('adv-district').innerHTML = districts.map(d => `<option>${d}</option>`).join('');
         listenForAppUpdates();
         listenToDistrictVisits();
+        // تحميل جميع البيانات في الكاش
+        loadAllDataIntoCache();
+    }
+
+    function loadAllDataIntoCache() {
+        console.log('🔄 جاري تحميل جميع البيانات إلى الكاش...');
+        
+        // تحميل الإعلانات
+        db.ref('ads').on('value', snapshot => {
+            allAdsCache = [];
+            snapshot.forEach(child => {
+                let ad = child.val();
+                ad.key = child.key;
+                // تحقق من انتهاء مدة الإعلان المباع
+                const now = Date.now();
+                if (ad.soldStatus && ad.updatedAt) {
+                    const hoursDiff = (now - ad.updatedAt) / (1000 * 60 * 60);
+                    if (hoursDiff >= 36) {
+                        db.ref('ads_backup/' + ad.key).set(ad).then(() => db.ref('ads/' + ad.key).remove());
+                        return; // لا نضيفه للكاش
+                    }
+                }
+                allAdsCache.push(ad);
+                currentAdsData[ad.key] = ad;
+            });
+            console.log(`✅ تم تحميل ${allAdsCache.length} إعلان`);
+            
+            // تحميل الطلبات
+            db.ref('requests').on('value', snap => {
+                allRequestsCache = [];
+                snap.forEach(child => {
+                    let req = child.val();
+                    req.key = child.key;
+                    allRequestsCache.push(req);
+                    currentReqsData[req.key] = req;
+                });
+                console.log(`✅ تم تحميل ${allRequestsCache.length} طلب`);
+                cacheLoaded = true;
+            });
+        });
     }
 
     function listenToDistrictVisits() {
@@ -1128,7 +1195,6 @@
 
     function handleImageSelect(input) {
         const files = Array.from(input.files);
-        // تعديل الحد الأقصى من 5 إلى 3
         if (adPhotos.length + files.length > 3) {
             showToast("⚠️ الحد الأقصى 3 صور فقط");
             input.value = "";
@@ -1281,69 +1347,79 @@
             </div>`;
         
         const container = document.getElementById('ads-list-container');
-        container.innerHTML = "";
-        document.getElementById('main-loader').style.display = 'flex';
         
-        loadAdsData(dist, type);
+        if (cacheLoaded) {
+            displayAdsFromCache(dist, type, container);
+        } else {
+            container.innerHTML = `<div class="loader-container" style="display:flex;"><div class="modern-spinner"></div><div class="loader-text">جاري تجهيز البيانات...</div></div>`;
+            setTimeout(() => {
+                if (cacheLoaded) displayAdsFromCache(dist, type, container);
+                else loadAdsDataFallback(dist, type);
+            }, 500);
+        }
     }
 
-    function loadAdsData(dist, type, targetPrice = null, targetUnit = null) {
+    function displayAdsFromCache(dist, type, container, targetPrice = null, targetUnit = null) {
+        let htmlStr = "";
+        let adsCount = 0;
+        const now = Date.now();
+        
+        allAdsCache.forEach(ad => {
+            if (trashed.some(item => item.id === ad.key)) return;
+            
+            if (ad.district === dist && ad.type === type) {
+                if ((!targetPrice || Number(ad.price) <= Number(targetPrice)) && (!targetUnit || ad.unitType === targetUnit)) {
+                    htmlStr = renderAdHTML(ad) + htmlStr;
+                    adsCount++;
+                }
+            }
+        });
+        
+        if (adsCount === 0) {
+            container.innerHTML = `<div class="no-ads-container">
+                <div class="empty-visual-stack">
+                    <div class="top-icons"><i class="fas fa-home"></i></div>
+                    <i class="fas fa-search-location main-house"></i>
+                </div>
+                <div class="no-ads-text">لا يوجد وحدات معروضه حالياً في هذا القسم</div>
+            </div>`;
+        } else {
+            container.innerHTML = htmlStr;
+        }
+    }
+
+    function loadAdsDataFallback(dist, type) {
+        // الطريقة القديمة للتحميل من Firebase (احتياطية)
         const container = document.getElementById('ads-list-container');
         const loader = document.getElementById('main-loader');
-        
-        // سجل وقت البدء
-        const startTime = Date.now();
-        
-        db.ref('ads').off(); 
-        db.ref('ads').on('value', snapshot => {
-            let htmlStr = ""; 
-            let adsCount = 0;
-            const now = Date.now();
-            
+        loader.style.display = 'flex';
+        db.ref('ads').once('value', snapshot => {
+            loader.style.display = 'none';
+            let htmlStr = ""; let adsCount = 0;
             snapshot.forEach(child => {
-                let data = child.val(); 
-                data.key = child.key;
-                currentAdsData[data.key] = data;
-                if (data.soldStatus && data.updatedAt) {
-                    const hoursDiff = (now - data.updatedAt) / (1000 * 60 * 60);
-                    if (hoursDiff >= 36) {
-                        db.ref('ads_backup/' + data.key).set(data).then(() => db.ref('ads/' + data.key).remove());
-                        return; 
-                    }
-                }
+                let data = child.val(); data.key = child.key;
                 if (data.district === dist && data.type === type && !trashed.some(item => item.id === data.key)) {
-                    if ((!targetPrice || Number(data.price) <= Number(targetPrice)) && (!targetUnit || data.unitType === targetUnit)) {
-                        htmlStr = renderAdHTML(data) + htmlStr;
-                        adsCount++;
-                    }
+                    htmlStr = renderAdHTML(data) + htmlStr;
+                    adsCount++;
                 }
             });
-            
-            // احسب الوقت المستغرق
-            const elapsedTime = Date.now() - startTime;
-            const remainingTime = Math.max(0, 2000 - elapsedTime); // 2 ثانية = 2000 ملي
-            
-            // استنى للوقت المتبقي (لو أقل من ثانيتين)
-            setTimeout(() => {
-                loader.style.display = 'none';
-                
-                if (adsCount === 0) {
-                    container.innerHTML = `<div class="no-ads-container">
-                        <div class="empty-visual-stack">
-                            <div class="top-icons"><i class="fas fa-home"></i></div>
-                            <i class="fas fa-search-location main-house"></i>
-                        </div>
-                        <div class="no-ads-text">لا يوجد وحدات معروضه حالياً في هذا القسم</div>
-                    </div>`;
-                } else {
-                    container.innerHTML = htmlStr;
-                }
-            }, remainingTime);
+            if (adsCount === 0) {
+                container.innerHTML = `<div class="no-ads-container">...</div>`;
+            } else {
+                container.innerHTML = htmlStr;
+            }
         });
     }
 
     function filterAdsByBoth(dist, type) {
-        loadAdsData(dist, type, document.getElementById('price-filter-input').value, document.getElementById('quick-filter-select').value);
+        const container = document.getElementById('ads-list-container');
+        const targetPrice = document.getElementById('price-filter-input').value;
+        const targetUnit = document.getElementById('quick-filter-select').value;
+        if (cacheLoaded) {
+            displayAdsFromCache(dist, type, container, targetPrice, targetUnit);
+        } else {
+            loadAdsDataFallback(dist, type);
+        }
     }
 
     function renderAdHTML(ad) {
@@ -1469,8 +1545,7 @@
         document.getElementById('price-search-container').innerHTML = "";
         const container = document.getElementById('ads-list-container'); 
         container.innerHTML = "";
-        document.getElementById('main-loader').style.display = 'flex';
-
+        
         if(side) closeMenus();
         const emptyConfigs = {
             'المفضلة': { text: "لا يوجد مفضلة حالياً", icon: "❤️" },
@@ -1478,26 +1553,40 @@
             'إعلاناتي': { text: "لم تنشر أي إعلانات بعد", icon: "📢" },
             'الإدارة': { text: "لا توجد إعلانات معلقة", icon: "🛡️" }
         };
-        db.ref('ads').on('value', snapshot => {
-            document.getElementById('main-loader').style.display = 'none';
-            let html = ""; let counter = 0;
-            snapshot.forEach(child => {
-                let ad = child.val(); ad.key = child.key;
-                currentAdsData[ad.key] = ad;
-                let show = (title === 'المفضلة' && favorites.includes(ad.key)) || 
-                           (title === 'المحذوفات' && trashed.some(t => t.id === ad.key)) ||
-                           (title === 'إعلاناتي' && ad.ownerId === myID) ||
-                           (title === 'الإدارة' && isDevModeActive);
-                if (show) { html += renderAdHTML(ad); counter++; }
+        
+        if (cacheLoaded && title !== 'الإدارة') {
+            // استخدام الكاش
+            let filtered = allAdsCache.filter(ad => {
+                if (title === 'المفضلة') return favorites.includes(ad.key);
+                if (title === 'المحذوفات') return trashed.some(t => t.id === ad.key);
+                if (title === 'إعلاناتي') return ad.ownerId === myID;
+                return false;
             });
-            if (counter === 0) {
+            let html = filtered.map(ad => renderAdHTML(ad)).join('');
+            if (filtered.length === 0) {
                 const conf = emptyConfigs[title] || { text: "القائمة فارغة", icon: "📂" };
-                container.innerHTML = `<div class="no-ads-container">
-                    <div class="empty-visual-stack"><i class="fas fa-ghost main-house" style="font-size:65px; opacity:0.3;"></i><div style="font-size: 45px;">${conf.icon}</div></div>
-                    <div class="no-ads-text">${conf.text}</div>
-                </div>`;
+                container.innerHTML = `<div class="no-ads-container"><div class="empty-visual-stack"><i class="fas fa-ghost main-house" style="font-size:65px; opacity:0.3;"></i><div style="font-size: 45px;">${conf.icon}</div></div><div class="no-ads-text">${conf.text}</div></div>`;
             } else container.innerHTML = html;
-        });
+        } else {
+            document.getElementById('main-loader').style.display = 'flex';
+            db.ref('ads').on('value', snapshot => {
+                document.getElementById('main-loader').style.display = 'none';
+                let html = ""; let counter = 0;
+                snapshot.forEach(child => {
+                    let ad = child.val(); ad.key = child.key;
+                    currentAdsData[ad.key] = ad;
+                    let show = (title === 'المفضلة' && favorites.includes(ad.key)) || 
+                               (title === 'المحذوفات' && trashed.some(t => t.id === ad.key)) ||
+                               (title === 'إعلاناتي' && ad.ownerId === myID) ||
+                               (title === 'الإدارة' && isDevModeActive);
+                    if (show) { html += renderAdHTML(ad); counter++; }
+                });
+                if (counter === 0) {
+                    const conf = emptyConfigs[title] || { text: "القائمة فارغة", icon: "📂" };
+                    container.innerHTML = `<div class="no-ads-container"><div class="empty-visual-stack"><i class="fas fa-ghost main-house" style="font-size:65px; opacity:0.3;"></i><div style="font-size: 45px;">${conf.icon}</div></div><div class="no-ads-text">${conf.text}</div></div>`;
+                } else container.innerHTML = html;
+            });
+        }
     }
 
     let currentEditAdKey = null;
@@ -1755,31 +1844,38 @@
         document.getElementById('price-search-container').innerHTML = ""; 
         const container = document.getElementById('ads-list-container'); 
         container.innerHTML = "";
-        document.getElementById('main-loader').style.display = 'flex';
         
-        db.ref('requests').on('value', snapshot => {
-            document.getElementById('main-loader').style.display = 'none';
-            let html = ""; let counter = 0;
-            let reqs = [];
-            snapshot.forEach(child => {
-                let r = child.val(); r.key = child.key;
-                currentReqsData[r.key] = r;
-                reqs.push(r);
-            });
-            reqs.reverse().forEach(r => {
+        if (cacheLoaded) {
+            let html = allRequestsCache.slice().reverse().map(r => {
                 const currentPhone = localStorage.getItem('borj_user_phone');
                 const isOwner = (r.ownerId === myID || r.ownerId === currentPhone || isDevModeActive);
-                html += renderRequestHTML(r, isOwner);
-                counter++;
-            });
-            
-            if (counter === 0) {
-                container.innerHTML = `<div class="no-ads-container">
-                    <div class="empty-visual-stack"><i class="fas fa-clipboard-list main-house" style="font-size:65px; opacity:0.3;"></i></div>
-                    <div class="no-ads-text">لا يوجد طلبات حالياً</div>
-                </div>`;
+                return renderRequestHTML(r, isOwner);
+            }).join('');
+            if (allRequestsCache.length === 0) {
+                container.innerHTML = `<div class="no-ads-container"><div class="empty-visual-stack"><i class="fas fa-clipboard-list main-house" style="font-size:65px; opacity:0.3;"></i></div><div class="no-ads-text">لا يوجد طلبات حالياً</div></div>`;
             } else container.innerHTML = html;
-        });
+        } else {
+            document.getElementById('main-loader').style.display = 'flex';
+            db.ref('requests').on('value', snapshot => {
+                document.getElementById('main-loader').style.display = 'none';
+                let html = ""; let counter = 0;
+                let reqs = [];
+                snapshot.forEach(child => {
+                    let r = child.val(); r.key = child.key;
+                    currentReqsData[r.key] = r;
+                    reqs.push(r);
+                });
+                reqs.reverse().forEach(r => {
+                    const currentPhone = localStorage.getItem('borj_user_phone');
+                    const isOwner = (r.ownerId === myID || r.ownerId === currentPhone || isDevModeActive);
+                    html += renderRequestHTML(r, isOwner);
+                    counter++;
+                });
+                if (counter === 0) {
+                    container.innerHTML = `<div class="no-ads-container"><div class="empty-visual-stack"><i class="fas fa-clipboard-list main-house" style="font-size:65px; opacity:0.3;"></i></div><div class="no-ads-text">لا يوجد طلبات حالياً</div></div>`;
+                } else container.innerHTML = html;
+            });
+        }
     }
 
     function openSpecialRequestsPage(title, side) {
@@ -1791,30 +1887,35 @@
         document.getElementById('price-search-container').innerHTML = "";
         const container = document.getElementById('ads-list-container'); 
         container.innerHTML = "";
-        document.getElementById('main-loader').style.display = 'flex';
         closeMenus();
         
-        db.ref('requests').on('value', snapshot => {
-            document.getElementById('main-loader').style.display = 'none';
-            let html = ""; let counter = 0;
-            let reqs = [];
-            snapshot.forEach(child => {
-                let r = child.val(); r.key = child.key;
-                currentReqsData[r.key] = r;
-                if (r.ownerId === myID) reqs.push(r);
-            });
-            reqs.reverse().forEach(r => {
-                html += renderRequestHTML(r, true);
-                counter++;
-            });
-            
-            if (counter === 0) {
-                container.innerHTML = `<div class="no-ads-container">
-                    <div class="empty-visual-stack"><i class="fas fa-clipboard-list main-house" style="font-size:65px; opacity:0.3;"></i></div>
-                    <div class="no-ads-text">لم تنشر أي طلبات بعد</div>
-                </div>`;
+        if (cacheLoaded) {
+            let myReqs = allRequestsCache.filter(r => r.ownerId === myID);
+            myReqs.reverse();
+            let html = myReqs.map(r => renderRequestHTML(r, true)).join('');
+            if (myReqs.length === 0) {
+                container.innerHTML = `<div class="no-ads-container"><div class="empty-visual-stack"><i class="fas fa-clipboard-list main-house" style="font-size:65px; opacity:0.3;"></i></div><div class="no-ads-text">لم تنشر أي طلبات بعد</div></div>`;
             } else container.innerHTML = html;
-        });
+        } else {
+            document.getElementById('main-loader').style.display = 'flex';
+            db.ref('requests').on('value', snapshot => {
+                document.getElementById('main-loader').style.display = 'none';
+                let html = ""; let counter = 0;
+                let reqs = [];
+                snapshot.forEach(child => {
+                    let r = child.val(); r.key = child.key;
+                    currentReqsData[r.key] = r;
+                    if (r.ownerId === myID) reqs.push(r);
+                });
+                reqs.reverse().forEach(r => {
+                    html += renderRequestHTML(r, true);
+                    counter++;
+                });
+                if (counter === 0) {
+                    container.innerHTML = `<div class="no-ads-container"><div class="empty-visual-stack"><i class="fas fa-clipboard-list main-house" style="font-size:65px; opacity:0.3;"></i></div><div class="no-ads-text">لم تنشر أي طلبات بعد</div></div>`;
+                } else container.innerHTML = html;
+            });
+        }
     }
 
     function deleteRequest(key) {
@@ -1883,11 +1984,9 @@
                 cvs.width = 800; cvs.height = (img.height * 800) / img.width;
                 ctx.drawImage(img, 0, 0, cvs.width, cvs.height);
                 ctx.fillStyle = "rgba(255,140,0,0.6)"; ctx.font = "bold 22px sans-serif"; ctx.fillText("M:i Real Estate", 25, cvs.height-25);
-                // تعديل لتحويل الصورة إلى WebP بدلاً من JPEG
                 try {
                     cb(cvs.toDataURL('image/webp', 0.75));
                 } catch(e) {
-                    // إذا لم يدعم المتصفح WebP نستخدم JPEG كبديل
                     cb(cvs.toDataURL('image/jpeg', 0.75));
                 }
             }; img.src = e.target.result;
@@ -1957,41 +2056,32 @@
         }
     };
 
-    /**
-     * دالة التنظيف التلقائي الرئيسية: تحذف الإعلانات المباعة/المستأجرة بعد 36 ساعة،
-     * وتحذف الإعلانات النشطة بعد 3 أشهر، وتحذف الطلبات القديمة بعد سنة.
-     */
     function autoCleanOldAds() {
         const now = Date.now();
-        const THIRTY_SIX_HOURS = 36 * 60 * 60 * 1000;      // 36 ساعة
-        const THREE_MONTHS = 90 * 24 * 60 * 60 * 1000;     // 90 يوماً
-        const ONE_YEAR = 365 * 24 * 60 * 60 * 1000;        // سنة واحدة
+        const THIRTY_SIX_HOURS = 36 * 60 * 60 * 1000;
+        const THREE_MONTHS = 90 * 24 * 60 * 60 * 1000;
+        const ONE_YEAR = 365 * 24 * 60 * 60 * 1000;
 
-        // 1. حذف الإعلانات المباعة/المستأجرة التي انتهت مدتها (36 ساعة)
         db.ref('ads').once('value', snapshot => {
             snapshot.forEach(child => {
                 const ad = child.val();
                 const key = child.key;
                 if (ad.soldStatus && ad.updatedAt && (now - ad.updatedAt > THIRTY_SIX_HOURS)) {
-                    // نقل نسخة احتياطية (اختياري) ثم حذف
                     db.ref('ads_backup/' + key).set(ad).then(() => db.ref('ads/' + key).remove());
                 }
             });
         });
 
-        // 2. حذف الإعلانات النشطة التي مضى عليها أكثر من 3 أشهر
         db.ref('ads').once('value', snapshot => {
             snapshot.forEach(child => {
                 const ad = child.val();
                 const key = child.key;
-                // نتحقق أنها ليست مباعة/مستأجرة (أي لا يوجد soldStatus) وأن تاريخ الإنشاء قديم
                 if (!ad.soldStatus && ad.createdAt && (now - ad.createdAt > THREE_MONTHS)) {
                     db.ref('ads_backup/' + key).set(ad).then(() => db.ref('ads/' + key).remove());
                 }
             });
         });
 
-        // 3. (اختياري) حذف الطلبات القديمة التي مضى عليها أكثر من سنة
         db.ref('requests').once('value', snapshot => {
             snapshot.forEach(child => {
                 const req = child.val();
@@ -2085,10 +2175,8 @@
         document.getElementById('auth-overlay').style.display = 'none';
         showToast(`أهلاً بك ${name} ✨`);
         
-        // تحميل بيانات المستخدم
         loadUserProfileData(phone);
         
-        // تحديث العرض في القائمة
         document.getElementById('profile-name-display').innerText = name || phone;
         document.getElementById('profile-phone-display').innerText = phone;
         document.getElementById('profile-name-edit').innerText = name || phone;
@@ -2148,10 +2236,6 @@
         });
     }
 
-    // ============================================
-    // دوال حساب المستخدم الجديدة
-    // ============================================
-    
     function loadUserProfileData(phone) {
         db.ref('users/' + phone).once('value', snapshot => {
             const userData = snapshot.val();
@@ -2196,7 +2280,6 @@
         
         db.ref('users/' + currentPhone).once('value', snapshot => {
             const userData = snapshot.val();
-            // مقارنة مباشرة بدون تحويل لأن كلمة المرور نص
             if (userData && userData.pass === enteredPass) {
                 document.getElementById('pin-modal').style.display = 'none';
                 document.getElementById('pin-verify-input').value = "";
