@@ -45,10 +45,11 @@
             display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
             padding-bottom: 80px; transition: opacity 0.8s ease, visibility 0.8s;
         }
-        #splash-screen::before {
+        /* تم تعطيل التدرج الشفاف لجعل الخلفية سادة */
+        /* #splash-screen::before {
             content: ""; position: absolute; inset: 0;
             background: linear-gradient(to top, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.4) 100%);
-        }
+        } */
         .splash-content { position: relative; z-index: 1; text-align: center; color: white; width: 85%; }
         .splash-title { font-size: 28px; font-weight: 900; color: var(--accent); margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         .splash-sub { font-size: 18px; font-weight: bold; margin-bottom: 20px; display: block; }
@@ -512,9 +513,10 @@
 
 <div id="splash-screen">
     <div class="splash-content">
-        <h1 class="splash-title">مرحبا بك في M:i Real State</h1>
+        <!-- تم تعديل النص -->
+        <h1 class="splash-title">مرحبا بك في M:i Real Estate</h1>
         <span class="splash-sub">مدينه برج العرب</span>
-        <p class="splash-desc">المستقبل ينتظرك.. كل ما تحتاجه من المالك مباشرة</p>
+        <p class="splash-desc">أول منصة في مدينة برج العرب لتداول العقارات مجاناً</p>
         <div class="progress-container">
             <div class="progress-bar" id="splash-bar"></div>
         </div>
@@ -1289,17 +1291,22 @@
         const container = document.getElementById('ads-list-container');
         const loader = document.getElementById('main-loader');
         
+        // سجل وقت البدء
+        const startTime = Date.now();
+        
         db.ref('ads').off(); 
         db.ref('ads').on('value', snapshot => {
-            loader.style.display = 'none';
-            let htmlStr = ""; let adsCount = 0;
+            let htmlStr = ""; 
+            let adsCount = 0;
             const now = Date.now();
+            
             snapshot.forEach(child => {
-                let data = child.val(); data.key = child.key;
+                let data = child.val(); 
+                data.key = child.key;
                 currentAdsData[data.key] = data;
                 if (data.soldStatus && data.updatedAt) {
                     const hoursDiff = (now - data.updatedAt) / (1000 * 60 * 60);
-                    if (hoursDiff >= 36) { // تعديل من 3 أيام إلى 36 ساعة
+                    if (hoursDiff >= 36) {
                         db.ref('ads_backup/' + data.key).set(data).then(() => db.ref('ads/' + data.key).remove());
                         return; 
                     }
@@ -1311,17 +1318,27 @@
                     }
                 }
             });
-            if (adsCount === 0) {
-                container.innerHTML = `<div class="no-ads-container">
-                    <div class="empty-visual-stack">
-                        <div class="top-icons"><i class="fas fa-home"></i></div>
-                        <i class="fas fa-search-location main-house"></i>
-                    </div>
-                    <div class="no-ads-text">لا يوجد وحدات معروضه حالياً في هذا القسم</div>
-                </div>`;
-            } else {
-                container.innerHTML = htmlStr;
-            }
+            
+            // احسب الوقت المستغرق
+            const elapsedTime = Date.now() - startTime;
+            const remainingTime = Math.max(0, 2000 - elapsedTime); // 2 ثانية = 2000 ملي
+            
+            // استنى للوقت المتبقي (لو أقل من ثانيتين)
+            setTimeout(() => {
+                loader.style.display = 'none';
+                
+                if (adsCount === 0) {
+                    container.innerHTML = `<div class="no-ads-container">
+                        <div class="empty-visual-stack">
+                            <div class="top-icons"><i class="fas fa-home"></i></div>
+                            <i class="fas fa-search-location main-house"></i>
+                        </div>
+                        <div class="no-ads-text">لا يوجد وحدات معروضه حالياً في هذا القسم</div>
+                    </div>`;
+                } else {
+                    container.innerHTML = htmlStr;
+                }
+            }, remainingTime);
         });
     }
 
@@ -1885,7 +1902,8 @@
         if (isMainAdmin || isNewAdmin) {
             showToast("🔴 تم تفعيل وضع المطور الكامل");
             activateRedUI();
-            setTimeout(() => { openCodeEditor(); closeMenus(); }, 800);
+            // تم إزالة استدعاء openCodeEditor() حتى لا يفتح محرر الأكواد تلقائياً
+            closeMenus();
         } else { showToast("❌ وصول غير مصرح به"); document.getElementById('dev-pass-input').value = ""; }
     }
 
