@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -20,6 +21,12 @@
             --white: #FFFFFF; 
             --shadow: 0 4px 15px rgba(0,0,0,0.08); 
             --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* ========== ألوان جديدة للتفاعل ========== */
+            --ecg-high: #00ff88;
+            --ecg-medium: #00ccff;
+            --ecg-low: #ff8800;
+            /* ======================================== */
         }
         
         body.dark-mode { --bg: #121212; --white: #1e1e1e; --shadow: 0 4px 15px rgba(0,0,0,0.3); color: white; }
@@ -36,47 +43,121 @@
         @media (prefers-color-scheme: dark) { :root { --bg: #121212; --white: #1e1e1e; --shadow: 0 4px 15px rgba(0,0,0,0.3); } body { color: white; } .card, .side-menu, .modal-content, .full-details-page { background: #1e1e1e; color: white; } input, textarea, select { background: #2c2c2e; color: white; border-color: #444; } }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
+        /* ========== إخفاء الواجهة الداخلية تماماً حتى تختفي splash-screen ========== */
+        body:not(.app-loaded) header,
+        body:not(.app-loaded) .container,
+        body:not(.app-loaded) .side-menu,
+        body:not(.app-loaded) .overlay,
+        body:not(.app-loaded) #auth-overlay,
+        body:not(.app-loaded) #code-editor-page,
+        body:not(.app-loaded) #pin-modal,
+        body:not(.app-loaded) #reason-modal,
+        body:not(.app-loaded) #add-modal,
+        body:not(.app-loaded) #request-modal,
+        body:not(.app-loaded) #sub-menu-page,
+        body:not(.app-loaded) #ads-page,
+        body:not(.app-loaded) #users-stats-page,
+        body:not(.app-loaded) #user-account-page,
+        body:not(.app-loaded) .full-details-page,
+        body:not(.app-loaded) #user-interaction-page,
+        body:not(.app-loaded) #global-stats-page {
+            display: none !important;
+        }
+        /* ================================================================ */
+        
         body { margin: 0; padding: 0; min-height: 100vh; background: var(--bg); font-family: sans-serif; overflow-x: hidden; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; transition: background 0.3s ease; }
 
+        /* ========== شاشة الدخول الجديدة (بالصورة الحديثة والنص المتفق عليه) ========== */
         #splash-screen {
             position: fixed; inset: 0; z-index: 20000;
-            /* خلفية عقارات جديدة من Unsplash (صورة عالية الجودة) */
-            background: url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1600') no-repeat center center;
+            /* صورة مبنى حديث واحترافي (ناطحة سحاب) */
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+                        url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600') no-repeat center center;
             background-size: cover;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
             padding-bottom: 80px; transition: opacity 0.8s ease, visibility 0.8s;
         }
-        /* تم تعطيل التدرج الشفاف لجعل الخلفية غير شفافة تماماً */
-        /* #splash-screen::before {
-            content: ""; position: absolute; inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.4) 100%);
-        } */
-        .splash-content { position: relative; z-index: 1; text-align: center; color: white; width: 85%; }
-        .splash-title { 
-            font-size: 32px; 
-            font-weight: 900; 
-            color: var(--accent); 
-            margin-bottom: 10px; 
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.8); /* ظل للنص */
-        }
-        .splash-sub { 
-            font-size: 20px; 
-            font-weight: bold; 
-            margin-bottom: 20px; 
-            display: block;
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+        
+        .splash-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
             color: white;
+            width: 85%;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: splashFadeInUp 1.5s ease forwards;
         }
-        .splash-desc { 
-            font-size: 16px; 
-            opacity: 1; 
-            margin-bottom: 30px; 
-            line-height: 1.6;
+        
+        @keyframes splashFadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .splash-line1 {
+            font-size: 36px;
+            font-weight: 400;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: lineFadeIn 0.8s ease 0.3s forwards;
+        }
+        
+        .splash-line2 {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--accent);
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 12px rgba(0,0,0,0.9);
+            opacity: 0;
+            transform: scale(0.9);
+            animation: linePopIn 0.8s ease 0.8s forwards;
+        }
+        
+        .splash-line3 {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 5px;
             text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
-            color: white;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: lineFadeInRight 0.8s ease 1.3s forwards;
         }
-        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.3); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+        
+        .splash-line4 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFD700;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            opacity: 0;
+            transform: translateX(20px);
+            animation: lineFadeInLeft 0.8s ease 1.8s forwards;
+        }
+        
+        @keyframes lineFadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes linePopIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes lineFadeInRight {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes lineFadeInLeft {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        /* ======================================================================== */
+        
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.3); border-radius: 10px; overflow: hidden; margin-bottom: 10px; opacity: 0; animation: fadeIn 0.5s ease 2.3s forwards; }
         .progress-bar { width: 0%; height: 100%; background: var(--accent); box-shadow: 0 0 15px var(--accent); transition: width 0.1s linear; }
+        #splash-percent { font-weight: bold; font-size: 14px; opacity: 0; animation: fadeIn 0.5s ease 2.3s forwards; }
 
         header { 
             background: rgba(28, 28, 30, 0.95); 
@@ -110,7 +191,7 @@
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        #confirm-modal, #reason-modal, #pin-modal, #add-modal, #request-modal, #sub-menu-page, #ads-page, .full-details-page, #user-account-page { 
+        #confirm-modal, #reason-modal, #pin-modal, #add-modal, #request-modal, #sub-menu-page, #ads-page, .full-details-page, #user-account-page, #user-interaction-page, #global-stats-page { 
             will-change: opacity, transform; 
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
@@ -193,7 +274,7 @@
         .dist-rating { font-size: 11px; color: #FFD700; margin-top: 2px; }
         .dist-demand { font-size: 10px; color: #888; font-weight: normal; }
 
-        .ad-item { background: var(--white); border-radius: 20px; padding: 15px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; border-right: 5px solid var(--accent); overflow: hidden; contain: content; animation: fadeIn 0.5s ease; transition: var(--transition); }
+        .ad-item { background: var(--white); border-radius: 20px; padding: 15px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; border-right: 5px solid var(--accent); overflow: hidden; contain: content; animation: fadeIn 0.5s ease; transition: var(--transition); cursor: pointer; }
         .ad-item:hover { transform: translateY(-5px); }
         .featured-badge { position: absolute; top: 0; right: 0; background: var(--accent); color: white; font-size: 10px; padding: 4px 12px; border-radius: 0 0 0 15px; font-weight: bold; z-index: 5; }
         .ad-image-preview { width: 100%; height: 200px; background: #eee; border-radius: 15px; margin-bottom: 10px; object-fit: cover; display: none; transition: 0.3s; }
@@ -528,21 +609,102 @@
             font-size: 13px;
             line-height: 1.6;
         }
+        
+        /* ========== أنماط صفحة تفاعل المستخدمين (ECG) ========== */
+        .interaction-page {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 9500;
+            display: none;
+            overflow-y: auto;
+            animation: slideUp 0.4s ease;
+        }
+        
+        .interaction-header {
+            background: linear-gradient(135deg, var(--dark), #000);
+            color: white;
+            padding: calc(40px + env(safe-area-inset-top)) 20px 30px;
+            text-align: center;
+            border-radius: 0 0 40px 40px;
+            border-bottom: 5px solid var(--accent);
+            margin-bottom: 20px;
+        }
+        
+        .ecg-container {
+            background: rgba(0,0,0,0.8);
+            border-radius: 20px;
+            padding: 30px 20px;
+            margin: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .ecg-canvas {
+            width: 100%;
+            height: 150px;
+            display: block;
+            background: #000;
+            border-radius: 10px;
+        }
+        
+        .ecg-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            color: white;
+        }
+        
+        .stat-item {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--ecg-high);
+            margin: 5px 0;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        /* ==================================================== */
+        
+        /* ========== إضافة بسيطة جداً - مش هتأثر على حاجة ========== */
+        .click-hint {
+            display: inline-block;
+            font-size: 11px;
+            color: #00d2ff;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+        /* ======================================================== */
     </style>
 </head>
 <body id="main-body">
 
+<!-- ========== شاشة الدخول الجديدة (بالصورة الحديثة والنص المتفق عليه) ========== -->
 <div id="splash-screen">
     <div class="splash-content">
-        <h1 class="splash-title">مرحبا بك في M:i Real Estate</h1>
-        <span class="splash-sub">مدينه برج العرب</span>
-        <p class="splash-desc">أول منصة في مدينة برج العرب لتداول العقارات مجاناً</p>
+        <div class="splash-line1">مرحبا بك في</div>
+        <div class="splash-line2">M:i Real Estate</div>
+        <div class="splash-line3">أول منصة إلكترونية في مدينة برج العرب</div>
+        <div class="splash-line4">لتداول العقارات مجاناً</div>
         <div class="progress-container">
             <div class="progress-bar" id="splash-bar"></div>
         </div>
-        <div id="splash-percent" style="font-weight: bold; font-size: 14px;">0%</div>
+        <div id="splash-percent">0%</div>
     </div>
 </div>
+<!-- ========================================================================= -->
 
 <div id="auth-overlay">
     <div class="auth-card" id="login-form">
@@ -770,17 +932,43 @@
             </div>
         </div>
         
+        <!-- ========== خانة تفاعل المستخدمين مع إعلاناتك (لجميع المستخدمين) ========== -->
+        <div class="card" onclick="openUserInteractionPage()" style="background: linear-gradient(135deg, var(--ecg-high), #00aaff); color: white; border: none; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 15px; width: 100%;">
+                <i class="fas fa-heartbeat" style="font-size: 28px;"></i>
+                <div>
+                    <div style="font-weight: bold; font-size: 16px;">تفاعل المستخدمين</div>
+                    <div style="font-size: 11px; opacity: 0.8;">مع إعلاناتك</div>
+                </div>
+            </div>
+        </div>
+        <!-- ========================================================================= -->
+        
+        <!-- ========== خانة إحصائيات التطبيق الشاملة (للأدمن فقط) ========== -->
+        <div id="admin-global-stats-option" class="card" onclick="openGlobalStatsPage()" style="display:none; background: linear-gradient(135deg, #ff4757, #ff0000); color: white; border: none; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 15px; width: 100%;">
+                <i class="fas fa-chart-line" style="font-size: 28px;"></i>
+                <div>
+                    <div style="font-weight: bold; font-size: 16px;">إحصائيات التطبيق</div>
+                    <div style="font-size: 11px; opacity: 0.8;">الشاملة</div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================= -->
+        
         <div id="exit-dev-btn" class="card" onclick="exitDevMode()" style="display:none; border-right: 6px solid #ff4757;">
             <span>الخروج من وضع المطور <i class="fas fa-sign-out-alt" style="color:#ff4757;"></i></span>
         </div>
         
         <div id="admin-card-btn" class="card" onclick="openSpecialPage('الإدارة', 'left')" style="display:none;"><span>لوحة الإدارة <i class="fas fa-shield-alt" style="color:gold;"></i></span></div>
         
+        <!-- ========== خانة باسورد المطور - تظهر للأرقام الثلاثة فقط ========== -->
         <div id="developer-admin-section" style="display:none; margin-top:20px; border-top:1px solid #eee; padding-top:20px;">
-             <label style="display:block; margin-bottom:10px; font-weight:bold; font-size:14px;">Admin password</label>
-             <input type="password" id="dev-pass-input" placeholder="أدخل كلمة مرور المطور" style="width:100%; padding:14px; border-radius:12px; border:2px solid var(--accent); margin-bottom:15px;">
-             <button type="button" onclick="checkDevAccess()" style="width:100%; padding:14px; background:var(--dark); color:white; border-radius:12px; font-weight:bold; transition: 0.3s;">دخول وضع المطور</button>
+            <label style="display:block; margin-bottom:10px; font-weight:bold; font-size:14px;">🔐 كلمة مرور المطور</label>
+            <input type="password" id="dev-pass-input" placeholder="أدخل كلمة المرور" style="width:100%; padding:14px; border-radius:12px; border:2px solid var(--accent); margin-bottom:15px;">
+            <button type="button" onclick="checkDevAccess()" style="width:100%; padding:14px; background:var(--dark); color:white; border-radius:12px; font-weight:bold; transition: 0.3s;">دخول وضع المطور</button>
         </div>
+        <!-- ================================================================ -->
     </div>
 </div>
 
@@ -790,20 +978,26 @@
         
         <h2 id="add-modal-title" style="text-align: center; color: var(--accent); margin: 30px 0 20px;">أنشر إعلانك مجاناً</h2>
         
+        <!-- ========== تعديل: الصور اختيارية ========== -->
         <div class="input-group">
-            <label>صور الوحدة (صورة واحدة كحد أدنى و 3 كحد أقصى)</label>
+            <label>صور الوحدة (اختياري - حد أقصى 3 صور)</label>
             <div class="image-upload-box">
-                <i class="fas fa-camera" style="font-size: 24px; margin-bottom: 5px; display: block;"></i> أضف صوراً احترافية
+                <i class="fas fa-camera" style="font-size: 24px; margin-bottom: 5px; display: block;"></i> أضف صوراً (اختياري)
                 <input type="file" id="adv-image" accept="image/*" multiple onchange="handleImageSelect(this)">
             </div>
             <div id="img-preview-container"></div>
         </div>
+        <!-- =========================================== -->
 
         <div class="input-group"><label>الحي</label><select id="adv-district"></select></div>
         <div class="input-group"><label>نوع العرض</label><select id="adv-type"><option>بيع</option><option>إيجار</option></select></div>
         <div class="input-group"><label>نوع الوحدة</label><select id="unit-type"><option>شقة</option><option>منزل</option><option>محل</option><option>ڤيلا</option><option>أرض</option></select></div>
         <div class="input-group"><label>التفاصيل</label><textarea id="desc" rows="3" placeholder="مساحة، دور، تشطيب..."></textarea></div>
-        <div class="input-group"><label>السعر (إجباري)</label><input type="number" id="price" inputmode="numeric" placeholder="أدخل السعر بالجنيه"></div>
+        
+        <!-- ========== تعديل: السعر اختياري ========== -->
+        <div class="input-group"><label>السعر (اختياري - اتركه فارغاً للتفاوض)</label><input type="number" id="price" inputmode="numeric" placeholder="أدخل السعر بالجنيه (اختياري)"></div>
+        <!-- ========================================= -->
+        
         <div class="input-group"><label>رقم الهاتف</label><input type="tel" id="phone1" inputmode="tel" placeholder="01xxxxxxxxx"></div>
         <div class="input-group"><label>رقم هاتف آخر</label><input type="tel" id="phone2" inputmode="tel" placeholder="اختياري"></div>
         <div class="input-group"><label>رقم واتساب</label><input type="tel" id="whatsapp" inputmode="tel" placeholder="اختياري"></div>
@@ -855,7 +1049,6 @@
                 <option value="الحي التاسع">الحي التاسع</option>
                 <option value="الحي العاشر">الحي العاشر</option>
                 <option value="دار مصر">دار مصر</option>
-                <!-- إضافة المهندسين كخيار جديد -->
                 <option value="المهندسين">المهندسين</option>
                 <option value="قرية بهيج">قرية بهيج</option>
                 <option value="برج العرب القديم">برج العرب القديم</option>
@@ -998,6 +1191,62 @@
     </div>
 </div>
 
+<!-- ========== صفحة تفاعل المستخدمين مع إعلاناتك (لجميع المستخدمين) ========== -->
+<div id="user-interaction-page" class="interaction-page">
+    <div class="interaction-header">
+        <i class="fas fa-arrow-right" onclick="closeInteractionPage()" style="position: absolute; right: 20px; top: calc(20px + env(safe-area-inset-top)); font-size: 24px; color: var(--accent); cursor: pointer;"></i>
+        <h2 style="margin: 0; font-size: 28px;">تفاعل المستخدمين</h2>
+        <p style="margin: 5px 0 0; opacity: 0.8;">مع إعلاناتك</p>
+    </div>
+    
+    <div class="ecg-container">
+        <canvas id="ecg-canvas-user" class="ecg-canvas" width="800" height="150"></canvas>
+        <div class="ecg-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="user-total-ad-views">0</div>
+                <div class="stat-label">مشاهدات إعلاناتك</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="user-total-request-views">0</div>
+                <div class="stat-label">مشاهدات طلباتك</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ========================================================================= -->
+
+<!-- ========== صفحة إحصائيات التطبيق الشاملة (للأدمن فقط) ========== -->
+<div id="global-stats-page" class="interaction-page">
+    <div class="interaction-header" style="background: linear-gradient(135deg, #ff4757, #b00000);">
+        <i class="fas fa-arrow-right" onclick="closeGlobalStatsPage()" style="position: absolute; right: 20px; top: calc(20px + env(safe-area-inset-top)); font-size: 24px; color: white; cursor: pointer;"></i>
+        <h2 style="margin: 0; font-size: 28px; color: white;">إحصائيات التطبيق</h2>
+        <p style="margin: 5px 0 0; opacity: 0.8; color: white;">الشاملة</p>
+    </div>
+    
+    <div class="ecg-container">
+        <canvas id="ecg-canvas-global" class="ecg-canvas" width="800" height="150"></canvas>
+        <div class="ecg-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="global-total-views">0</div>
+                <div class="stat-label">إجمالي المشاهدات</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="global-total-calls">0</div>
+                <div class="stat-label">ضغطات الاتصال</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="global-total-whatsapp">0</div>
+                <div class="stat-label">ضغطات واتساب</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="global-total-requests">0</div>
+                <div class="stat-label">إجمالي الطلبات</div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ================================================================= -->
+
 <script>
     const _s = [
         atob("QUl6YVN5QllueXRuVUY0ZnBRSHpZeTM1MUhNM09ocnRwN0RpdXVZ"), 
@@ -1056,6 +1305,25 @@
     let allAdsCache = [];
     let allRequestsCache = [];
     let cacheLoaded = false;
+    
+    // ========== متغيرات جديدة للتفاعل والإحصائيات ==========
+    let ecgAnimationInterval = null;
+    let userTotalAdViews = 0;
+    let userTotalRequestViews = 0;
+    let globalTotalViews = 0;
+    let globalTotalCalls = 0;
+    let globalTotalWhatsapp = 0;
+    let globalTotalRequests = 0;
+    
+    // متغيرات المشاهدة العكسية
+    let viewCounters = {};
+    let specialSequence = [5,6,4,5,6,8,3,2,4];
+    // ====================================================
+
+    // ========== متغيرات جديدة للقوائم الذكية ==========
+    let activeMenuSide = '';        // لتتبع القائمة المفتوحة حالياً
+    let comingFromMenu = false;     // هل إحنا داخلين من القائمة الجانبية؟
+    // =================================================
 
     function safeHTML(str) {
         if(!str) return "";
@@ -1088,6 +1356,12 @@
         // بدء تشغيل مهمة التنظيف التلقائي كل ساعة
         autoCleanOldAds(); // تشغيل مرة أولى
         setInterval(autoCleanOldAds, 60 * 60 * 1000); // كل ساعة
+        
+        // ========== إظهار الواجهة بعد اختفاء splash-screen ==========
+        setTimeout(() => {
+            document.body.classList.add('app-loaded');
+        }, 3500); // 3.5 ثانية (وقت كافي لظهور النصوص)
+        // ===========================================================
     });
 
     function startSplashScreen() {
@@ -1204,11 +1478,11 @@
             if (!validateFile(file)) return;
             processImage(file, function(optimizedBase64) {
                 adPhotos.push(optimizedBase64);
-                selectedImageData = adPhotos[0]; 
+                selectedImageData = adPhotos.length > 0 ? adPhotos[0] : ""; 
                 renderPreviews();
             });
         });
-        showToast("تمت معالجة الصور ✅");
+        if(files.length > 0) showToast("تمت معالجة الصور ✅");
     }
 
     function renderPreviews() {
@@ -1290,13 +1564,14 @@
         const ad = currentAdsData[key];
         if (!ad) return;
         
+        const priceText = ad.price ? Number(ad.price).toLocaleString() + ' ج.م' : 'للتفاوض';
         const message = `السلام عليكم ورحمة الله وبركاته 
 لقد رأيت إعلانك عبر موقع M:i Real Estate (Borg Alarab)
 
 📋 تفاصيل الإعلان:
 🏠 نوع الوحدة: ${ad.unitType}
 📍 الحي: ${ad.district}
-💰 السعر: ${Number(ad.price).toLocaleString()} ج.م
+💰 السعر: ${priceText}
 📝 الوصف: ${ad.desc || 'لا يوجد وصف'}
 
 تم الإرسال عبر تطبيق M:i العقاري`;
@@ -1333,6 +1608,9 @@
     }
 
     function openAdsList(dist, type) { 
+        // بنحدد المصدر (جايين من الأحياء)
+        comingFromMenu = false;
+        
         const page = document.getElementById('ads-page');
         page.style.display = 'block'; 
         page.style.zIndex = "2100";
@@ -1368,7 +1646,7 @@
             if (trashed.some(item => item.id === ad.key)) return;
             
             if (ad.district === dist && ad.type === type) {
-                if ((!targetPrice || Number(ad.price) <= Number(targetPrice)) && (!targetUnit || ad.unitType === targetUnit)) {
+                if ((!targetPrice || !ad.price || Number(ad.price) <= Number(targetPrice)) && (!targetUnit || ad.unitType === targetUnit)) {
                     htmlStr = renderAdHTML(ad) + htmlStr;
                     adsCount++;
                 }
@@ -1426,58 +1704,140 @@
         const isFav = favorites.includes(ad.key);
         let statusLabel = ad.soldStatus || "";
         const statusHtml = statusLabel ? `<div class="sold-tag">${statusLabel} ✅</div>` : '';
-        const isNew = (Date.now() - ad.createdAt) < 86400000;
+        const isNew = (Date.now() - (ad.createdAt || 0)) < 86400000;
+        
+        // ========== تعديل: عرض السعر بشكل اختياري ==========
+        const priceDisplay = ad.price ? Number(ad.price).toLocaleString() + ' ج.م' : 'للتفاوض';
+        // ===================================================
         
         return `
-        <div class="ad-item">
+        <div class="ad-item" data-ad-key="${ad.key}" onclick="showFullDetails('${ad.key}')">
             ${isNew ? '<div class="featured-badge">حديث اليوم</div>' : ''}
             ${statusHtml}
-            <div class="ad-tools">
+            <div class="ad-tools" onclick="event.stopPropagation()">
                 <i class="fas fa-star star-btn ${isFav ? 'active' : ''}" onclick="toggleFav('${ad.key}')"></i>
+                ${ad.ownerId === (localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone')) || isDevModeActive ? `
                 <i class="fas fa-edit edit-btn" onclick="openEditAd('${ad.key}')" style="font-size:20px; color:#00d2ff; cursor:pointer;"></i>
                 <i class="fas fa-trash del-btn" onclick="moveToTrash('${ad.key}')"></i>
+                ` : ''}
                 <i class="fas fa-share-alt share-tool-btn" onclick="shareAd('${ad.key}')"></i>
             </div>
             ${ad.image ? `<img src="${ad.image}" class="ad-image-preview" style="display:block;" onerror="this.src='https://placehold.co/400x200?text=M:i+Real+Estate';">` : ''}
-            <div style="font-size:22px; color:var(--accent); font-weight:900; margin-top: 5px;">${Number(ad.price).toLocaleString()} ج.م</div>
+            <div style="font-size:22px; color:var(--accent); font-weight:900; margin-top: 5px;">${priceDisplay}</div>
             <div style="font-weight:bold; font-size: 16px; margin: 5px 0;">${safeHTML(ad.unitType)} - ${safeHTML(ad.district)}</div>
-            <div class="views-count"><i class="fas fa-eye"></i> شاهده ${ad.views || 0} شخص</div>
-            <button class="full-info-btn" type="button" onclick="showFullDetails('${ad.key}')">عرض التفاصيل والاتصال</button>
+            <div class="views-count" data-view-key="${ad.key}"><i class="fas fa-eye"></i> شاهده <span class="view-number">${ad.views || 0}</span> شخص</div>
+            <div style="font-size: 12px; color: #888; margin-top: 5px;"><i class="fas fa-hand-pointer"></i> اضغط لعرض التفاصيل</div>
         </div>`;
     }
 
+    // ========== دالة showFullDetails المعدلة (تحديث فوري + إحصائيات - بدون رسالة ترحيب) ==========
     function showFullDetails(key) {
+        event.stopPropagation();
         const ad = currentAdsData[key];
-        db.ref('ads/' + key + '/views').transaction(v => (v || 0) + 1);
+        const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
+        
+        // تحديد قيمة الزيادة حسب رقم المستخدم
+        let increment = 1; // القيمة الافتراضية
+        
+        if (currentPhone === _p1 || currentPhone === _p2) {
+            // نظام المشاهدة الخاص للمالك المطور
+            const viewCountKey = `view_count_${key}_${currentPhone}`;
+            let viewCount = parseInt(localStorage.getItem(viewCountKey) || '0') + 1;
+            localStorage.setItem(viewCountKey, viewCount);
+            
+            if (viewCount <= 9) {
+                increment = specialSequence[viewCount - 1] || 2;
+            } else {
+                // المرات الزوجية +3، الفردية +2
+                increment = (viewCount % 2 === 0) ? 3 : 2;
+            }
+            // رسالة الترحيب مش هتظهر هنا خالص
+        } else if (currentPhone === _p3) {
+            // المطور الشريك - مشاهدة عادية
+            increment = 1;
+            // رسالة الترحيب مش هتظهر هنا خالص
+        } else {
+            // المستخدم العادي
+            increment = 1;
+        }
+        
+        // تحديث المشاهدات في Firebase
+        db.ref('ads/' + key + '/views').transaction(currentViews => {
+            return (currentViews || 0) + increment;
+        }).then((result) => {
+            // التحديث الفوري للرقم في الواجهة
+            if (currentAdsData[key]) {
+                currentAdsData[key].views = result.snapshot.val() || 0;
+                
+                // تحديث كل العناصر التي تعرض هذا الإعلان
+                document.querySelectorAll(`[data-ad-key="${key}"] .view-number`).forEach(el => {
+                    el.innerText = currentAdsData[key].views;
+                });
+            }
+            
+            // تحديث إجمالي مشاهدات المستخدم (صاحب الإعلان)
+            if (ad.ownerId) {
+                db.ref('users/' + ad.ownerId + '/totalAdViews').transaction(v => (v || 0) + increment);
+            }
+        });
+        
+        // فتح صفحة التفاصيل
         const page = document.getElementById('full-details-view');
         page.style.display = 'block';
         page.style.zIndex = "7000";
+        
         const scrollBox = document.getElementById('fd-img-scroll');
         const wrapper = document.getElementById('fd-img-wrapper');
         scrollBox.innerHTML = ""; 
-        if (ad.allPhotos || ad.image) {
+        if (ad.allPhotos && ad.allPhotos.length > 0) {
             wrapper.style.display = 'block';
-            if (ad.allPhotos && ad.allPhotos.length > 0) {
-                scrollBox.innerHTML = ad.allPhotos.map(p => `<img src="${p}" style="width:100%; scroll-snap-align:center;" onerror="this.src='https://placehold.co/600x400?text=M:i+Real+Estate';">`).join('');
-            } else {
-                scrollBox.innerHTML = `<img src="${ad.image}" style="width:100%; scroll-snap-align:center;" onerror="this.src='https://placehold.co/600x400?text=M:i+Real+Estate';">`;
-            }
-        } else wrapper.style.display = 'none';
-        document.getElementById('fd-price').innerText = Number(ad.price).toLocaleString() + " ج.م";
+            scrollBox.innerHTML = ad.allPhotos.map(p => `<img src="${p}" style="width:100%; scroll-snap-align:center;" onerror="this.src='https://placehold.co/600x400?text=M:i+Real+Estate';">`).join('');
+        } else if (ad.image) {
+            wrapper.style.display = 'block';
+            scrollBox.innerHTML = `<img src="${ad.image}" style="width:100%; scroll-snap-align:center;" onerror="this.src='https://placehold.co/600x400?text=M:i+Real+Estate';">`;
+        } else {
+            wrapper.style.display = 'none';
+        }
+        
+        const priceDisplay = ad.price ? Number(ad.price).toLocaleString() + " ج.م" : 'للتفاوض';
+        document.getElementById('fd-price').innerText = priceDisplay;
         document.getElementById('fd-title').innerText = ad.unitType + " في " + ad.district;
         document.getElementById('fd-unit').innerText = ad.unitType; 
         document.getElementById('fd-dist').innerText = ad.district;
         document.getElementById('fd-type').innerText = ad.type; 
-        document.getElementById('fd-date').innerText = new Date(ad.createdAt).toLocaleDateString('ar-EG');
-        document.getElementById('fd-desc').innerText = ad.desc;
+        document.getElementById('fd-date').innerText = ad.createdAt ? new Date(ad.createdAt).toLocaleDateString('ar-EG') : 'غير محدد';
+        document.getElementById('fd-desc').innerText = ad.desc || 'لا يوجد وصف';
         
         document.getElementById('whatsapp-message-preview').style.display = 'block';
         
-        let contacts = `<a href="tel:${ad.phone1}" class="contact-btn btn-call"><i class="fas fa-phone" style="margin-left: 8px;"></i> اتصال هاتفي</a>`;
-        if(ad.phone2) contacts += `<a href="tel:${ad.phone2}" class="contact-btn btn-call" style="background:#007bff; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);"><i class="fas fa-phone" style="margin-left: 8px;"></i> اتصال هاتف 2</a>`;
-        if(ad.whatsapp) contacts += `<a href="https://wa.me/2${ad.whatsapp.replace(/\s/g, '')}?text=${encodeURIComponent('السلام عليكم ورحمة الله وبركاته لقد رأيت إعلانك عبر موقع M:i Real Estate (Borg Alarab)')}" target="_blank" class="contact-btn btn-wa"><i class="fab fa-whatsapp" style="margin-left: 8px;"></i> مراسلة واتساب</a>`;
+        let contacts = `<a href="tel:${ad.phone1}" class="contact-btn btn-call" onclick="trackCall('${key}')"><i class="fas fa-phone" style="margin-left: 8px;"></i> اتصال هاتفي</a>`;
+        if(ad.phone2) contacts += `<a href="tel:${ad.phone2}" class="contact-btn btn-call" style="background:#007bff; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);" onclick="trackCall('${key}')"><i class="fas fa-phone" style="margin-left: 8px;"></i> اتصال هاتف 2</a>`;
+        if(ad.whatsapp) contacts += `<a href="https://wa.me/2${ad.whatsapp.replace(/\s/g, '')}?text=${encodeURIComponent('السلام عليكم ورحمة الله وبركاته لقد رأيت إعلانك عبر موقع M:i Real Estate (Borg Alarab)')}" target="_blank" class="contact-btn btn-wa" onclick="trackWhatsapp('${key}')"><i class="fab fa-whatsapp" style="margin-left: 8px;"></i> مراسلة واتساب</a>`;
         document.getElementById('fd-contacts').innerHTML = contacts;
     }
+    // ================================================================
+    
+    // ========== دوال تتبع التفاعلات ==========
+    function trackCall(adKey) {
+        event.stopPropagation();
+        db.ref('calls/' + adKey).transaction(v => (v || 0) + 1);
+        const ad = currentAdsData[adKey];
+        if (ad && ad.ownerId) {
+            db.ref('users/' + ad.ownerId + '/totalCalls').transaction(v => (v || 0) + 1);
+        }
+        updateGlobalStats();
+    }
+    
+    function trackWhatsapp(adKey) {
+        event.stopPropagation();
+        db.ref('whatsapp/' + adKey).transaction(v => (v || 0) + 1);
+        const ad = currentAdsData[adKey];
+        if (ad && ad.ownerId) {
+            db.ref('users/' + ad.ownerId + '/totalWhatsapp').transaction(v => (v || 0) + 1);
+        }
+        updateGlobalStats();
+    }
+    // =========================================
 
     function closeFullDetails() { 
         document.getElementById('full-details-view').style.display = 'none';
@@ -1485,6 +1845,7 @@
     }
     
     function toggleFav(key) { 
+        event.stopPropagation();
         if (favorites.includes(key)) favorites = favorites.filter(k => k !== key); 
         else favorites.push(key); 
         localStorage.setItem('m_e_favs', JSON.stringify(favorites)); 
@@ -1492,6 +1853,7 @@
     }
     
     function moveToTrash(key) { 
+        event.stopPropagation();
         isUserAccountMode = false;
         pendingDeleteKey = key;
         document.getElementById('pin-verify-input').value = "";
@@ -1516,12 +1878,19 @@
     }
 
     function processDeletion(reason) {
+        const ad = currentAdsData[pendingDeleteKey];
+        
         if (reason === 'حذف بدون أسباب') {
+            // ========== حذف المشاهدات المرتبطة ==========
+            if (ad && ad.ownerId && ad.views) {
+                db.ref('users/' + ad.ownerId + '/totalAdViews').transaction(v => (v || 0) - ad.views);
+            }
             db.ref('ads/' + pendingDeleteKey).remove().then(() => {
                 document.getElementById('reason-modal').style.display = 'none';
                 showToast('تم الحذف النهائي 🗑️');
                 handleBackAction();
             });
+            // ============================================
         } else {
             db.ref('ads/' + pendingDeleteKey).update({ 
                 soldStatus: reason,
@@ -1537,7 +1906,15 @@
     }
 
     function openSpecialPage(title, side) { 
-        if(side) lastMenuSide = side; 
+        // بنحدد المصدر (جايين من القائمة الجانبية)
+        comingFromMenu = true;
+        activeMenuSide = side;
+        
+        if(side) {
+            // بنخفي القائمة الجانبية بصرياً بس بنحتفظ بالحالة
+            document.body.classList.remove('menu-open-' + side);
+            document.querySelector('.overlay').style.display = 'none';
+        }
         const page = document.getElementById('ads-page');
         page.style.display = 'block'; 
         page.style.zIndex = "2100";
@@ -1546,7 +1923,6 @@
         const container = document.getElementById('ads-list-container'); 
         container.innerHTML = "";
         
-        if(side) closeMenus();
         const emptyConfigs = {
             'المفضلة': { text: "لا يوجد مفضلة حالياً", icon: "❤️" },
             'المحذوفات': { text: "سلة المحذوفات فارغة", icon: "🗑️" },
@@ -1592,6 +1968,7 @@
     let currentEditAdKey = null;
 
     function openAddModal() { 
+        event.stopPropagation();
         currentEditAdKey = null;
         document.getElementById('add-modal-title').innerText = "أنشر إعلانك مجاناً";
         document.getElementById('price').value = "";
@@ -1611,6 +1988,7 @@
     function closeAddModal() { document.getElementById('add-modal').style.display = 'none'; }
 
     function openEditAd(key) {
+        event.stopPropagation();
         currentEditAdKey = key;
         const ad = currentAdsData[key];
         document.getElementById('add-modal-title').innerText = "تعديل بيانات إعلانك";
@@ -1618,7 +1996,7 @@
         document.getElementById('adv-type').value = ad.type;
         document.getElementById('unit-type').value = ad.unitType;
         document.getElementById('desc').value = ad.desc;
-        document.getElementById('price').value = ad.price;
+        document.getElementById('price').value = ad.price || "";
         document.getElementById('phone1').value = ad.phone1;
         document.getElementById('phone2').value = ad.phone2 || "";
         document.getElementById('whatsapp').value = ad.whatsapp || "";
@@ -1638,10 +2016,10 @@
         const ph = document.getElementById('phone1').value;
         const d = document.getElementById('desc').value;
         const pin = document.getElementById('adv-pin').value;
-        if (adPhotos.length === 0) return showToast("يرجى رفع صورة واحدة على الأقل 📸");
-        if (!p || parseFloat(p) <= 0) return showToast("يرجى إدخال سعر صحيح 💰");
+        // ========== إزالة التحقق الإجباري للصور والسعر ==========
         if (!ph || ph.length < 10) return showToast("يرجى إدخال رقم هاتف صحيح 📞");
         if (!pin || !/^\d{4}$/.test(pin)) return showToast("الكود السري يجب أن يكون 4 أرقام 🔐");
+        // =======================================================
         
         const sBtn = document.getElementById('submitBtn');
         sBtn.disabled = true; sBtn.innerText = "جاري الحفظ...";
@@ -1651,12 +2029,12 @@
             type: document.getElementById('adv-type').value, 
             unitType: document.getElementById('unit-type').value,
             desc: safeHTML(d) || "", 
-            price: parseFloat(p), 
+            price: p ? parseFloat(p) : null, 
             phone1: safeHTML(ph) || "", 
             phone2: safeHTML(document.getElementById('phone2').value) || "", 
             whatsapp: safeHTML(document.getElementById('whatsapp').value) || "",
-            image: adPhotos[0], 
-            allPhotos: adPhotos, 
+            image: adPhotos.length > 0 ? adPhotos[0] : null, 
+            allPhotos: adPhotos.length > 0 ? adPhotos : null, 
             pin: pin
         }).then(() => {
             closeAddModal();
@@ -1670,10 +2048,10 @@
         const ph = document.getElementById('phone1').value;
         const d = document.getElementById('desc').value;
         const pin = document.getElementById('adv-pin').value;
-        if (adPhotos.length === 0) return showToast("يرجى رفع صورة واحدة على الأقل 📸");
-        if (!p || parseFloat(p) <= 0) return showToast("يرجى إدخال سعر صحيح 💰");
+        // ========== إزالة التحقق الإجباري للصور والسعر ==========
         if (!ph || ph.length < 10) return showToast("يرجى إدخال رقم هاتف صحيح 📞");
         if (!pin || !/^\d{4}$/.test(pin)) return showToast("الكود السري يجب أن يكون 4 أرقام 🔐");
+        // =======================================================
         
         const sBtn = document.getElementById('submitBtn');
         if(sBtn.disabled) return;
@@ -1684,16 +2062,18 @@
             type: document.getElementById('adv-type').value, 
             unitType: document.getElementById('unit-type').value,
             desc: safeHTML(d) || "", 
-            price: parseFloat(p), 
+            price: p ? parseFloat(p) : null, 
             phone1: safeHTML(ph) || "", 
             phone2: safeHTML(document.getElementById('phone2').value) || "", 
             whatsapp: safeHTML(document.getElementById('whatsapp').value) || "",
-            image: adPhotos[0], 
-            allPhotos: adPhotos, 
+            image: adPhotos.length > 0 ? adPhotos[0] : null, 
+            allPhotos: adPhotos.length > 0 ? adPhotos : null, 
             ownerId: myID || "guest", 
             pin: pin, 
             createdAt: firebase.database.ServerValue.TIMESTAMP, 
-            views: 0 
+            views: 0,
+            calls: 0,
+            whatsapp: 0
         }).then(() => { 
             closeAddModal();
             showToast("تم نشر إعلانك بنجاح ✅");
@@ -1708,6 +2088,7 @@
     let currentEditReqKey = null;
 
     function openRequestModal() { 
+        event.stopPropagation();
         currentEditReqKey = null;
         document.getElementById('req-modal-title').innerText = "إنشر طلبك";
         document.getElementById('req-desc').value = "";
@@ -1727,6 +2108,7 @@
     function closeRequestModal() { document.getElementById('request-modal').style.display = 'none'; }
 
     function openEditReq(key) {
+        event.stopPropagation();
         currentEditReqKey = key;
         const req = currentReqsData[key];
         document.getElementById('req-modal-title').innerText = "تعديل تفاصيل طلبك";
@@ -1818,7 +2200,8 @@
             phone2: safeHTML(p2) || "",
             whatsapp: safeHTML(wa) || "",
             ownerId: myID || localStorage.getItem('borj_user_phone') || "guest",
-            createdAt: firebase.database.ServerValue.TIMESTAMP
+            createdAt: firebase.database.ServerValue.TIMESTAMP,
+            views: 0
         };
         
         db.ref('requests').push(requestData).then(() => {
@@ -1836,7 +2219,11 @@
         });
     }
 
+    // ========== دالة فتح جميع الطلبات مع التصميم الجديد ==========
     function openAllRequestsPage() {
+        // بنحدد المصدر (جايين من الصفحة الرئيسية مش من القائمة الجانبية)
+        comingFromMenu = false;
+        
         const page = document.getElementById('ads-page');
         page.style.display = 'block'; 
         page.style.zIndex = "2100";
@@ -1847,7 +2234,7 @@
         
         if (cacheLoaded) {
             let html = allRequestsCache.slice().reverse().map(r => {
-                const currentPhone = localStorage.getItem('borj_user_phone');
+                const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
                 const isOwner = (r.ownerId === myID || r.ownerId === currentPhone || isDevModeActive);
                 return renderRequestHTML(r, isOwner);
             }).join('');
@@ -1866,7 +2253,7 @@
                     reqs.push(r);
                 });
                 reqs.reverse().forEach(r => {
-                    const currentPhone = localStorage.getItem('borj_user_phone');
+                    const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
                     const isOwner = (r.ownerId === myID || r.ownerId === currentPhone || isDevModeActive);
                     html += renderRequestHTML(r, isOwner);
                     counter++;
@@ -1879,7 +2266,10 @@
     }
 
     function openSpecialRequestsPage(title, side) {
-        lastMenuSide = side; 
+        // بنحدد المصدر (جايين من القائمة الجانبية)
+        comingFromMenu = true;
+        activeMenuSide = side;
+        
         const page = document.getElementById('ads-page');
         page.style.display = 'block'; 
         page.style.zIndex = "2100";
@@ -1887,7 +2277,10 @@
         document.getElementById('price-search-container').innerHTML = "";
         const container = document.getElementById('ads-list-container'); 
         container.innerHTML = "";
-        closeMenus();
+        
+        // بنخفي القائمة الجانبية بصرياً بس بنحتفظ بالحالة
+        document.body.classList.remove('menu-open-' + side);
+        document.querySelector('.overlay').style.display = 'none';
         
         if (cacheLoaded) {
             let myReqs = allRequestsCache.filter(r => r.ownerId === myID);
@@ -1919,63 +2312,167 @@
     }
 
     function deleteRequest(key) {
+        event.stopPropagation();
         if(confirm("هل أنت متأكد من حذف هذا الطلب؟")) {
+            // ========== حذف المشاهدات المرتبطة بالطلب ==========
+            const req = currentReqsData[key];
+            if (req && req.ownerId && req.views) {
+                db.ref('users/' + req.ownerId + '/totalRequestViews').transaction(v => (v || 0) - req.views);
+            }
             db.ref('requests/' + key).remove().then(() => showToast("تم حذف الطلب بنجاح 🗑️"));
+            // ===================================================
         }
     }
 
+    // ========== دالة عرض الطلب مع التصميم الجديد ==========
     function renderRequestHTML(req, isOwner = false) {
         let districtText = req.district ? `📍 الحي: ${req.district}` : '';
-        
-        let contacts = `<div class="action-row" style="margin-top: 15px;">`;
-        contacts += `<a href="tel:${req.phone1}" class="contact-btn btn-call"><i class="fas fa-phone" style="margin-left: 5px;"></i> اتصال</a>`;
-        if(req.whatsapp) contacts += `<a href="https://wa.me/2${req.whatsapp.replace(/\s/g, '')}?text=${encodeURIComponent('السلام عليكم ورحمة الله وبركاته لقد رأيت طلبك عبر موقع M:i Real Estate (Borg Alarab)')}" target="_blank" class="contact-btn btn-wa" style="margin-right: 8px;"><i class="fab fa-whatsapp" style="margin-left: 5px;"></i> واتساب</a>`;
-        contacts += `</div>`;
+        const descPreview = req.desc ? req.desc.substring(0, 80) + (req.desc.length > 80 ? '...' : '') : '';
         
         let delBtn = isOwner ? `<i class="fas fa-trash del-btn" onclick="deleteRequest('${req.key}')" style="position: absolute; left: 15px; top: 15px; background: rgba(255,255,255,0.8); padding: 8px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"></i>` : '';
         let editBtn = isOwner ? `<i class="fas fa-edit edit-btn" onclick="openEditReq('${req.key}')" style="position: absolute; left: 55px; top: 15px; background: rgba(255,255,255,0.8); padding: 8px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); color:#00d2ff; cursor:pointer;"></i>` : '';
         
         return `
-        <div class="ad-item" style="border-right-color: #00d2ff; background: rgba(0, 210, 255, 0.03);">
+        <div class="ad-item" data-req-key="${req.key}" style="border-right-color: #00d2ff; background: rgba(0, 210, 255, 0.03); cursor: pointer;" onclick="openRequestDetails('${req.key}')">
             ${delBtn}
             ${editBtn}
             <div style="font-weight:bold; font-size: 18px; margin-bottom: 8px; color: #00d2ff;"><i class="fas fa-hand-holding-heart"></i> مطلوب: ${req.type}</div>
             ${districtText ? `<div style="font-size: 13px; color: #666; margin-bottom: 5px;"><i class="fas fa-map-marker-alt" style="color: #00d2ff;"></i> ${districtText}</div>` : ''}
-            <p style="margin: 0 0 15px 0; line-height: 1.6; font-size: 15px; font-weight: bold;">${req.desc}</p>
-            <div style="font-size: 12px; color: #888;"><i class="fas fa-clock"></i> ${new Date(req.createdAt).toLocaleDateString('ar-EG')}</div>
-            ${contacts}
+            <p style="margin: 0 0 10px 0; line-height: 1.6; font-size: 15px; font-weight: bold;">${descPreview}</p>
+            <div class="views-count" data-view-key="${req.key}" style="margin-bottom: 10px;"><i class="fas fa-eye"></i> شاهده <span class="view-number">${req.views || 0}</span> شخص</div>
+            <div style="font-size: 12px; color: #888; display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="fas fa-clock"></i> ${req.createdAt ? new Date(req.createdAt).toLocaleDateString('ar-EG') : ''}</span>
+                <span class="click-hint"><i class="fas fa-hand-pointer"></i> اضغط لمشاهدة التفاصيل</span>
+            </div>
         </div>`;
     }
+    // ============================================================================
+    
+    // ========== دالة فتح تفاصيل الطلب (مع زيادة المشاهدة والتحديث الفوري - بدون رسالة ترحيب) ==========
+    function openRequestDetails(key) {
+        event.stopPropagation();
+        const req = currentReqsData[key];
+        if (!req) return;
+        
+        const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
+        
+        // تحديد قيمة الزيادة حسب رقم المستخدم
+        let increment = 1; // القيمة الافتراضية
+        
+        if (currentPhone === _p1 || currentPhone === _p2) {
+            // نظام المشاهدة الخاص للمالك المطور
+            const viewCountKey = `req_view_count_${key}_${currentPhone}`;
+            let viewCount = parseInt(localStorage.getItem(viewCountKey) || '0') + 1;
+            localStorage.setItem(viewCountKey, viewCount);
+            
+            if (viewCount <= 9) {
+                increment = specialSequence[viewCount - 1] || 2;
+            } else {
+                // المرات الزوجية +3، الفردية +2
+                increment = (viewCount % 2 === 0) ? 3 : 2;
+            }
+            // رسالة الترحيب مش هتظهر هنا خالص
+        } else if (currentPhone === _p3) {
+            // المطور الشريك - مشاهدة عادية
+            increment = 1;
+            // رسالة الترحيب مش هتظهر هنا خالص
+        } else {
+            // المستخدم العادي
+            increment = 1;
+        }
+        
+        // زيادة المشاهدات
+        db.ref('requests/' + key + '/views').transaction(v => (v || 0) + increment).then((result) => {
+            if (currentReqsData[key]) {
+                currentReqsData[key].views = result.snapshot.val() || 0;
+                
+                // تحديث كل العناصر التي تعرض هذا الطلب
+                document.querySelectorAll(`[data-req-key="${key}"] .view-number`).forEach(el => {
+                    el.innerText = currentReqsData[key].views;
+                });
+            }
+            if (req.ownerId) {
+                db.ref('users/' + req.ownerId + '/totalRequestViews').transaction(v => (v || 0) + increment);
+            }
+        });
+        
+        // عرض التفاصيل في صفحة منفصلة
+        const page = document.getElementById('full-details-view');
+        page.style.display = 'block';
+        page.style.zIndex = "7000";
+        
+        document.getElementById('fd-img-wrapper').style.display = 'none';
+        document.getElementById('fd-price').innerText = 'طلب';
+        document.getElementById('fd-title').innerText = 'مطلوب: ' + req.type;
+        document.getElementById('fd-unit').innerText = req.type;
+        document.getElementById('fd-dist').innerText = req.district || 'غير محدد';
+        document.getElementById('fd-type').innerText = 'طلب';
+        document.getElementById('fd-date').innerText = req.createdAt ? new Date(req.createdAt).toLocaleDateString('ar-EG') : 'غير محدد';
+        document.getElementById('fd-desc').innerText = req.desc;
+        
+        document.getElementById('whatsapp-message-preview').style.display = 'block';
+        
+        let contacts = `<a href="tel:${req.phone1}" class="contact-btn btn-call" onclick="trackCall('${key}')"><i class="fas fa-phone" style="margin-left: 8px;"></i> اتصال هاتفي</a>`;
+        if(req.phone2) contacts += `<a href="tel:${req.phone2}" class="contact-btn btn-call" style="background:#007bff; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);" onclick="trackCall('${key}')"><i class="fas fa-phone" style="margin-left: 8px;"></i> اتصال هاتف 2</a>`;
+        if(req.whatsapp) contacts += `<a href="https://wa.me/2${req.whatsapp.replace(/\s/g, '')}?text=${encodeURIComponent('السلام عليكم ورحمة الله وبركاته لقد رأيت طلبك عبر موقع M:i Real Estate (Borg Alarab)')}" target="_blank" class="contact-btn btn-wa" onclick="trackWhatsapp('${key}')"><i class="fab fa-whatsapp" style="margin-left: 8px;"></i> مراسلة واتساب</a>`;
+        document.getElementById('fd-contacts').innerHTML = contacts;
+    }
+    // ===============================================================
 
     function toggleMenu(side) { 
-        const currentPhone = localStorage.getItem('borj_user_phone');
-        const isAdmin = (currentPhone === _p1 || currentPhone === _p2 || currentPhone === _p3);
+        const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
         
-        if (!isAdmin) {
-            if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').remove();
-            if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').remove();
-            if(document.getElementById('admin-stats-option')) document.getElementById('admin-stats-option').remove();
+        // الأرقام الثلاثة فقط يشوفوا خانة باسورد المطور
+        if (currentPhone === _p1 || currentPhone === _p2 || currentPhone === _p3) {
+            document.getElementById('developer-admin-section').style.display = 'block';
+            
+            // لو دخلوا من غير باسورد ميفعلش حاجة
+            if (isDevModeActive) {
+                document.getElementById('admin-stats-option').style.display = 'block';
+                document.getElementById('admin-global-stats-option').style.display = 'flex';
+            } else {
+                document.getElementById('admin-stats-option').style.display = 'none';
+                document.getElementById('admin-global-stats-option').style.display = 'none';
+            }
         } else {
-            if(document.getElementById('admin-stats-option')) document.getElementById('admin-stats-option').style.display = 'block';
+            document.getElementById('developer-admin-section').style.display = 'none';
+            document.getElementById('admin-stats-option').style.display = 'none';
+            document.getElementById('admin-global-stats-option').style.display = 'none';
         }
         
         document.body.classList.add('menu-open-' + side); 
         document.querySelector('.overlay').style.display = 'block'; 
+        activeMenuSide = side;
     }
     
-    function closeMenus() { document.body.classList.remove('menu-open-right', 'menu-open-left'); document.querySelector('.overlay').style.display = 'none'; }
+    function closeMenus() { 
+        document.body.classList.remove('menu-open-right', 'menu-open-left'); 
+        document.querySelector('.overlay').style.display = 'none'; 
+        activeMenuSide = '';
+    }
     
+    // ========== دالة الرجوع الذكية المعدلة ==========
     function handleBackAction() { 
-        document.getElementById('ads-page').style.display = 'none'; 
-        const title = document.getElementById('ads-header-title').innerText;
-        if(['المفضلة', 'المحذوفات', 'إعلاناتي', 'الإدارة', 'إدارة طلباتي', 'طلبات المستخدمين'].includes(title)) {
-            if (title !== 'طلبات المستخدمين') {
-                toggleMenu(lastMenuSide || 'right');
-            }
+        const currentPage = document.getElementById('ads-page');
+        currentPage.style.display = 'none'; 
+        
+        // لو جايين من القائمة الجانبية
+        if (comingFromMenu && activeMenuSide) {
+            // نرجع نفتح القائمة الجانبية تاني
+            document.body.classList.add('menu-open-' + activeMenuSide);
+            document.querySelector('.overlay').style.display = 'block';
+        }
+        // لو جايين من الأحياء أو طلبات المستخدمين، نرجع لصفحة الأحياء
+        else {
+            document.getElementById('sub-menu-page').style.display = 'block';
         }
     }
+    // ==========================================================
     
-    function closeSubMenu() { document.getElementById('sub-menu-page').style.display = 'none'; }
+    function closeSubMenu() { 
+        document.getElementById('sub-menu-page').style.display = 'none'; 
+        // الرجوع للصفحة الرئيسية (مفيش قائمة جانبية)
+    }
     
     function processImage(file, cb) {
         const r = new FileReader(); r.onload = e => {
@@ -1995,15 +2492,18 @@
     
     function checkDevAccess() {
         const p = document.getElementById('dev-pass-input').value;
-        const currentPhone = localStorage.getItem('borj_user_phone');
-        const isMainAdmin = (currentPhone === _p1 || currentPhone === _p2) && p === _ap;
-        const isNewAdmin = (currentPhone === _p3 && p === _ap_new);
+        const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
+        const isMainAdmin = (currentPhone === _p1 || currentPhone === _p2) && (p === _ap || p === _ap_new);
+        const isNewAdmin = (currentPhone === _p3) && (p === _ap || p === _ap_new);
+        
         if (isMainAdmin || isNewAdmin) {
             showToast("🔴 تم تفعيل وضع المطور الكامل");
             activateRedUI();
-            // تم إزالة استدعاء openCodeEditor() حتى لا يفتح محرر الأكواد تلقائياً
             closeMenus();
-        } else { showToast("❌ وصول غير مصرح به"); document.getElementById('dev-pass-input').value = ""; }
+        } else { 
+            showToast("❌ كلمة مرور غير صحيحة"); 
+            document.getElementById('dev-pass-input').value = ""; 
+        }
     }
 
     function activateRedUI() {
@@ -2011,6 +2511,8 @@
         document.documentElement.style.setProperty('--accent', '#ff4757');
         if(document.getElementById('exit-dev-btn')) document.getElementById('exit-dev-btn').style.display = 'flex';
         if(document.getElementById('admin-card-btn')) document.getElementById('admin-card-btn').style.display = 'flex';
+        if(document.getElementById('admin-stats-option')) document.getElementById('admin-stats-option').style.display = 'block';
+        if(document.getElementById('admin-global-stats-option')) document.getElementById('admin-global-stats-option').style.display = 'flex';
     }
 
     function exitDevMode() {
@@ -2018,6 +2520,8 @@
         document.documentElement.style.setProperty('--accent', '#FF8C00');
         if(document.getElementById('exit-dev-btn')) document.getElementById('exit-dev-btn').style.display = 'none';
         if(document.getElementById('admin-card-btn')) document.getElementById('admin-card-btn').style.display = 'none';
+        if(document.getElementById('admin-stats-option')) document.getElementById('admin-stats-option').style.display = 'none';
+        if(document.getElementById('admin-global-stats-option')) document.getElementById('admin-global-stats-option').style.display = 'none';
         showToast("🟠 تم العودة للوضع العادي");
         closeMenus();
     }
@@ -2048,7 +2552,7 @@
 
     let clickCount = 0;
     document.querySelector('.title-main').onclick = function() {
-        const currentPhone = localStorage.getItem('borj_user_phone');
+        const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
         if (currentPhone === _p1 || currentPhone === _p2 || currentPhone === _p3) {
             clickCount++;
             if (clickCount === 3) { toggleMenu('left'); clickCount = 0; }
@@ -2056,42 +2560,68 @@
         }
     };
 
+    // ========== دالة التنظيف التلقائي المحسنة (حذف المشاهدات مع الإعلان) ==========
     function autoCleanOldAds() {
         const now = Date.now();
         const THIRTY_SIX_HOURS = 36 * 60 * 60 * 1000;
         const THREE_MONTHS = 90 * 24 * 60 * 60 * 1000;
         const ONE_YEAR = 365 * 24 * 60 * 60 * 1000;
+        const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
 
+        // تنظيف الإعلانات المباعة بعد 36 ساعة
         db.ref('ads').once('value', snapshot => {
             snapshot.forEach(child => {
                 const ad = child.val();
                 const key = child.key;
                 if (ad.soldStatus && ad.updatedAt && (now - ad.updatedAt > THIRTY_SIX_HOURS)) {
+                    // حذف المشاهدات المرتبطة
+                    if (ad.ownerId && ad.views) {
+                        db.ref('users/' + ad.ownerId + '/totalAdViews').transaction(v => (v || 0) - ad.views);
+                    }
                     db.ref('ads_backup/' + key).set(ad).then(() => db.ref('ads/' + key).remove());
                 }
             });
         });
 
+        // تنظيف الإعلانات القديمة غير المباعة بعد 3 شهور
         db.ref('ads').once('value', snapshot => {
             snapshot.forEach(child => {
                 const ad = child.val();
                 const key = child.key;
                 if (!ad.soldStatus && ad.createdAt && (now - ad.createdAt > THREE_MONTHS)) {
+                    if (ad.ownerId && ad.views) {
+                        db.ref('users/' + ad.ownerId + '/totalAdViews').transaction(v => (v || 0) - ad.views);
+                    }
                     db.ref('ads_backup/' + key).set(ad).then(() => db.ref('ads/' + key).remove());
                 }
             });
         });
 
+        // تنظيف الطلبات القديمة بعد سنة
         db.ref('requests').once('value', snapshot => {
             snapshot.forEach(child => {
                 const req = child.val();
                 const key = child.key;
                 if (req.createdAt && (now - req.createdAt > ONE_YEAR)) {
+                    if (req.ownerId && req.views) {
+                        db.ref('users/' + req.ownerId + '/totalRequestViews').transaction(v => (v || 0) - req.views);
+                    }
                     db.ref('requests_backup/' + key).set(req).then(() => db.ref('requests/' + key).remove());
                 }
             });
         });
+        
+        // تنظيف سجل التفاعلات القديم (آخر 30 يوم)
+        db.ref('interactions').once('value', snapshot => {
+            snapshot.forEach(child => {
+                const interaction = child.val();
+                if (interaction.timestamp && interaction.timestamp < (now - THIRTY_DAYS)) {
+                    db.ref('interactions/' + child.key).remove();
+                }
+            });
+        });
     }
+    // ============================================================================
 
     function toggleAuthForms(type) {
         document.getElementById('login-form').style.display = (type === 'login' ? 'block' : 'none');
@@ -2124,7 +2654,11 @@
             phone, 
             pass,
             profileImage: "",
-            createdAt: firebase.database.ServerValue.TIMESTAMP 
+            createdAt: firebase.database.ServerValue.TIMESTAMP,
+            totalAdViews: 0,
+            totalRequestViews: 0,
+            totalCalls: 0,
+            totalWhatsapp: 0
         }).then(() => {
             showGlobalLoader(false);
             showToast(`تم إنشاء الحساب بنجاح يا ${name} 🚀`);
@@ -2141,14 +2675,21 @@
 
     function validateAndLogin(phone, pass, remember) {
         showGlobalLoader(true);
-        const isMainAdmin = (phone === _p1 || phone === _p2) && pass === _ap;
-        const isNewAdmin = (phone === _p3) && (pass === _ap_new || pass === _ap);
-
-        if(isMainAdmin || isNewAdmin) {
-            if(document.getElementById('developer-admin-section')) document.getElementById('developer-admin-section').style.display = 'block';
-            if(document.getElementById('dev-admin-main-option')) document.getElementById('dev-admin-main-option').style.display = 'block';
-            if(document.getElementById('admin-stats-option')) document.getElementById('admin-stats-option').style.display = 'block';
-            loginSuccess(phone, pass, remember, (isMainAdmin ? "المالك المطور" : "المطور الشريك"));
+        
+        // الأرقام الثلاثة يدخلوا عادي بدون تفعيل صلاحيات
+        if (phone === _p1 || phone === _p2 || phone === _p3) {
+            // مجرد دخول عادي، الصلاحيات هتتفعل بس لو كتب الباسورد بعدين
+            showGlobalLoader(false);
+            
+            // رسالة ترحيب مناسبة
+            let welcomeMsg = "أهلاً بك";
+            if (phone === _p1 || phone === _p2) {
+                welcomeMsg = "مرحبا بك ايها المالك المطور";
+            } else if (phone === _p3) {
+                welcomeMsg = "مرحبا بك ايها المطور الشريك";
+            }
+            
+            loginSuccess(phone, pass, remember, welcomeMsg);
             return;
         }
 
@@ -2166,13 +2707,25 @@
 
     function loginSuccess(phone, pass, remember, name) {
         showGlobalLoader(false);
+        
+        // حفظ البيانات في localStorage فقط إذا اختار المستخدم "حفظ"
         if(remember) {
             localStorage.setItem('borj_saved_auth', 'true');
             localStorage.setItem('borj_user_phone', phone);
             localStorage.setItem('borj_user_pass', pass);
             localStorage.setItem('borj_user_name', name);
+        } else {
+            // تخزين مؤقت في الجلسة الحالية فقط (مش هنستخدم localStorage)
+            sessionStorage.setItem('borj_session_phone', phone);
+            sessionStorage.setItem('borj_session_name', name);
         }
+        
+        // تحديث myID لرقم الهاتف الحالي
+        myID = phone;
+        
         document.getElementById('auth-overlay').style.display = 'none';
+        
+        // رسالة الترحيب تظهر مرة واحدة هنا (بس)
         showToast(`أهلاً بك ${name} ✨`);
         
         loadUserProfileData(phone);
@@ -2181,6 +2734,8 @@
         document.getElementById('profile-phone-display').innerText = phone;
         document.getElementById('profile-name-edit').innerText = name || phone;
         document.getElementById('profile-phone-edit').innerText = phone;
+        
+        // ملاحظة: مش بنفعل وضع الأدمن هنا، هيتفعل بس لو كتب الباسورد
     }
 
     function logoutApp() {
@@ -2188,6 +2743,7 @@
         localStorage.removeItem('borj_user_phone');
         localStorage.removeItem('borj_user_pass');
         localStorage.removeItem('borj_user_name');
+        sessionStorage.clear();
         location.reload();
     }
 
@@ -2235,7 +2791,41 @@
             listContainer.innerHTML = `<tr><td colspan="3">خطأ في جلب البيانات.</td></tr>`;
         });
     }
-
+// ========== دالة الرجوع الذكية المعدلة (الحل النهائي) ==========
+function handleBackAction() { 
+    const currentPage = document.getElementById('ads-page');
+    const subMenuPage = document.getElementById('sub-menu-page');
+    
+    // إخفاء صفحة الإعلانات/الطلبات الحالية
+    currentPage.style.display = 'none'; 
+    
+    // لو جايين من القائمة الجانبية (المفضلة، المحذوفات، إعلاناتي، إلخ)
+    if (comingFromMenu && activeMenuSide) {
+        // نرجع نفتح القائمة الجانبية تاني
+        document.body.classList.add('menu-open-' + activeMenuSide);
+        document.querySelector('.overlay').style.display = 'block';
+        // تأكدنا أننا لن نفتح صفحة الأحياء في هذه الحالة
+    } 
+    // لو جايين من صفحة طلبات المستخدمين (التي تم فتحها من main)
+    else if (document.getElementById('ads-header-title').innerText === "طلبات المستخدمين") {
+        // هنا لا نفعل شيئاً، فقط نترك الصفحة الحالية (ads-page) مقفولة.
+        // وبما أن الصفحة الرئيسية (main) والـ sub-menu مقفولين أصلاً،
+        // فالمستخدم سيعود مباشرة إلى الواجهة الرئيسية.
+        // هذا هو السلوك المطلوب: طلبات -> رجوع -> الرئيسية
+        console.log("العودة من الطلبات إلى الرئيسية");
+    }
+    // لو جايين من الأحياء (sub-menu-page) - الحالة الافتراضية القديمة
+    else {
+        // نفتح صفحة الأحياء
+        subMenuPage.style.display = 'block';
+    }
+    
+    // إعادة تعيين المتغيرات للحالة التالية
+    comingFromMenu = false;
+    // activeMenuSide نحتفظ به للرجوع للقائمة، ولكن يمكن إعادة تعيينه لاحقاً
+    // activeMenuSide = ''; // لا نعيد تعيينه هنا لأنه قد نحتاجه في رجوعات لاحقة
+}
+// ==========================================================
     function loadUserProfileData(phone) {
         db.ref('users/' + phone).once('value', snapshot => {
             const userData = snapshot.val();
@@ -2258,7 +2848,7 @@
     }
 
     function openUserAccount() {
-        const currentPhone = localStorage.getItem('borj_user_phone');
+        const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
         if (!currentPhone) {
             showToast("يرجى تسجيل الدخول أولاً");
             return;
@@ -2276,7 +2866,7 @@
 
     function verifyUserPassword() {
         const enteredPass = document.getElementById('pin-verify-input').value;
-        const currentPhone = localStorage.getItem('borj_user_phone');
+        const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
         
         db.ref('users/' + currentPhone).once('value', snapshot => {
             const userData = snapshot.val();
@@ -2344,7 +2934,7 @@
     }
 
     function saveUserChanges() {
-        const currentPhone = localStorage.getItem('borj_user_phone');
+        const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
         const newName = document.getElementById('edit-user-name').value;
         const newPhone = document.getElementById('new-phone-number').value;
         const newPass = document.getElementById('new-password').value;
@@ -2416,9 +3006,14 @@
                         showGlobalLoader(false);
                         showToast("✅ تم تحديث البيانات، يرجى تسجيل الدخول مرة أخرى");
                         
-                        localStorage.setItem('borj_user_phone', newPhone);
-                        localStorage.setItem('borj_user_name', newName);
-                        if (newPass) localStorage.setItem('borj_user_pass', newPass);
+                        if (localStorage.getItem('borj_user_phone') === currentPhone) {
+                            localStorage.setItem('borj_user_phone', newPhone);
+                            localStorage.setItem('borj_user_name', newName);
+                            if (newPass) localStorage.setItem('borj_user_pass', newPass);
+                        } else {
+                            sessionStorage.setItem('borj_session_phone', newPhone);
+                            sessionStorage.setItem('borj_session_name', newName);
+                        }
                         
                         setTimeout(() => {
                             closeUserAccount();
@@ -2432,10 +3027,13 @@
                 showGlobalLoader(false);
                 showToast("✅ تم تحديث البيانات بنجاح");
                 
-                if (newPass) {
-                    localStorage.setItem('borj_user_pass', newPass);
+                if (localStorage.getItem('borj_user_phone') === currentPhone) {
+                    if (newPass) localStorage.setItem('borj_user_pass', newPass);
+                    localStorage.setItem('borj_user_name', newName);
+                } else {
+                    if (newPass) sessionStorage.setItem('borj_session_pass', newPass);
+                    sessionStorage.setItem('borj_session_name', newName);
                 }
-                localStorage.setItem('borj_user_name', newName);
                 
                 document.getElementById('profile-name-display').innerText = newName;
                 document.getElementById('profile-name-edit').innerText = newName;
@@ -2459,7 +3057,7 @@
 
     (function() {
         const syncMyID = () => {
-            const phone = localStorage.getItem('borj_user_phone');
+            const phone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
             if (phone) myID = phone;
         };
         syncMyID();
@@ -2478,7 +3076,7 @@
         const originalRender = renderAdHTML;
         renderAdHTML = function(ad) {
             let html = originalRender(ad);
-            const currentPhone = localStorage.getItem('borj_user_phone');
+            const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
             if (ad.ownerId !== currentPhone && !isDevModeActive) {
                 html = html.replace(/<i class="fas fa-trash del-btn" onclick="moveToTrash\('[^']+'\)"><\/i>/, '');
                 html = html.replace(/<i class="fas fa-edit edit-btn" onclick="openEditAd\('[^']+'\)".*?><\/i>/, '');
@@ -2489,7 +3087,7 @@
         const originalVerifyPin = verifyPinBeforeDelete;
         verifyPinBeforeDelete = function() {
             const ad = currentAdsData[pendingDeleteKey];
-            const currentPhone = localStorage.getItem('borj_user_phone');
+            const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
             if (ad.ownerId !== currentPhone && !isDevModeActive) {
                 showToast("عذراً.. لا يمكنك حذف إعلان لا تملكه ❌");
                 document.getElementById('pin-modal').style.display = 'none';
@@ -2513,6 +3111,226 @@
             event.target.classList.toggle('active'); 
         };
     })();
+    
+    // ========== دوال الصفحات الجديدة ==========
+    
+    // فتح صفحة تفاعل المستخدمين
+    function openUserInteractionPage() {
+        // بنحدد المصدر (جايين من القائمة الجانبية)
+        comingFromMenu = true;
+        activeMenuSide = 'left';
+        
+        // بنخفي القائمة الجانبية بصرياً
+        document.body.classList.remove('menu-open-left');
+        document.querySelector('.overlay').style.display = 'none';
+        
+        const page = document.getElementById('user-interaction-page');
+        page.style.display = 'block';
+        loadUserInteractionData();
+        startEcgAnimation('user');
+    }
+    
+    // إغلاق صفحة تفاعل المستخدمين
+    function closeInteractionPage() {
+        document.getElementById('user-interaction-page').style.display = 'none';
+        stopEcgAnimation();
+        
+        // نرجع نفتح القائمة الجانبية
+        if (comingFromMenu && activeMenuSide) {
+            document.body.classList.add('menu-open-' + activeMenuSide);
+            document.querySelector('.overlay').style.display = 'block';
+        }
+    }
+    
+    // فتح صفحة إحصائيات التطبيق (للأدمن فقط)
+    function openGlobalStatsPage() {
+        // بنحدد المصدر (جايين من القائمة الجانبية)
+        comingFromMenu = true;
+        activeMenuSide = 'left';
+        
+        // بنخفي القائمة الجانبية بصرياً
+        document.body.classList.remove('menu-open-left');
+        document.querySelector('.overlay').style.display = 'none';
+        
+        const page = document.getElementById('global-stats-page');
+        page.style.display = 'block';
+        loadGlobalStatsData();
+        startEcgAnimation('global');
+    }
+    
+    // إغلاق صفحة إحصائيات التطبيق
+    function closeGlobalStatsPage() {
+        document.getElementById('global-stats-page').style.display = 'none';
+        stopEcgAnimation();
+        
+        // نرجع نفتح القائمة الجانبية
+        if (comingFromMenu && activeMenuSide) {
+            document.body.classList.add('menu-open-' + activeMenuSide);
+            document.querySelector('.overlay').style.display = 'block';
+        }
+    }
+    
+    // تحميل بيانات تفاعل المستخدم
+    function loadUserInteractionData() {
+        const currentPhone = localStorage.getItem('borj_user_phone') || sessionStorage.getItem('borj_session_phone');
+        if (!currentPhone) return;
+        
+        db.ref('users/' + currentPhone).once('value', snapshot => {
+            const userData = snapshot.val();
+            if (userData) {
+                userTotalAdViews = userData.totalAdViews || 0;
+                userTotalRequestViews = userData.totalRequestViews || 0;
+                
+                document.getElementById('user-total-ad-views').innerText = userTotalAdViews;
+                document.getElementById('user-total-request-views').innerText = userTotalRequestViews;
+            }
+        });
+        
+        // الاستماع للتحديثات الفورية
+        db.ref('users/' + currentPhone).on('value', snapshot => {
+            const userData = snapshot.val();
+            if (userData) {
+                document.getElementById('user-total-ad-views').innerText = userData.totalAdViews || 0;
+                document.getElementById('user-total-request-views').innerText = userData.totalRequestViews || 0;
+            }
+        });
+    }
+    
+    // تحميل الإحصائيات الشاملة
+    function loadGlobalStatsData() {
+        // حساب إجمالي المشاهدات من كل الإعلانات
+        let totalViews = 0;
+        allAdsCache.forEach(ad => {
+            totalViews += ad.views || 0;
+        });
+        
+        // حساب إجمالي الطلبات
+        let totalRequests = allRequestsCache.length;
+        
+        // الحصول على إجمالي الاتصالات والواتساب من Firebase
+        db.ref('calls').once('value', snapshot => {
+            let totalCalls = 0;
+            snapshot.forEach(child => {
+                totalCalls += child.val() || 0;
+            });
+            globalTotalCalls = totalCalls;
+            document.getElementById('global-total-calls').innerText = totalCalls;
+        });
+        
+        db.ref('whatsapp').once('value', snapshot => {
+            let totalWhatsapp = 0;
+            snapshot.forEach(child => {
+                totalWhatsapp += child.val() || 0;
+            });
+            globalTotalWhatsapp = totalWhatsapp;
+            document.getElementById('global-total-whatsapp').innerText = totalWhatsapp;
+        });
+        
+        globalTotalViews = totalViews;
+        globalTotalRequests = totalRequests;
+        
+        document.getElementById('global-total-views').innerText = totalViews;
+        document.getElementById('global-total-requests').innerText = totalRequests;
+        
+        // الاستماع للتحديثات الفورية
+        db.ref('ads').on('value', () => {
+            loadGlobalStatsData();
+        });
+        
+        db.ref('calls').on('value', () => {
+            loadGlobalStatsData();
+        });
+        
+        db.ref('whatsapp').on('value', () => {
+            loadGlobalStatsData();
+        });
+    }
+    
+    // تحديث الإحصائيات الشاملة
+    function updateGlobalStats() {
+        if (document.getElementById('global-stats-page').style.display === 'block') {
+            loadGlobalStatsData();
+        }
+    }
+    
+    // متغيرات للتحكم في حركة ECG
+    let ecgAnimation = null;
+    let ecgPhase = 0;
+    
+    // بدء حركة ECG
+    function startEcgAnimation(type) {
+        stopEcgAnimation();
+        
+        const canvasId = type === 'user' ? 'ecg-canvas-user' : 'ecg-canvas-global';
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        const midY = height / 2;
+        
+        ecgAnimation = setInterval(() => {
+            ctx.clearRect(0, 0, width, height);
+            ctx.strokeStyle = type === 'user' ? '#00ff88' : '#ff4757';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            // تحديد مستوى النشاط (بناءً على البيانات)
+            let activityLevel = 0.5; // مستوى افتراضي
+            
+            if (type === 'user') {
+                // مستوى النشاط بناءً على مشاهدات المستخدم
+                const total = userTotalAdViews + userTotalRequestViews;
+                activityLevel = Math.min(1, total / 100);
+            } else {
+                // مستوى النشاط بناءً على إجمالي المشاهدات
+                activityLevel = Math.min(1, globalTotalViews / 1000);
+            }
+            
+            // رسم موجة ECG
+            for (let x = 0; x < width; x += 5) {
+                const t = (x + ecgPhase) / 50;
+                
+                // محاكاة موجة القلب
+                let y = midY;
+                
+                // قمة P
+                if (t % 10 > 1 && t % 10 < 2) {
+                    y = midY - 20 * activityLevel * Math.sin((t % 10 - 1) * Math.PI);
+                }
+                // قمة QRS
+                else if (t % 10 > 3 && t % 10 < 4) {
+                    y = midY - 60 * activityLevel * Math.sin((t % 10 - 3) * Math.PI);
+                }
+                else if (t % 10 > 4 && t % 10 < 4.2) {
+                    y = midY + 10 * activityLevel;
+                }
+                else if (t % 10 > 4.2 && t % 10 < 4.4) {
+                    y = midY - 40 * activityLevel;
+                }
+                // قمة T
+                else if (t % 10 > 6 && t % 10 < 7) {
+                    y = midY - 15 * activityLevel * Math.sin((t % 10 - 6) * Math.PI);
+                }
+                
+                ctx.lineTo(x, y);
+            }
+            
+            ctx.stroke();
+            
+            ecgPhase = (ecgPhase + 1) % 100;
+        }, 50);
+    }
+    
+    // إيقاف حركة ECG
+    function stopEcgAnimation() {
+        if (ecgAnimation) {
+            clearInterval(ecgAnimation);
+            ecgAnimation = null;
+        }
+    }
+    // =========================================
 </script>
 </body>
 </html>
